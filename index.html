@@ -3,79 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EagleVision Workspace</title>
-    
+    <title>EagleVision - Join Session</title>
     <link rel="stylesheet" href="style.css">
-    
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
-<body>
+<body class="landing-body">
 
-    <nav>
-        <div class="nav-left">
-            <h1>EagleVision</h1>
-        </div>
-        <div class="nav-right">
-            <input type="text" id="sessionInput" class="code-input" placeholder="CODE" maxlength="6" autocomplete="off">
-            <button class="btn-join" onclick="startViewer()">JOIN</button>
-        </div>
-    </nav>
-
-    <div class="workspace">
+    <div class="landing-card">
+        <h1 class="logo-text">EagleVision</h1>
+        <p style="color: #aaa; margin-bottom: 30px;">Enter the 6-digit session code from the host device.</p>
         
-        <div class="feed-area">
-            <div class="video-wrapper">
-                <div class="live-tag" id="liveTag">LIVE FEED</div>
-                
-                <video id="remoteVideo" autoplay playsinline muted></video>
-                </div>
-            <div id="statusText" style="position: absolute; bottom: 10px; color: grey;">Waiting for input...</div>
+        <div class="input-group">
+            <input type="text" id="landingSessionInput" placeholder="CODE" maxlength="6" autocomplete="off">
         </div>
 
-        <div class="sidebar">
-            
-            <div id="adminPanel" class="panel-box" style="display: none; border-color: #ff4444;">
-                <div class="panel-title" style="color: #ff4444;">👨‍🏫 TEACHER CONTROLS</div>
-                <div style="color: #ddd; font-size: 14px;">
-                    <button class="btn-admin" onclick="alert('Kick feature coming soon!')">Kick Student</button>
-                    <button class="btn-admin" onclick="alert('Mute feature coming soon!')">Mute Stream</button>
-                    <div style="margin-top: 10px; font-size: 12px; color: #888;">Admin Access Active</div>
-                </div>
-            </div>
+        <button class="btn-primary" onclick="goToWorkspace()">ENTER SESSION</button>
 
-            <div class="panel-box">
-                <div class="panel-title">Session Data</div>
-                <div id="sessionData" style="color: #666; font-style: italic;">
-                    Not Connected<br>
-                    Resolution: 2K (QHD)
-                </div>
-            </div>
-            
-            <div class="panel-box" style="flex: 1;">
-                <div class="panel-title">Lab Notes</div>
-                <div style="color: #666; font-style: italic;">
-                    [Chat/Notes]
-                </div>
-            </div>
-
-            <div style="text-align: center; margin-top: 10px;">
-                <a href="#" onclick="openAdminModal()" style="color: #444; font-size: 12px; text-decoration: none;">Teacher Login</a>
-            </div>
-        </div>
+        <p id="landingError" style="color: #ff4444; display: none; margin-top: 15px;">Please enter a valid code.</p>
     </div>
 
-    <div id="adminModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="color: var(--eagle-gold); margin-top: 0;">TEACHER ACCESS</h3>
-            <p style="color: #ccc; font-size: 14px;">Enter the Admin Key shown on the Host Device.</p>
-            <input type="text" id="adminKeyInput" class="code-input" placeholder="ADM-XXXX" style="width: 100%; box-sizing: border-box; margin: 15px 0;">
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="btn-text" onclick="closeAdminModal()">CANCEL</button>
-                <button class="btn-join" onclick="submitAdminLogin()">UNLOCK</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        function goToWorkspace() {
+            const code = document.getElementById("landingSessionInput").value.trim();
+            if (code.length < 3) {
+                document.getElementById("landingError").style.display = "block";
+                return;
+            }
+            // Save code to browser storage so the next page can read it
+            sessionStorage.setItem("eagleSessionCode", code);
+            window.location.href = "workspace.html";
+        }
 
-    <script src="script.js"></script>
+        // Allow "Enter" key
+        document.getElementById("landingSessionInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") goToWorkspace();
+        });
+    </script>
 </body>
 </html>

@@ -1,150 +1,145 @@
+// CONFIGURATION
 const SIGNALING_SERVER_URL = "https://eaglevisionbackend-go8c.onrender.com"; 
 
+// --- VARIABLES ---
 let socket;
 let peerConnection;
 let currentRoomID = "";
 
+// --- ON LOAD: CHECK SESSION ---
+window.onload = function() {
+    // 1. Get Code from Landing Page
+    const code = sessionStorage.getItem("eagleSessionCode");
+    
+    // 2. Redirect if missing (Security)
+    if (!code) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    // 3. Update UI
+    currentRoomID = code;
+    document.getElementById("displaySessionCode").innerText = currentRoomID;
+
+    // 4. Start Connection
+    startConnection();
+};
+
+function leaveSession() {
+    sessionStorage.removeItem("eagleSessionCode");
+    window.location.href = "index.html";
+}
+
+/* --- TAB LOGIC --- */
+function switchTab(tabName) {
+    // 1. Hide all content
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+
+    // 2. Show selected
+    document.getElementById('tab-' + tabName).classList.add('active');
+    
+    // 3. Highlight Header (Admin is special case)
+    const headers = document.querySelectorAll('.tab');
+    if (tabName === 'gallery') headers[0].classList.add('active');
+    if (tabName === 'settings') headers[1].classList.add('active');
+    if (tabName === 'admin') document.getElementById('tabHeaderAdmin').classList.add('active');
+}
+
+function attemptAdminLogin() {
+    const key = document.getElementById("adminKeyInput").value.trim();
+    if(!key) return;
+
+    socket.emit("admin_login", { room: currentRoomID, key: key });
+}
+
+/* --- WEBRTC & SOCKET LOGIC --- */
 const rtcConfig = {
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
 };
 
-function startViewer() {
-    // 1. Get the Code
-    const inputVal = document.getElementById("sessionInput").value.trim();
-    if (inputVal.length < 3) {
-        alert("Please enter a valid Session Code.");
-        return;
-    }
-    currentRoomID = inputVal;
-
-    const statusEl = document.getElementById("statusText");
-    statusEl.innerText = "Connecting to " + currentRoomID + "...";
+function startConnection() {
+    const statusEl = document.getElementById("statusTag");
     
-    // 2. Connect to Server
-    if (socket) socket.disconnect(); 
     socket = io(SIGNALING_SERVER_URL);
 
-    // --- SOCKET LISTENERS ---
-
     socket.on("connect", () => {
-        console.log("Connected to Server. Joining room:", currentRoomID);
-        statusEl.innerText = "Server Found. Waiting for Video Stream...";
+        console.log("Connected. Joining room:", currentRoomID);
+        statusEl.innerText = "Searching for Host...";
         socket.emit("join_room", { room: currentRoomID });
     });
 
     socket.on("disconnect", () => {
-        statusEl.innerText = "Disconnected.";
+        statusEl.innerText = "Disconnected";
         document.getElementById("liveTag").style.display = "none";
     });
 
-    // VIDEO LOGIC
+    // --- VIDEO HANDLING ---
     socket.on("offer", async (sdp) => {
-        console.log("Creating Answer...");
-        statusEl.innerText = "Stream found! Negotiating...";
+        statusEl.innerText = "Negotiating...";
         
         if (peerConnection) peerConnection.close();
-        createPeerConnection();
+        peerConnection = new RTCPeerConnection(rtcConfig);
 
+        // Track Event
+        peerConnection.ontrack = (event) => {
+            console.log("Stream Received");
+            statusEl.innerText = ""; // Clear text
+            document.getElementById("liveTag").style.display = "block"; // Show Live Tag
+            
+            const vid = document.getElementById("remoteVideo");
+            if (event.streams && event.streams[0]) {
+                vid.srcObject = event.streams[0];
+            } else {
+                const stream = new MediaStream();
+                stream.addTrack(event.track);
+                vid.srcObject = stream;
+            }
+        };
+
+        // ICE Handling
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit("ice_candidate", {
+                    room: currentRoomID,
+                    candidate: {
+                        candidate: event.candidate.candidate,
+                        sdpMid: event.candidate.sdpMid,
+                        sdpMLineIndex: event.candidate.sdpMLineIndex
+                    }
+                });
+            }
+        };
+
+        // SDP Handshake
         try {
             await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: "offer", sdp: sdp }));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
-            
             socket.emit("answer", { room: currentRoomID, sdp: answer.sdp });
         } catch (err) { console.error("WebRTC Error:", err); }
     });
 
     socket.on("ice_candidate", (data) => {
         if (peerConnection) {
-            peerConnection.addIceCandidate(new RTCIceCandidate({
-                candidate: data.candidate,
-                sdpMid: data.sdpMid,
-                sdpMLineIndex: data.sdpMLineIndex
-            }));
+            try {
+                peerConnection.addIceCandidate(new RTCIceCandidate({
+                    candidate: data.candidate,
+                    sdpMid: data.sdpMid,
+                    sdpMLineIndex: data.sdpMLineIndex
+                }));
+            } catch (e) { console.error("ICE Error", e); }
         }
     });
 
-    // ADMIN LOGIC (Attached here to ensure they work)
+    // --- ADMIN EVENTS ---
     socket.on("admin_access_granted", () => {
-        alert("✅ Teacher Access GRANTED!");
-        document.getElementById("adminPanel").style.display = "block"; 
-        closeAdminModal(); // Only close on success
-        resetAdminButton();
+        alert("Teacher Access GRANTED");
+        document.getElementById("tabHeaderAdmin").style.display = "block"; // Show Tab
+        switchTab('admin'); // Auto-switch
     });
 
     socket.on("admin_access_denied", () => {
-        alert("❌ Access DENIED. Incorrect Key.");
-        resetAdminButton();
-        // Do NOT close modal, let them try again
+        alert("Incorrect Key");
     });
-}
-
-function createPeerConnection() {
-    peerConnection = new RTCPeerConnection(rtcConfig);
-
-    peerConnection.ontrack = (event) => {
-        console.log("Video Track Received!"); // We know this works
-        
-        // Update Status UI
-        document.getElementById("statusText").innerText = "";
-        document.getElementById("liveTag").style.display = "block";
-        document.getElementById("sessionData").innerHTML = "Connected to: " + currentRoomID + "<br>Resolution: 2K<br>Status: LIVE";
-        
-        const vid = document.getElementById("remoteVideo");
-        
-        // 1. Assign the stream
-        if (event.streams && event.streams[0]) {
-            vid.srcObject = event.streams[0];
-        } else {
-            const stream = new MediaStream();
-            stream.addTrack(event.track);
-            vid.srcObject = stream;
-        }
-
-        // 2. FORCE PLAY (The Fix)
-        // Browsers sometimes pause streams by default. We force it here.
-        vid.onloadedmetadata = () => {
-            console.log("Video Metadata loaded. Forcing play...");
-            vid.play().catch(e => console.error("Autoplay blocked:", e));
-        };
-    };
-
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit("ice_candidate", {
-                room: currentRoomID,
-                candidate: {
-                    candidate: event.candidate.candidate,
-                    sdpMid: event.candidate.sdpMid,
-                    sdpMLineIndex: event.candidate.sdpMLineIndex
-                }
-            });
-        }
-    };
-}
-
-/* --- ADMIN UI LOGIC --- */
-function openAdminModal() {
-    document.getElementById("adminModal").style.display = "flex";
-}
-
-function closeAdminModal() {
-    document.getElementById("adminModal").style.display = "none";
-}
-
-function submitAdminLogin() {
-    const key = document.getElementById("adminKeyInput").value.trim();
-    if (!key) return;
-
-    // Change button text to show we are working
-    const btn = document.querySelector("#adminModal .btn-join");
-    btn.innerText = "VERIFYING...";
-    
-    // Send to server
-    socket.emit("admin_login", { room: currentRoomID, key: key });
-}
-
-function resetAdminButton() {
-    const btn = document.querySelector("#adminModal .btn-join");
-    btn.innerText = "UNLOCK";
 }

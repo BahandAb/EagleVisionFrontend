@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EagleVision Workspace</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="workspace-body">
+
+    <div class="top-header">
+        <div class="header-left">
+            <h1 class="brand-title">EagleVision</h1>
+        </div>
+        <div class="header-right">
+            <div class="session-info">
+                <span id="displaySessionCode" class="session-code">LOADING...</span>
+                <div id="liveTag" class="tag-live" style="display: none;">● LIVE</div>
+                <div id="statusTag" class="tag-status">Connecting...</div>
+            </div>
+            <button class="btn-leave" onclick="leaveSession()">LEAVE</button>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        
+        <div class="feed-container">
+            <div class="video-frame">
+                <video id="remoteVideo" autoplay playsinline muted ></video>
+            </div>
+            
+            <div class="floating-toolbar">
+                <button class="tool-btn" title="Draw">
+                    <span class="material-icons">brush</span>
+                </button>
+                <button class="tool-btn" title="Label">
+                    <span class="material-icons">label</span>
+                </button>
+                <button class="tool-btn" title="Save to Gallery">
+                    <span class="material-icons">camera_alt</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar-container">
+            
+            <div class="control-deck">
+                <h3>Microscope Adjustments</h3>
+                
+                <div class="slider-group">
+                    <label>Brightness</label>
+                    <input type="range" min="0" max="100" value="50">
+                </div>
+                <div class="slider-group">
+                    <label>Contrast</label>
+                    <input type="range" min="0" max="100" value="50">
+                </div>
+
+                <div class="checkbox-group">
+                    <label><input type="checkbox"> Invert Colors</label>
+                    <label><input type="checkbox"> Grid Overlay</label>
+                    <label><input type="checkbox"> Scale Bar (100μm)</label>
+                </div>
+
+                <hr style="border-color: #333; margin: 15px 0;">
+
+                <h3>Host Requests</h3>
+                <div class="request-buttons">
+                    <button class="btn-request disabled" title="Ask Host for High-Res Photo">
+                        <span class="material-icons">photo_camera</span> Request 4K Photo
+                    </button>
+                    <button class="btn-request disabled" title="Ask Host for Video Clip">
+                        <span class="material-icons">videocam</span> Request Video
+                    </button>
+                </div>
+                <p style="font-size: 11px; color: #666; margin-top: 5px;">*Requests currently disabled by instructor.</p>
+            </div>
+
+            <div class="tab-deck">
+                <div class="tabs-header">
+                    <div class="tab active" onclick="switchTab('gallery')">Gallery</div>
+                    <div class="tab" onclick="switchTab('settings')">Settings</div>
+                    <div id="tabHeaderAdmin" class="tab tab-admin" style="display: none;" onclick="switchTab('admin')">ADMIN</div>
+                </div>
+
+                <div id="tab-gallery" class="tab-content active">
+                    <div class="empty-state">
+                        <span class="material-icons" style="font-size: 48px; color: #333;">collections</span>
+                        <p>Snapshots will appear here.</p>
+                    </div>
+                </div>
+
+                <div id="tab-settings" class="tab-content">
+                    <h3>App Settings</h3>
+                    <div class="setting-item">
+                        <label>Theme</label>
+                        <select class="dark-select">
+                            <option>Dark Mode</option>
+                            <option>Light Mode</option>
+                        </select>
+                    </div>
+                    <hr style="border-color: #333; margin: 20px 0;">
+                    <h3>Teacher Access</h3>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 10px;">Enter the key from the host device.</p>
+                    <div class="input-group-small">
+                        <input type="text" id="adminKeyInput" placeholder="ADM-XXXX">
+                        <button class="btn-small" onclick="attemptAdminLogin()">UNLOCK</button>
+                    </div>
+                </div>
+
+                <div id="tab-admin" class="tab-content">
+                    <h3 style="color: #ff4444;">Classroom Controls</h3>
+                    
+                    <div class="setting-item" style="margin-bottom: 15px;">
+                        <label>Allow Student Requests</label>
+                        <input type="checkbox" id="adminAllowRequests">
+                    </div>
+
+                    <button class="btn-admin-action">
+                        <span class="material-icons">mic_off</span> Mute Stream
+                    </button>
+                    <button class="btn-admin-action">
+                        <span class="material-icons">block</span> Kick Viewer
+                    </button>
+                    <div class="admin-status">Authorized as Instructor</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
