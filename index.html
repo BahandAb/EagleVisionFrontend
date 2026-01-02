@@ -5,38 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision - Join Session</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="landing-body">
 
     <div class="landing-card">
         <h1 class="logo-text">EagleVision</h1>
-        <p style="color: #aaa; margin-bottom: 30px;">Enter the 6-digit session code from the host device.</p>
+        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Connect to a live microscope session.</p>
         
         <div class="input-group">
-            <input type="text" id="landingSessionInput" placeholder="CODE" maxlength="6" autocomplete="off">
+            <input type="text" id="landingSessionInput" placeholder="CODE (e.g. 123456)" maxlength="8" autocomplete="off">
+            <input type="text" id="landingNameInput" placeholder="YOUR NAME" maxlength="15" autocomplete="off" style="font-size: 18px; margin-top: 5px;">
         </div>
 
-        <button class="btn-primary" onclick="goToWorkspace()">ENTER SESSION</button>
+        <div style="margin-top: 15px; text-align: left;">
+            <div onclick="toggleAdminInput()" style="cursor: pointer; display: flex; align-items: center; color: #666; font-size: 12px; gap: 5px;">
+                <span class="material-icons" style="font-size: 16px;">vpn_key</span>
+                <span>I am the Instructor</span>
+            </div>
+            
+            <div id="adminInputDiv" style="display: none; margin-top: 10px;">
+                <input type="password" id="landingAdminKey" placeholder="Admin Key" 
+                       style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #444; background: #222; color: white;">
+            </div>
+        </div>
 
-        <p id="landingError" style="color: #ff4444; display: none; margin-top: 15px;">Please enter a valid code.</p>
+        <button class="btn-primary" onclick="goToWorkspace()">JOIN SESSION</button>
+
+        <p id="landingError" style="color: #ff4444; display: none; margin-top: 15px; font-size: 14px;"></p>
     </div>
 
     <script>
-        function goToWorkspace() {
-            const code = document.getElementById("landingSessionInput").value.trim();
-            if (code.length < 3) {
-                document.getElementById("landingError").style.display = "block";
-                return;
-            }
-            // Save code to browser storage so the next page can read it
-            sessionStorage.setItem("eagleSessionCode", code);
-            window.location.href = "workspace.html";
+        function toggleAdminInput() {
+            const div = document.getElementById("adminInputDiv");
+            div.style.display = (div.style.display === "none") ? "block" : "none";
         }
 
-        // Allow "Enter" key
-        document.getElementById("landingSessionInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") goToWorkspace();
-        });
+        function goToWorkspace() {
+            const code = document.getElementById("landingSessionInput").value.trim();
+            const name = document.getElementById("landingNameInput").value.trim();
+            const adminKey = document.getElementById("landingAdminKey").value.trim();
+            const err = document.getElementById("landingError");
+
+            if (code.length < 3) {
+                err.innerText = "Invalid Session Code";
+                err.style.display = "block";
+                return;
+            }
+            if (name.length < 2) {
+                err.innerText = "Please enter your Name";
+                err.style.display = "block";
+                return;
+            }
+
+            // Save Data
+            sessionStorage.setItem("eagleSessionCode", code);
+            sessionStorage.setItem("eagleUserName", name);
+            if(adminKey) {
+                sessionStorage.setItem("eagleAdminKey", adminKey); // Save key for auto-login
+            }
+
+            window.location.href = "workspace.html";
+        }
     </script>
 </body>
 </html>

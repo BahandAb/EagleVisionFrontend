@@ -1,72 +1,83 @@
-// CONFIGURATION
 const SIGNALING_SERVER_URL = "https://eaglevisionbackend-go8c.onrender.com"; 
 
-// --- VARIABLES ---
 let socket;
 let peerConnection;
 let currentRoomID = "";
+let currentUserName = "Anonymous";
+let currentAdminKey = ""; // Stored if user is teacher
 
-// --- ON LOAD: CHECK SESSION ---
 window.onload = function() {
-    // 1. Get Code from Landing Page
+    // 1. Retrieve Data
     const code = sessionStorage.getItem("eagleSessionCode");
-    
-    // 2. Redirect if missing (Security)
-    if (!code) {
+    const name = sessionStorage.getItem("eagleUserName");
+    const savedKey = sessionStorage.getItem("eagleAdminKey"); // Check for auto-login
+
+    if (!code || !name) {
         window.location.href = "index.html";
         return;
     }
 
-    // 3. Update UI
     currentRoomID = code;
+    currentUserName = name;
+    if (savedKey) currentAdminKey = savedKey;
+
     document.getElementById("displaySessionCode").innerText = currentRoomID;
 
-    // 4. Start Connection
     startConnection();
 };
 
 function leaveSession() {
-    sessionStorage.removeItem("eagleSessionCode");
+    sessionStorage.clear();
     window.location.href = "index.html";
 }
 
-/* --- TAB LOGIC --- */
 function switchTab(tabName) {
-    // 1. Hide all content
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-
-    // 2. Show selected
     document.getElementById('tab-' + tabName).classList.add('active');
     
-    // 3. Highlight Header (Admin is special case)
+    // Header Highlighting
     const headers = document.querySelectorAll('.tab');
     if (tabName === 'gallery') headers[0].classList.add('active');
-    if (tabName === 'settings') headers[1].classList.add('active');
+    if (tabName === 'people') headers[1].classList.add('active'); // NEW
+    if (tabName === 'settings') headers[2].classList.add('active'); // Shifted index
     if (tabName === 'admin') document.getElementById('tabHeaderAdmin').classList.add('active');
 }
 
 function attemptAdminLogin() {
+    // If called manually from Settings tab
     const key = document.getElementById("adminKeyInput").value.trim();
     if(!key) return;
-
+    currentAdminKey = key; // Save it locally
     socket.emit("admin_login", { room: currentRoomID, key: key });
 }
 
-/* --- WEBRTC & SOCKET LOGIC --- */
-const rtcConfig = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-};
+function kickUser(targetSid) {
+    if (!currentAdminKey) return;
+    if (confirm("Are you sure you want to kick this student?")) {
+        socket.emit("kick_student", { 
+            room: currentRoomID, 
+            key: currentAdminKey, 
+            target_sid: targetSid 
+        });
+    }
+}
+
+const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
 function startConnection() {
     const statusEl = document.getElementById("statusTag");
-    
     socket = io(SIGNALING_SERVER_URL);
 
     socket.on("connect", () => {
-        console.log("Connected. Joining room:", currentRoomID);
-        statusEl.innerText = "Searching for Host...";
-        socket.emit("join_room", { room: currentRoomID });
+        statusEl.innerText = "Joining...";
+        // SEND NAME ON JOIN
+        socket.emit("join_room", { room: currentRoomID, username: currentUserName });
+        
+        // AUTO-LOGIN AS ADMIN if key exists
+        if (currentAdminKey) {
+            socket.emit("admin_login", { room: currentRoomID, key: currentAdminKey });
+        }
     });
 
     socket.on("disconnect", () => {
@@ -74,30 +85,71 @@ function startConnection() {
         document.getElementById("liveTag").style.display = "none";
     });
 
+    // --- ROSTER UPDATE ---
+    // --- ROSTER UPDATE ---
+    socket.on("roster_update", (roster) => {
+        const listEl = document.getElementById("studentRosterList");
+        const countEl = document.getElementById("studentCount");
+        listEl.innerHTML = "";
+        
+        let count = 0;
+        for (const [sid, name] of Object.entries(roster)) {
+            count++;
+            if (sid === socket.id) continue; // Don't list myself? (Optional)
+
+            const item = document.createElement("div");
+            item.className = "roster-item";
+            
+            // LOGIC: Only show Kick button if I am the Admin
+            let actionButton = "";
+            if (currentAdminKey) {
+                actionButton = `<button class="btn-kick" onclick="kickUser('${sid}')">KICK</button>`;
+            }
+
+            item.innerHTML = `
+                <span style="color: #ddd;">${name}</span>
+                ${actionButton}
+            `;
+            listEl.appendChild(item);
+        }
+        countEl.innerText = `(${count})`;
+    });
+
+    // CRITICAL: We also need to refresh the list when Admin Login succeeds
+    // so the buttons appear instantly without waiting for a new user to join.
+    socket.on("admin_access_granted", () => {
+        document.getElementById("tabHeaderAdmin").style.display = "block"; 
+        
+        // Re-request roster or just set flag? 
+        // Since we store the key in 'currentAdminKey', the next roster update will have buttons.
+        // To force an update immediately, we can ask the server, or just wait. 
+        // For better UX, let's just switch tabs for now.
+        switchTab('admin');
+    });
+    // --- KICKED HANDLER ---
+    socket.on("kicked", () => {
+        alert("You have been removed from the session by the instructor.");
+        leaveSession();
+    });
+
     // --- VIDEO HANDLING ---
     socket.on("offer", async (sdp) => {
         statusEl.innerText = "Negotiating...";
-        
         if (peerConnection) peerConnection.close();
         peerConnection = new RTCPeerConnection(rtcConfig);
 
-        // Track Event
         peerConnection.ontrack = (event) => {
-            console.log("Stream Received");
-            statusEl.innerText = ""; // Clear text
-            document.getElementById("liveTag").style.display = "block"; // Show Live Tag
-            
+            statusEl.innerText = ""; 
+            document.getElementById("liveTag").style.display = "block";
             const vid = document.getElementById("remoteVideo");
-            if (event.streams && event.streams[0]) {
-                vid.srcObject = event.streams[0];
-            } else {
+            if (event.streams && event.streams[0]) vid.srcObject = event.streams[0];
+            else {
                 const stream = new MediaStream();
                 stream.addTrack(event.track);
                 vid.srcObject = stream;
             }
         };
 
-        // ICE Handling
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
                 socket.emit("ice_candidate", {
@@ -111,7 +163,6 @@ function startConnection() {
             }
         };
 
-        // SDP Handshake
         try {
             await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: "offer", sdp: sdp }));
             const answer = await peerConnection.createAnswer();
@@ -132,14 +183,17 @@ function startConnection() {
         }
     });
 
-    // --- ADMIN EVENTS ---
-    socket.on("admin_access_granted", () => {
-        alert("Teacher Access GRANTED");
-        document.getElementById("tabHeaderAdmin").style.display = "block"; // Show Tab
-        switchTab('admin'); // Auto-switch
+    socket.on("session_ended", () => {
+        alert("The Host has ended the session.");
+        leaveSession();
     });
 
-    socket.on("admin_access_denied", () => {
-        alert("Incorrect Key");
+    // --- ADMIN EVENTS ---
+    socket.on("admin_access_granted", () => {
+        document.getElementById("tabHeaderAdmin").style.display = "block"; 
+        // If we are on the landing page flow, auto-switch to admin tab? 
+        // Or just let them click it. For now, let's auto-switch to confirm it worked.
+        switchTab('admin');
+        console.log("Admin Access Granted");
     });
 }

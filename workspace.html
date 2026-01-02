@@ -81,6 +81,7 @@
             <div class="tab-deck">
                 <div class="tabs-header">
                     <div class="tab active" onclick="switchTab('gallery')">Gallery</div>
+                    <div class="tab" onclick="switchTab('people')">People</div>
                     <div class="tab" onclick="switchTab('settings')">Settings</div>
                     <div id="tabHeaderAdmin" class="tab tab-admin" style="display: none;" onclick="switchTab('admin')">ADMIN</div>
                 </div>
@@ -89,6 +90,15 @@
                     <div class="empty-state">
                         <span class="material-icons" style="font-size: 48px; color: #333;">collections</span>
                         <p>Snapshots will appear here.</p>
+                    </div>
+                </div>
+
+                <div id="tab-people" class="tab-content">
+                    <h3>Session Members <span id="studentCount" style="color: #666; font-size: 14px;">(0)</span></h3>
+                    <div id="studentRosterList" class="roster-list">
+                        <div style="text-align: center; color: #555; padding: 10px; font-style: italic;">
+                            Waiting for students...
+                        </div>
                     </div>
                 </div>
 
@@ -103,7 +113,6 @@
                     </div>
                     <hr style="border-color: #333; margin: 20px 0;">
                     <h3>Teacher Access</h3>
-                    <p style="font-size: 12px; color: #888; margin-bottom: 10px;">Enter the key from the host device.</p>
                     <div class="input-group-small">
                         <input type="text" id="adminKeyInput" placeholder="ADM-XXXX">
                         <button class="btn-small" onclick="attemptAdminLogin()">UNLOCK</button>
@@ -112,20 +121,16 @@
 
                 <div id="tab-admin" class="tab-content">
                     <h3 style="color: #ff4444;">Classroom Controls</h3>
-                    
                     <div class="setting-item" style="margin-bottom: 15px;">
-                        <label>Allow Student Requests</label>
+                        <label>Allow Requests</label>
                         <input type="checkbox" id="adminAllowRequests">
                     </div>
-
                     <button class="btn-admin-action">
                         <span class="material-icons">mic_off</span> Mute Stream
                     </button>
-                    <button class="btn-admin-action">
-                        <span class="material-icons">block</span> Kick Viewer
-                    </button>
                     <div class="admin-status">Authorized as Instructor</div>
                 </div>
+            </div>
             </div>
 
         </div>
