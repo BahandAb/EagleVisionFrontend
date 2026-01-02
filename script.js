@@ -5,6 +5,7 @@ let peerConnection;
 let currentRoomID = "";
 let currentUserName = "Anonymous";
 let currentAdminKey = ""; // Stored if user is teacher
+let latestRoster = {}; // Store roster locally so we can re-render anytime
 
 window.onload = function() {
     // 1. Retrieve Data
