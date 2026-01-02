@@ -1,0 +1,201 @@
+/* --- THEME VARS --- */
+:root {
+    --eagle-gold: #FFD700;
+    --eagle-navy: #002654;
+    --eagle-dark: #0a0f1c;
+    --eagle-panel: #161b2e;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--eagle-dark);
+    color: var(--text-main);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- NAVBAR --- */
+nav {
+    height: 70px;
+    background-color: var(--eagle-navy);
+    border-bottom: 2px solid var(--eagle-gold);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.nav-left h1 {
+    margin: 0;
+    color: var(--eagle-gold);
+    font-size: 24px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.code-input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #ffffff33;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-align: center;
+    width: 120px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.code-input:focus {
+    border-color: var(--eagle-gold);
+}
+
+.btn-join {
+    background-color: var(--eagle-gold);
+    color: var(--eagle-navy);
+    border: none;
+    padding: 10px 25px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-join:hover {
+    background-color: #ffe44d;
+    transform: translateY(-1px);
+}
+
+/* --- WORKSPACE --- */
+.workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Feed Area */
+.feed-area {
+    flex: 3;
+    background-color: var(--eagle-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+.video-wrapper {
+    width: 100%;
+    max-width: 85vh;
+    aspect-ratio: 1 / 1;
+    background: black;
+    border: 3px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.live-tag {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    display: none;
+}
+
+/* Sidebar */
+.sidebar {
+    flex: 1;
+    background-color: var(--eagle-panel);
+    border-left: 1px solid #333;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.panel-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 150px;
+}
+
+.panel-title {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+/* --- ADMIN & MODALS --- */
+.modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-box {
+    background: var(--eagle-panel);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--eagle-gold);
+    width: 300px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn-text:hover { color: white; }
+
+.btn-admin {
+    background: #4a1515;
+    color: #ff9999;
+    border: 1px solid #ff4444;
+    padding: 8px;
+    width: 100%;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-admin:hover { background: #661a1a; }
