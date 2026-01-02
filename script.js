@@ -5,13 +5,12 @@ let peerConnection;
 let currentRoomID = "";
 let currentUserName = "Anonymous";
 let currentAdminKey = ""; // Stored if user is teacher
-let latestRoster = {}; // Store roster locally so we can re-render anytime
+let latestRoster = {};    // Global store for the roster list
 
 window.onload = function() {
-    // 1. Retrieve Data
     const code = sessionStorage.getItem("eagleSessionCode");
     const name = sessionStorage.getItem("eagleUserName");
-    const savedKey = sessionStorage.getItem("eagleAdminKey"); // Check for auto-login
+    const savedKey = sessionStorage.getItem("eagleAdminKey");
 
     if (!code || !name) {
         window.location.href = "index.html";
@@ -35,21 +34,22 @@ function leaveSession() {
 function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('tab-' + tabName).classList.add('active');
     
-    // Header Highlighting
+    const content = document.getElementById('tab-' + tabName);
+    if (content) content.classList.add('active');
+    
+    // Header Highlighting logic
     const headers = document.querySelectorAll('.tab');
     if (tabName === 'gallery') headers[0].classList.add('active');
-    if (tabName === 'people') headers[1].classList.add('active'); // NEW
-    if (tabName === 'settings') headers[2].classList.add('active'); // Shifted index
+    if (tabName === 'people') headers[1].classList.add('active');
+    if (tabName === 'settings') headers[2].classList.add('active');
     if (tabName === 'admin') document.getElementById('tabHeaderAdmin').classList.add('active');
 }
 
 function attemptAdminLogin() {
-    // If called manually from Settings tab
     const key = document.getElementById("adminKeyInput").value.trim();
     if(!key) return;
-    currentAdminKey = key; // Save it locally
+    currentAdminKey = key; 
     socket.emit("admin_login", { room: currentRoomID, key: key });
 }
 
@@ -72,10 +72,8 @@ function startConnection() {
 
     socket.on("connect", () => {
         statusEl.innerText = "Joining...";
-        // SEND NAME ON JOIN
         socket.emit("join_room", { room: currentRoomID, username: currentUserName });
         
-        // AUTO-LOGIN AS ADMIN if key exists
         if (currentAdminKey) {
             socket.emit("admin_login", { room: currentRoomID, key: currentAdminKey });
         }
@@ -86,48 +84,57 @@ function startConnection() {
         document.getElementById("liveTag").style.display = "none";
     });
 
-    // --- ROSTER UPDATE ---
-    // --- ROSTER UPDATE ---
+    // --- ROSTER LOGIC ---
     socket.on("roster_update", (roster) => {
-        const listEl = document.getElementById("studentRosterList");
-        const countEl = document.getElementById("studentCount");
-        listEl.innerHTML = "";
-        
-        let count = 0;
-        for (const [sid, name] of Object.entries(roster)) {
-            count++;
-            if (sid === socket.id) continue; // Don't list myself? (Optional)
-
-            const item = document.createElement("div");
-            item.className = "roster-item";
-            
-            // LOGIC: Only show Kick button if I am the Admin
-            let actionButton = "";
-            if (currentAdminKey) {
-                actionButton = `<button class="btn-kick" onclick="kickUser('${sid}')">KICK</button>`;
-            }
-
-            item.innerHTML = `
-                <span style="color: #ddd;">${name}</span>
-                ${actionButton}
-            `;
-            listEl.appendChild(item);
-        }
-        countEl.innerText = `(${count})`;
+        latestRoster = roster; 
+        renderRosterUI();
     });
 
-    // CRITICAL: We also need to refresh the list when Admin Login succeeds
-    // so the buttons appear instantly without waiting for a new user to join.
-    socket.on("admin_access_granted", () => {
-        document.getElementById("tabHeaderAdmin").style.display = "block"; 
+    function renderRosterUI() {
+    const listEl = document.getElementById("studentRosterList");
+    const countEl = document.getElementById("studentCount");
+    listEl.innerHTML = "";
+    
+    let count = 0;
+    for (const [sid, userData] of Object.entries(latestRoster)) {
+        count++;
+        const isMe = (sid === socket.id);
+        const isAdmin = (userData.role === "admin"); // Check role from server
         
-        // Re-request roster or just set flag? 
-        // Since we store the key in 'currentAdminKey', the next roster update will have buttons.
-        // To force an update immediately, we can ask the server, or just wait. 
-        // For better UX, let's just switch tabs for now.
+        const item = document.createElement("div");
+        item.className = "roster-item";
+        if (isMe) item.style.backgroundColor = "rgba(255, 215, 0, 0.05)";
+
+        // 1. Name + "You" label
+        let nameHTML = `<span style="color: ${isMe ? '#FFD700' : '#ddd'};">
+            ${userData.name}${isMe ? ' (You)' : ''}
+        </span>`;
+        
+        // 2. Verified Badge (Now shows for anyone who is an admin!)
+        if (isAdmin) {
+            nameHTML += `<span class="material-icons" style="font-size: 16px; color: #FFD700; margin-left: 5px; vertical-align: middle;" title="Instructor">verified</span>`;
+        }
+
+        // 3. Kick Button (Only I see it, and only if I am an admin)
+        let actionButton = "";
+        if (currentAdminKey && !isMe) {
+            actionButton = `<button class="btn-kick" onclick="kickUser('${sid}')">KICK</button>`;
+        }
+
+        item.innerHTML = `<div>${nameHTML}</div>${actionButton}`;
+        listEl.appendChild(item);
+    }
+    countEl.innerText = `(${count})`;
+}
+
+    // --- ADMIN EVENTS ---
+    socket.on("admin_access_granted", () => {
+        console.log("Admin Access Granted");
+        document.getElementById("tabHeaderAdmin").style.display = "block"; 
+        renderRosterUI(); // Refresh list to show kick buttons immediately
         switchTab('admin');
     });
-    // --- KICKED HANDLER ---
+
     socket.on("kicked", () => {
         alert("You have been removed from the session by the instructor.");
         leaveSession();
@@ -187,14 +194,5 @@ function startConnection() {
     socket.on("session_ended", () => {
         alert("The Host has ended the session.");
         leaveSession();
-    });
-
-    // --- ADMIN EVENTS ---
-    socket.on("admin_access_granted", () => {
-        document.getElementById("tabHeaderAdmin").style.display = "block"; 
-        // If we are on the landing page flow, auto-switch to admin tab? 
-        // Or just let them click it. For now, let's auto-switch to confirm it worked.
-        switchTab('admin');
-        console.log("Admin Access Granted");
     });
 }
