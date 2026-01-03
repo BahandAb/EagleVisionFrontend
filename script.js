@@ -4,8 +4,8 @@ let socket;
 let peerConnection;
 let currentRoomID = "";
 let currentUserName = "Anonymous";
-let currentAdminKey = ""; // Stored if user is teacher
-let latestRoster = {};    // Global store for the roster list
+let currentAdminKey = ""; 
+let latestRoster = {};
 
 window.onload = function() {
     const code = sessionStorage.getItem("eagleSessionCode");
@@ -84,54 +84,48 @@ function startConnection() {
         document.getElementById("liveTag").style.display = "none";
     });
 
-    // --- ROSTER LOGIC ---
     socket.on("roster_update", (roster) => {
         latestRoster = roster; 
         renderRosterUI();
     });
 
     function renderRosterUI() {
-    const listEl = document.getElementById("studentRosterList");
-    const countEl = document.getElementById("studentCount");
-    listEl.innerHTML = "";
-    
-    let count = 0;
-    for (const [sid, userData] of Object.entries(latestRoster)) {
-        count++;
-        const isMe = (sid === socket.id);
-        const isAdmin = (userData.role === "admin"); // Check role from server
+        const listEl = document.getElementById("studentRosterList");
+        const countEl = document.getElementById("studentCount");
+        listEl.innerHTML = "";
         
-        const item = document.createElement("div");
-        item.className = "roster-item";
-        if (isMe) item.style.backgroundColor = "rgba(255, 215, 0, 0.05)";
+        let count = 0;
+        for (const [sid, userData] of Object.entries(latestRoster)) {
+            count++;
+            const isMe = (sid === socket.id);
+            const isAdmin = (userData.role === "admin"); 
+            
+            const item = document.createElement("div");
+            item.className = "roster-item";
+            if (isMe) item.style.backgroundColor = "rgba(255, 215, 0, 0.05)";
 
-        // 1. Name + "You" label
-        let nameHTML = `<span style="color: ${isMe ? '#FFD700' : '#ddd'};">
-            ${userData.name}${isMe ? ' (You)' : ''}
-        </span>`;
-        
-        // 2. Verified Badge (Now shows for anyone who is an admin!)
-        if (isAdmin) {
-            nameHTML += `<span class="material-icons" style="font-size: 16px; color: #FFD700; margin-left: 5px; vertical-align: middle;" title="Instructor">verified</span>`;
+            let nameHTML = `<span style="color: ${isMe ? '#FFD700' : '#ddd'};">
+                ${userData.name}${isMe ? ' (You)' : ''}
+            </span>`;
+            
+            if (isAdmin) {
+                nameHTML += `<span class="material-icons" style="font-size: 16px; color: #FFD700; margin-left: 5px; vertical-align: middle;" title="Instructor">verified</span>`;
+            }
+
+            let actionButton = "";
+            if (currentAdminKey && !isMe) {
+                actionButton = `<button class="btn-kick" onclick="kickUser('${sid}')">KICK</button>`;
+            }
+
+            item.innerHTML = `<div>${nameHTML}</div>${actionButton}`;
+            listEl.appendChild(item);
         }
-
-        // 3. Kick Button (Only I see it, and only if I am an admin)
-        let actionButton = "";
-        if (currentAdminKey && !isMe) {
-            actionButton = `<button class="btn-kick" onclick="kickUser('${sid}')">KICK</button>`;
-        }
-
-        item.innerHTML = `<div>${nameHTML}</div>${actionButton}`;
-        listEl.appendChild(item);
+        countEl.innerText = `(${count})`;
     }
-    countEl.innerText = `(${count})`;
-}
 
-    // --- ADMIN EVENTS ---
     socket.on("admin_access_granted", () => {
-        console.log("Admin Access Granted");
         document.getElementById("tabHeaderAdmin").style.display = "block"; 
-        renderRosterUI(); // Refresh list to show kick buttons immediately
+        renderRosterUI(); 
         switchTab('admin');
     });
 
@@ -140,23 +134,39 @@ function startConnection() {
         leaveSession();
     });
 
-    // --- VIDEO HANDLING ---
     socket.on("offer", async (sdp) => {
         statusEl.innerText = "Negotiating...";
         if (peerConnection) peerConnection.close();
         peerConnection = new RTCPeerConnection(rtcConfig);
 
+        // --- UPDATED TRACK HANDLING ---
         peerConnection.ontrack = (event) => {
+            console.log("Stream received!"); 
             statusEl.innerText = ""; 
             document.getElementById("liveTag").style.display = "block";
+            
             const vid = document.getElementById("remoteVideo");
-            if (event.streams && event.streams[0]) vid.srcObject = event.streams[0];
-            else {
+            
+            if (event.streams && event.streams[0]) {
+                vid.srcObject = event.streams[0];
+            } else {
                 const stream = new MediaStream();
                 stream.addTrack(event.track);
                 vid.srcObject = stream;
             }
+
+            // FORCE PLAY: Sometimes browsers pause autoplay if user hasn't interacted
+            vid.play().catch(e => {
+                console.warn("Autoplay blocked, waiting for interaction", e);
+                statusEl.innerText = "Click video to play";
+                // If blocked, add a click listener to the body to start it
+                document.body.addEventListener('click', () => {
+                    vid.play();
+                    statusEl.innerText = "";
+                }, { once: true });
+            });
         };
+        // -----------------------------
 
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
