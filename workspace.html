@@ -5,134 +5,248 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision Workspace</title>
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://docs.opencv.org/4.5.4/opencv.js" async></script> 
+    <script src="img_processor.js"></script> 
+    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
-<body class="workspace-body">
+<body>
 
     <div class="top-header">
         <div class="header-left">
-            <h1 class="brand-title">EagleVision</h1>
+            <span class="brand-title">EagleVision</span>
         </div>
         <div class="header-right">
-            <div class="session-info">
-                <span id="displaySessionCode" class="session-code">LOADING...</span>
-                <div id="liveTag" class="tag-live" style="display: none;">● LIVE</div>
-                <div id="statusTag" class="tag-status">Connecting...</div>
-            </div>
-            <button class="btn-leave" onclick="leaveSession()">LEAVE</button>
+            <span id="displaySessionCode" class="session-code">...</span>
+            <div id="statusTag" class="tag-live" style="display: none;">● LIVE</div>
+            <button class="btn-leave" onclick="leaveSession()">EXIT</button>
         </div>
     </div>
 
-    <div class="main-grid">
+    <div class="main-layout">
         
-        <div class="feed-container">
-            <div class="video-frame">
-                <video id="remoteVideo" autoplay playsinline muted ></video>
+        <div class="activity-bar">
+            <div class="activity-icon active" onclick="togglePanel('tools')" title="Tools">
+                <span class="material-icons">brush</span>
             </div>
-            
-            <div class="floating-toolbar">
-                <button class="tool-btn" title="Draw">
-                    <span class="material-icons">brush</span>
-                </button>
-                <button class="tool-btn" title="Label">
-                    <span class="material-icons">label</span>
-                </button>
-                <button class="tool-btn" title="Save to Gallery">
-                    <span class="material-icons">camera_alt</span>
-                </button>
+            <div class="activity-icon" onclick="togglePanel('adjustments')" title="Image Adjustments">
+                <span class="material-icons">tune</span>
+            </div>
+            <div class="activity-icon" onclick="togglePanel('gallery')" title="Gallery">
+                <span class="material-icons">photo_library</span>
+            </div>
+            <div class="activity-icon" onclick="togglePanel('people')" title="Roster">
+                <span class="material-icons">group</span>
+            </div>
+            <div class="activity-icon" onclick="togglePanel('settings')" title="Settings">
+                <span class="material-icons">settings</span>
+            </div>
+            <div style="flex:1"></div>
+            <div class="activity-icon" onclick="togglePanel('code')" title="Developer Mode">
+                <span class="material-icons">code</span>
             </div>
         </div>
 
-        <div class="sidebar-container">
+        <div id="sidePanel" class="side-panel">
             
-            <div class="control-deck">
-                <h3>Microscope Adjustments</h3>
+            <div id="panel-tools" class="panel-content active">
+                <div class="panel-header">Annotation Tools</div>
                 
-                <div class="slider-group">
-                    <label>Brightness</label>
-                    <input type="range" min="0" max="100" value="50">
-                </div>
-                <div class="slider-group">
-                    <label>Contrast</label>
-                    <input type="range" min="0" max="100" value="50">
-                </div>
-
-                <div class="checkbox-group">
-                    <label><input type="checkbox"> Invert Colors</label>
-                    <label><input type="checkbox"> Grid Overlay</label>
-                    <label><input type="checkbox"> Scale Bar (100μm)</label>
-                </div>
-
-                <hr style="border-color: #333; margin: 15px 0;">
-
-                <h3>Host Requests</h3>
-                <div class="request-buttons">
-                    <button class="btn-request disabled" title="Ask Host for High-Res Photo">
-                        <span class="material-icons">photo_camera</span> Request 4K Photo
-                    </button>
-                    <button class="btn-request disabled" title="Ask Host for Video Clip">
-                        <span class="material-icons">videocam</span> Request Video
-                    </button>
-                </div>
-                <p style="font-size: 11px; color: #666; margin-top: 5px;">*Requests currently disabled by instructor.</p>
-            </div>
-
-            <div class="tab-deck">
-                <div class="tabs-header">
-                    <div class="tab active" onclick="switchTab('gallery')">Gallery</div>
-                    <div class="tab" onclick="switchTab('people')">People</div>
-                    <div class="tab" onclick="switchTab('settings')">Settings</div>
-                    <div id="tabHeaderAdmin" class="tab tab-admin" style="display: none;" onclick="switchTab('admin')">ADMIN</div>
-                </div>
-
-                <div id="tab-gallery" class="tab-content active">
-                    <div class="empty-state">
-                        <span class="material-icons" style="font-size: 48px; color: #333;">collections</span>
-                        <p>Snapshots will appear here.</p>
+                <div class="control-group">
+                    <label>Draw Color</label>
+                    <div class="color-picker-row">
+                        <div class="color-swatch active" style="background: #FFD700;" onclick="setColor('#FFD700', this)"></div>
+                        <div class="color-swatch" style="background: #FF4444;" onclick="setColor('#FF4444', this)"></div>
+                        <div class="color-swatch" style="background: #44FF44;" onclick="setColor('#44FF44', this)"></div>
+                        <div class="color-swatch" style="background: #44FFFF;" onclick="setColor('#44FFFF', this)"></div>
+                        <div class="color-swatch" style="background: #FFFFFF;" onclick="setColor('#FFFFFF', this)"></div>
                     </div>
                 </div>
 
-                <div id="tab-people" class="tab-content">
-                    <h3>Session Members <span id="studentCount" style="color: #666; font-size: 14px;">(0)</span></h3>
-                    <div id="studentRosterList" class="roster-list">
-                        <div style="text-align: center; color: #555; padding: 10px; font-style: italic;">
-                            Waiting for students...
+                <div class="control-group">
+                    <label>Stroke Thickness</label>
+                    <div class="thickness-row">
+                        <div class="thickness-btn active" onclick="setThickness(2, this)">
+                            <div class="dot-preview" style="width: 2px; height: 2px;"></div>
+                        </div>
+                        <div class="thickness-btn" onclick="setThickness(6, this)">
+                            <div class="dot-preview" style="width: 6px; height: 6px;"></div>
+                        </div>
+                        <div class="thickness-btn" onclick="setThickness(12, this)">
+                            <div class="dot-preview" style="width: 12px; height: 12px;"></div>
                         </div>
                     </div>
                 </div>
 
-                <div id="tab-settings" class="tab-content">
-                    <h3>App Settings</h3>
-                    <div class="setting-item">
-                        <label>Theme</label>
-                        <select class="dark-select">
-                            <option>Dark Mode</option>
-                            <option>Light Mode</option>
-                        </select>
+                <div class="control-group">
+                    <label>Actions</label>
+                    <button class="btn-leave" style="width: 100%; margin-bottom: 10px;" onclick="clearAnnotations()">Clear My Screen</button>
+                    <button class="btn-leave" style="width: 100%; border-color: #555;" onclick="toggleAnnotationVisibility()">Hide/Show Annotations</button>
+                </div>
+            </div>
+
+            <div id="panel-adjustments" class="panel-content">
+                <div class="panel-header">Feed Controls</div>
+                <div class="control-group">
+                    <label style="color: #ff6666;">Red Channel: <span id="val-r" style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-r" min="0" max="255" value="100" oninput="updateRGB('r', this.value)">
+                </div>
+                <div class="control-group">
+                    <label style="color: #66ff66;">Green Channel: <span id="val-g" style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-g" min="0" max="255" value="100" oninput="updateRGB('g', this.value)">
+                </div>
+                <div class="control-group">
+                    <label style="color: #66aaff;">Blue Channel: <span id="val-b" style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-b" min="0" max="255" value="100" oninput="updateRGB('b', this.value)">
+                </div>
+                <hr style="border-color: #333; margin: 20px 0;">
+                <div class="control-group">
+                    <label>Brightness: <span id="val-brightness" style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-brightness" min="0" max="300" value="100" oninput="updateFilter('brightness', this.value)">
+                </div>
+                <div class="control-group">
+                    <label>Contrast: <span id="val-contrast" style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-contrast" min="0" max="300" value="100" oninput="updateFilter('contrast', this.value)">
+                </div>
+                <div class="control-group">
+                    <label>Saturation: <span id="val-saturation" style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-saturation" min="0" max="300" value="100" oninput="updateFilter('saturation', this.value)">
+                </div>
+                <hr style="border-color: #333; margin: 20px 0;">
+                <div class="control-group">
+                    <label>Orientation</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button class="btn-leave" style="flex: 1;" onclick="rotateFeed()"><span class="material-icons" style="font-size: 16px;">rotate_right</span> 90°</button>
+                        <button class="btn-leave" style="flex: 1;" onclick="normalizeFeed()">Normalize</button>
                     </div>
-                    <hr style="border-color: #333; margin: 20px 0;">
-                    <h3>Teacher Access</h3>
-                    <div class="input-group-small">
-                        <input type="text" id="adminKeyInput" placeholder="ADM-XXXX">
-                        <button class="btn-small" onclick="attemptAdminLogin()">UNLOCK</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btnFlipH" class="btn-leave" style="flex: 1;" onclick="toggleFlip('h')">Flip H</button>
+                        <button id="btnFlipV" class="btn-leave" style="flex: 1;" onclick="toggleFlip('v')">Flip V</button>
+                    </div>
+                </div>
+                <button class="btn-leave" style="width: 100%; border-color: #ff4444; color: #ff4444; margin-top: 10px;" onclick="resetAdjustments()">Reset All</button>
+            </div>
+
+            <div id="panel-gallery" class="panel-content">
+                <div class="panel-header">Session Snapshots</div>
+                <div id="galleryGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+            </div>
+
+            <div id="panel-people" class="panel-content">
+                <div class="panel-header">In Session <span id="studentCount">(0)</span></div>
+                <div id="studentRosterList"></div>
+            </div>
+
+             <div id="panel-settings" class="panel-content">
+                <div class="panel-header">Settings</div>
+                
+                <div id="adminLoginForm">
+                    <div class="control-group">
+                        <label>Admin Key</label>
+                        <input type="text" id="adminKeyInput" placeholder="Enter Key" style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white;">
+                        <button class="btn-leave" style="width: 100%; margin-top: 5px;" onclick="attemptAdminLogin()">Unlock Host Controls</button>
                     </div>
                 </div>
 
-                <div id="tab-admin" class="tab-content">
-                    <h3 style="color: #ff4444;">Classroom Controls</h3>
-                    <div class="setting-item" style="margin-bottom: 15px;">
-                        <label>Allow Requests</label>
-                        <input type="checkbox" id="adminAllowRequests">
+                <div id="adminControlsArea" style="display: none;">
+                    <div style="color:#44FF44; font-weight:bold; text-align:center; margin-bottom: 20px; border: 1px solid #44FF44; padding: 10px; border-radius: 6px;">
+                        <span class="material-icons" style="vertical-align: middle;">verified</span> HOST ACCESS
                     </div>
-                    <button class="btn-admin-action">
-                        <span class="material-icons">mic_off</span> Mute Stream
-                    </button>
-                    <div class="admin-status">Authorized as Instructor</div>
+
+                    <div class="control-group">
+                        <label>Microscope Mode</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                            <button id="btnModeLive" class="btn-leave active" style="flex: 1; border-color: #FF4444;" onclick="triggerReturnLive()">
+                                <span class="material-icons" style="font-size:16px;">videocam</span> LIVE
+                            </button>
+                            <button id="btnModePhoto" class="btn-leave" style="flex: 1; border-color: #44FF44;" onclick="triggerRequestPhoto()">
+                                <span class="material-icons" style="font-size:16px;">image</span> 4K PHOTO
+                            </button>
+                        </div>
+                        <small style="color:#888; display:block; margin-bottom: 15px;">
+                            Use <b>4K Photo</b> for large classes (30+ students). <br>
+                            Use <b>Live</b> for small groups (Max 4 students).
+                        </small>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Classroom Management</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="checkFollowMode" onchange="toggleFollowMode()"> 
+                                <span style="color: #FFD700">Follow Mode</span>
+                            </label>
+                            <small style="color:#666; display:block; margin-left:24px;">Force student view to match yours.</small>
+
+                            <label style="margin-top: 10px;">
+                                <input type="checkbox" id="checkBroadcast" onchange="toggleBroadcastMode()"> 
+                                <span style="color: #FFD700">Broadcast Drawings</span>
+                            </label>
+                            <small style="color:#666; display:block; margin-left:24px;">Students see what you draw.</small>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <button class="btn-leave" style="width: 100%; border-color: #FF4444; color: #FF4444;" onclick="adminClearAll()">
+                            <span class="material-icons" style="font-size: 16px; vertical-align: middle;">delete_forever</span>
+                            Clear ALL Screens
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <div id="panel-code" class="panel-content">
+                <div class="panel-header">Developer Tools</div>
+                <p style="font-size: 12px; color: #888;">Coming Soon: Python Overlay Engine</p>
+            </div>
+        </div>
+
+        <div class="workspace-area">
+            <div class="viewport-window" id="viewportContainer">
+                <div class="transform-container" id="zoomLayer">
+                    <video id="remoteVideo" autoplay playsinline muted></video>
+                    
+                    <img id="staticPhoto" style="display: none; width: 100%; height: 100%; object-fit: contain;">
+                    
+                    <canvas id="annotationCanvas"></canvas>
+                </div>
             </div>
 
+            <div class="toolbar-dock">
+                <button class="tool-btn active" onclick="setTool('move')" id="btnToolMove" title="Pan/Zoom">
+                    <span class="material-icons">pan_tool</span>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="tool-btn" onclick="setTool('draw')" id="btnToolDraw" title="Draw">
+                    <span class="material-icons">brush</span>
+                </button>
+                <button class="tool-btn" onclick="setTool('eraser')" id="btnToolEraser" title="Eraser">
+                    <span class="material-icons">auto_fix_normal</span>
+                </button>
+                <button class="tool-btn" onclick="setTool('text')" id="btnToolText" title="Text">
+                    <span class="material-icons">title</span>
+                </button>
+                <button class="tool-btn" onclick="setTool('count')" id="btnToolCount" title="Counter">
+                    <span class="material-icons">touch_app</span>
+                    <div id="countBadge" class="count-badge" style="display: none;">0</div>
+                </button>
+                <div class="toolbar-divider"></div>
+                <button class="tool-btn" onclick="toggleFreeze()" title="Freeze">
+                    <span class="material-icons" id="iconFreeze">pause</span>
+                </button>
+                <button class="tool-btn" onclick="takeSnapshot()" title="Save to Gallery">
+                    <span class="material-icons" style="color: #FFD700;">camera_alt</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="photoModal" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modalImage" class="modal-img">
+            <a id="modalDownload" class="btn-leave" style="text-align: center; background: var(--accent); color: black; border: none; font-weight: bold; text-decoration: none;" download="snapshot.png">DOWNLOAD PHOTO</a>
         </div>
     </div>
 
