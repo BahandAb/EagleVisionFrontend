@@ -4,6 +4,7 @@
     --accent: #FFD700;
     --text: #ffffff;
     --danger: #ff4444;
+    --success: #44FF44;
     --sidebar-width: 320px;
     --activity-bar-width: 60px;
 }
@@ -16,7 +17,7 @@ body {
     overflow: hidden;
 }
 
-/* LANDING PAGE */
+/* --- LANDING PAGE --- */
 .landing-body {
     display: flex;
     justify-content: center;
@@ -82,7 +83,8 @@ body {
     background: #ffea70;
 }
 
-/* WORKSPACE HEADER */
+
+/* --- WORKSPACE HEADER --- */
 .top-header {
     height: 60px;
     background: var(--bg-panel);
@@ -137,6 +139,10 @@ body {
     cursor: pointer;
     font-size: 12px;
     transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 .btn-leave:hover {
@@ -145,14 +151,12 @@ body {
 }
 
 .btn-leave.active {
-    background: var(--accent);
-    color: black;
-    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: white;
 }
 
-/* Added for toggle buttons */
-
-/* MAIN LAYOUT */
+/* --- MAIN LAYOUT --- */
 .main-layout {
     display: flex;
     height: calc(100vh - 60px);
@@ -232,12 +236,13 @@ body {
     padding-bottom: 10px;
 }
 
-/* WORKSPACE AREA */
+/* --- WORKSPACE AREA --- */
 .workspace-area {
     flex: 1;
     background: #000;
     position: relative;
     display: flex;
+    /* DESKTOP: Row layout (Video Left, Toolbar Right) */
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -246,12 +251,13 @@ body {
     gap: 30px;
 }
 
-/* VIEWPORT */
+/* VIEWPORT WINDOW */
 .viewport-window {
     position: relative;
     width: 100%;
     height: 100%;
     max-width: 80vh;
+    /* Force 1:1 Aspect Ratio to match the app crop */
     aspect-ratio: 1/1;
     border: 1px solid #333;
     border-radius: 4px;
@@ -271,12 +277,16 @@ body {
     /* Smooth Zoom */
 }
 
-#remoteVideo {
+/* MEDIA ELEMENTS (Anti-Squish Logic) */
+#remoteVideo,
+#staticPhoto {
     width: 100%;
     height: 100%;
+    /* This ensures the image/video fills the square box by cropping, not stretching */
     object-fit: cover;
     display: block;
     pointer-events: none;
+    /* Allows clicks to pass through to canvas */
 }
 
 #annotationCanvas {
@@ -289,7 +299,7 @@ body {
     touch-action: none;
 }
 
-/* TOOLBAR */
+/* --- TOOLBAR --- */
 .toolbar-dock {
     background: var(--bg-panel);
     border: 1px solid #444;
@@ -353,12 +363,28 @@ body {
     border: 1px solid black;
 }
 
-/* CONTROLS (NEW) */
+/* --- CONTROLS & INPUTS --- */
 input[type=range] {
     width: 100%;
     accent-color: var(--accent);
     cursor: pointer;
     margin-top: 5px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 14px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
 }
 
 /* UTILS */
@@ -409,6 +435,44 @@ input[type=range] {
     border-radius: 50%;
 }
 
+/* ROSTER STYLES */
+.roster-list {
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.roster-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #222;
+}
+
+.roster-item:last-child {
+    border-bottom: none;
+}
+
+.btn-kick {
+    background: #2a0f0f;
+    color: #ffaaaa;
+    border: 1px solid #ff4444;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-kick:hover {
+    background: #ff4444;
+    color: white;
+}
+
+/* MODAL */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -437,9 +501,10 @@ input[type=range] {
     max-width: 100%;
     max-height: 70vh;
     border-radius: 8px;
+    object-fit: contain;
 }
 
-/* MOBILE */
+/* --- MOBILE / TABLET OVERRIDES --- */
 @media (max-width: 900px) {
     .main-layout {
         flex-direction: column;
@@ -521,26 +586,4 @@ input[type=range] {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* Roster Styles */
-.roster-list { background: #000; border: 1px solid #333; border-radius: 6px; padding: 10px; }
-.roster-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #222; }
-.roster-item:last-child { border-bottom: none; }
-
-/* The Red Kick Button */
-.btn-kick { 
-    background: #2a0f0f; 
-    color: #ffaaaa; 
-    border: 1px solid #ff4444; 
-    padding: 4px 8px; 
-    font-size: 10px; 
-    font-weight: bold;
-    border-radius: 4px; 
-    cursor: pointer; 
-    transition: 0.2s;
-}
-.btn-kick:hover { 
-    background: #ff4444; 
-    color: white; 
 }
