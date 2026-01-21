@@ -1,4 +1,4 @@
-const SIGNALING_SERVER_URL = "https://eaglevisionbackend-go8c.onrender.com"; 
+const SIGNALING_SERVER_URL = "https://api.eaglevision.dev";
 
 // --- STATE ---
 let socket;
