@@ -265,29 +265,64 @@ function startConnection() {
     
     // NEW: Listen for the Video Ticket (LiveKit)
     socket.on("livekit_token", async (data) => {
-        console.log("Connecting to Video Server...", data.url);
+        console.log("Connecting to Video Server...", data. url);
+        console.log("Token received (first 20 chars):", data.token.substring(0, 20) + "...");
         
         livekitRoom = new LivekitClient.Room({
             adaptiveStream: true,
             dynacast: true
         });
 
+        // Listen for participant connected
+        livekitRoom.on(LivekitClient.RoomEvent.ParticipantConnected, (participant) => {
+            console.log("👤 Participant connected:", participant. identity);
+        });
+
+        // Listen for track published (not subscribed yet)
+        livekitRoom. on(LivekitClient.RoomEvent.TrackPublished, (publication, participant) => {
+            console.log("📤 Track published:", publication.kind, "from", participant.identity);
+            console.log("Publication details:", publication);
+        });
+
         // When a video track arrives, show it
         livekitRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
+            console.log("📥 Track subscribed:", track.kind, "from", participant.identity);
             if (track.kind === LivekitClient.Track.Kind.Video) {
                 const videoElement = document.getElementById("remoteVideo");
                 track.attach(videoElement);
+                console.log("✅ Video track attached to element");
                 if(!isPhotoMode) { 
-                    statusTag.style.display = "block"; 
+                    statusTag.style. display = "block"; 
                     statusTag.innerText = "● LIVE (HC)"; 
-                    statusTag.style.background = "#ff4444"; 
+                    statusTag.style. background = "#ff4444"; 
                 }
                 setTimeout(resizeCanvas, 500);
             }
         });
 
         // Connect using the ticket
-        await livekitRoom.connect(data.url, data.token);
+        try {
+            await livekitRoom.connect(data.url, data.token);
+            console.log("✅ LiveKit room connected successfully");
+            console.log("Room state:", livekitRoom.state);
+            console.log("Local participant:", livekitRoom.localParticipant. identity);
+            console.log("Remote participants:", livekitRoom. participants.size);
+            
+            // Check existing participants and their tracks
+            livekitRoom.participants.forEach((participant, identity) => {
+                console.log("Found participant:", identity);
+                console.log("  Video tracks:", participant.videoTracks. size);
+                console.log("  Audio tracks:", participant.audioTracks.size);
+                
+                // Try to manually subscribe to video tracks
+                participant.videoTracks.forEach((publication, trackSid) => {
+                    console.log("  Video track SID:", trackSid, "subscribed:", publication.isSubscribed);
+                });
+            });
+        } catch (error) {
+            console.error("❌ LiveKit connection failed:", error);
+            console.error("Error message:", error.message);
+        }
     });
 }
 
