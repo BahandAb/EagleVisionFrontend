@@ -183,9 +183,9 @@ function setTool(tool) {
     currentTool = tool; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById('btnTool' + tool.charAt(0).toUpperCase() + tool.slice(1)); if(btn) btn.classList.add('active');
     if (tool === 'eraser') { updateEraserIcon(); canvas.style.cursor = 'crosshair'; }
-    else { const icon = document.querySelector('#btnToolEraser span'); if(icon) icon.innerText = 'auto_fix_normal'; canvas.style.cursor = (tool === 'move') ? 'grab' : (tool === 'text') ? 'text' : 'crosshair'; }
+    else { const icon = document.querySelector('#btnToolEraser span'); if(icon) icon.innerText = 'backspace'; canvas.style.cursor = (tool === 'move') ? 'grab' : (tool === 'text') ? 'text' : 'crosshair'; }
 }
-function updateEraserIcon() { const icon = document.querySelector('#btnToolEraser span'); if(icon) icon.innerText = (eraserMode === 'normal') ? 'auto_fix_normal' : 'delete_sweep'; }
+function updateEraserIcon() { const icon = document.querySelector('#btnToolEraser span'); if(icon) icon.innerText = (eraserMode === 'normal') ? 'backspace' : 'delete_sweep'; }
 function setColor(c, el) { drawColor = c; document.querySelectorAll('.color-swatch').forEach(e=>e.classList.remove('active')); el.classList.add('active'); }
 function setThickness(t, el) { drawThickness = t; document.querySelectorAll('.thickness-btn').forEach(e=>e.classList.remove('active')); el.classList.add('active'); }
 
@@ -212,7 +212,9 @@ function handleStart(e) {
         let hitIndex = -1; for (let i = history.length - 1; i >= 0; i--) { if (history[i].type === 'dot') { const dx = history[i].x - pos.x; const dy = history[i].y - pos.y; if (Math.sqrt(dx*dx + dy*dy) < 15/scale) { hitIndex = i; break; } } }
         if (hitIndex !== -1) history.splice(hitIndex, 1); else { const dot = { type: 'dot', x: pos.x, y: pos.y, color: drawColor }; history.push(dot); if (isAdmin && isBroadcastMode) socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: dot }); }
         redrawCanvas();
-    } else if (currentTool === 'text') { setTimeout(() => { const text = prompt("Enter text annotation:"); if (text) { const txtObj = { type: 'text', x: pos.x, y: pos.y, text: text, color: drawColor, size: 20 }; history.push(txtObj); if (isAdmin && isBroadcastMode) socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: txtObj }); redrawCanvas(); } }, 50); }
+    } else if (currentTool === 'text') { 
+        openTextModal(pos.x, pos.y); 
+    }
 }
 function handleMove(e) {
     if (e.touches) e.preventDefault();
@@ -328,3 +330,50 @@ function startConnection() {
 
 function toggleFreeze() { isFrozen = !isFrozen; if(isFrozen) { videoEl.pause(); document.getElementById('iconFreeze').innerText="play_arrow"; } else { videoEl.play(); document.getElementById('iconFreeze').innerText="pause"; } }
 function closeModal() { document.getElementById('photoModal').style.display = 'none'; }
+
+let pendingTextPosition = null;
+
+function openTextModal(x, y) {
+    pendingTextPosition = {x, y};
+    const modal = document.getElementById('textModal');
+    const input = document.getElementById('textInput');
+    modal.style.display = 'flex';
+    input.value = '';
+    input.focus();
+    
+    // Allow Enter key to submit
+    input.onkeydown = (e) => {
+        if (e.key === 'Enter') confirmTextInput();
+        if (e.key === 'Escape') cancelTextInput();
+    };
+}
+
+function confirmTextInput() {
+    const input = document.getElementById('textInput');
+    const text = input.value.trim();
+    
+    if (text && pendingTextPosition) {
+        const txtObj = { 
+            type: 'text', 
+            x: pendingTextPosition.x, 
+            y: pendingTextPosition.y, 
+            text: text, 
+            color: drawColor, 
+            size: 20 
+        };
+        history.push(txtObj);
+        
+        if (isAdmin && isBroadcastMode) {
+            socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: txtObj });
+        }
+        
+        redrawCanvas();
+    }
+    
+    cancelTextInput();
+}
+
+function cancelTextInput() {
+    document.getElementById('textModal').style.display = 'none';
+    pendingTextPosition = null;
+}
