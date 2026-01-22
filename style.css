@@ -111,10 +111,12 @@ body {
 }
 
 .session-code {
-    font-family: monospace;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 4px;
     color: var(--accent);
+    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+    font-family: 'Courier New', monospace;
     border: 1px solid var(--accent);
     padding: 4px 8px;
     border-radius: 4px;
@@ -134,11 +136,14 @@ body {
     background: transparent;
     border: 1px solid #444;
     color: #888;
-    padding: 6px 12px;
+    padding: 12px 20px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
-    transition: 0.2s;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -148,6 +153,8 @@ body {
 .btn-leave:hover {
     border-color: var(--danger);
     color: var(--danger);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .btn-leave.active {
@@ -176,8 +183,8 @@ body {
 }
 
 .activity-icon {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     border-radius: 8px;
     color: #666;
     display: flex;
@@ -185,6 +192,10 @@ body {
     align-items: center;
     cursor: pointer;
     transition: 0.2s;
+}
+
+.activity-icon .material-icons {
+    font-size: 28px;
 }
 
 .activity-icon:hover {
@@ -329,21 +340,68 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
-    transition: 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
     position: relative;
+}
+
+.tool-btn .material-icons {
+    font-size: 30px;
 }
 
 .tool-btn:hover {
     color: white;
     background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 
 .tool-btn.active {
     color: #000;
     background: var(--accent);
+    transform: scale(1.15);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse-tool {
+    0%, 100% { 
+        transform: scale(1.15); 
+    }
+    50% { 
+        transform: scale(1.2); 
+    }
+}
+
+.tool-btn.active {
+    animation: pulse-tool 2s infinite;
+}
+
+/* Color-coded tool states for visual clarity */
+#btnToolDraw.active {
+    background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+#btnToolEraser.active {
+    background: linear-gradient(135deg, #FF5252, #e04848) !important;
+    box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
+}
+
+#btnToolText.active {
+    background: linear-gradient(135deg, #FFC107, #e6ad06) !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+}
+
+#btnToolCount.active {
+    background: linear-gradient(135deg, #2196F3, #1e87db) !important;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+}
+
+#btnToolMove.active {
+    background: linear-gradient(135deg, #9E9E9E, #8a8a8a) !important;
+    box-shadow: 0 4px 15px rgba(158, 158, 158, 0.4);
 }
 
 .count-badge {
@@ -352,9 +410,9 @@ body {
     right: 0;
     background: var(--accent);
     color: black;
-    font-size: 10px;
-    width: 16px;
-    height: 16px;
+    font-size: 14px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -395,16 +453,24 @@ input[type=range] {
 }
 
 .color-swatch {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid transparent;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 .color-swatch.active {
     border-color: white;
-    transform: scale(1.1);
+    transform: scale(1.2);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    border: 3px solid var(--accent);
 }
 
 .thickness-row {
