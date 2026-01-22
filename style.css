@@ -136,11 +136,14 @@ body {
     background: transparent;
     border: 1px solid #444;
     color: #888;
-    padding: 6px 12px;
+    padding: 12px 20px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
-    transition: 0.2s;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -150,6 +153,8 @@ body {
 .btn-leave:hover {
     border-color: var(--danger);
     color: var(--danger);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .btn-leave.active {
