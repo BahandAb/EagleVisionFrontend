@@ -7,7 +7,7 @@ let currentRoomID = "", currentUserName = "Anonymous";
 let isFrozen = false;
 let currentTool = 'move'; 
 let drawColor = '#FFD700';
-let drawThickness = 2;
+let drawThickness = 6;
 let annotationsHidden = false;
 
 // ADMIN STATE
@@ -22,7 +22,7 @@ let latestSnapshotUrl = null;
 let isPhotoMode = false;
 
 // ERASER STATE
-let eraserMode = 'normal'; 
+let eraserMode = 'stroke'; 
 
 // TRANSFORM STATE
 let scale = 1.0;
@@ -73,6 +73,7 @@ window.onload = function() {
 
     startConnection();
     updateTransform();
+    updateEraserIcon();
 };
 
 function leaveSession() { 
@@ -183,9 +184,9 @@ function setTool(tool) {
     currentTool = tool; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById('btnTool' + tool.charAt(0).toUpperCase() + tool.slice(1)); if(btn) btn.classList.add('active');
     if (tool === 'eraser') { updateEraserIcon(); canvas.style.cursor = 'crosshair'; }
-    else { const icon = document.querySelector('#btnToolEraser span'); if(icon) icon.innerText = 'backspace'; canvas.style.cursor = (tool === 'move') ? 'grab' : (tool === 'text') ? 'text' : 'crosshair'; }
+    else { canvas.style.cursor = (tool === 'move') ? 'grab' : (tool === 'text') ? 'text' : 'crosshair'; }
 }
-function updateEraserIcon() { const icon = document.querySelector('#btnToolEraser span'); if(icon) icon.innerText = (eraserMode === 'normal') ? 'backspace' : 'delete_sweep'; }
+function updateEraserIcon() { const icon = document.querySelector('#btnToolEraser span'); if(icon) icon.innerText = (eraserMode === 'normal') ? 'cleaning_services' : 'delete_sweep'; }
 function setColor(c, el) { drawColor = c; document.querySelectorAll('.color-swatch').forEach(e=>e.classList.remove('active')); el.classList.add('active'); }
 function setThickness(t, el) { drawThickness = t; document.querySelectorAll('.thickness-btn').forEach(e=>e.classList.remove('active')); el.classList.add('active'); }
 
