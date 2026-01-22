@@ -338,7 +338,8 @@ body {
     width: 55px;
     height: 55px;
     border-radius: 50%;
-    transition: 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
     position: relative;
 }
 
@@ -349,11 +350,53 @@ body {
 .tool-btn:hover {
     color: white;
     background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 
 .tool-btn.active {
     color: #000;
     background: var(--accent);
+    transform: scale(1.15);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse-tool {
+    0%, 100% { 
+        transform: scale(1.15); 
+    }
+    50% { 
+        transform: scale(1.2); 
+    }
+}
+
+.tool-btn.active {
+    animation: pulse-tool 2s infinite;
+}
+
+/* Color-coded tool states for visual clarity */
+#btnToolDraw.active {
+    background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+#btnToolEraser.active {
+    background: linear-gradient(135deg, #FF5252, #e04848) !important;
+    box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
+}
+
+#btnToolText.active {
+    background: linear-gradient(135deg, #FFC107, #e6ad06) !important;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+}
+
+#btnToolCount.active {
+    background: linear-gradient(135deg, #2196F3, #1e87db) !important;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+}
+
+#btnToolMove.active {
+    background: linear-gradient(135deg, #9E9E9E, #8a8a8a) !important;
+    box-shadow: 0 4px 15px rgba(158, 158, 158, 0.4);
 }
 
 .count-badge {
@@ -410,11 +453,19 @@ input[type=range] {
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid transparent;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 .color-swatch.active {
     border-color: white;
-    transform: scale(1.1);
+    transform: scale(1.2);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    border: 3px solid var(--accent);
 }
 
 .thickness-row {
