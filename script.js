@@ -390,7 +390,7 @@ let aiPassword = null;
  * Unlock AI features with password
  */
 function unlockAI() {
-    const passwordInput = document.getElementById('ai-password');  // ✅ with hyphen
+    const passwordInput = document.getElementById('aiPassword');  // ✅ with hyphen
     const password = passwordInput.value.trim();
 
     if (!password) {
@@ -400,8 +400,8 @@ function unlockAI() {
 
     aiPassword = password;
 
-    document.getElementById('ai-lock-screen').style.display = 'none';  // ✅ with hyphens
-    document.getElementById('ai-content').style.display = 'block';     // ✅ ai-content not aiFeatures
+    document.getElementById('aiLockScreen').style.display = 'none';  // ✅ with hyphens
+    document.getElementById('aiFeatures').style.display = 'block';     // ✅ ai-content not aiFeatures
 
     passwordInput.value = '';
 }
@@ -410,7 +410,7 @@ function unlockAI() {
  * Show password status message
  */
 function showPasswordStatus(message) {
-    const statusDiv = document.getElementById('password-status');  // ✅ add hyphen if HTML has it
+    const statusDiv = document.getElementById('passwordStatus');  // ✅ add hyphen if HTML has it
     statusDiv.textContent = message;
     setTimeout(() => {
         statusDiv.textContent = '';
