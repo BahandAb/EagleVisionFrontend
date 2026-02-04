@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Prep For Madeira -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision Workspace</title>
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- Socket.IO for signaling -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    
+
     <!-- LiveKit Client (v1.15.4 - confirmed working) -->
     <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
-    
+
     <!-- OpenCV (async, loads in background) -->
-    <script src="https://docs.opencv.org/4.5.4/opencv.js" async></script> 
-    
+    <script src="https://docs.opencv.org/4.5.4/opencv.js" async></script>
+
     <!-- Image processor helper -->
-    <script src="img_processor.js"></script> 
-    
+    <script src="img_processor.js"></script>
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
+
 <body>
 
     <div class="top-header">
@@ -35,7 +37,7 @@
     </div>
 
     <div class="main-layout">
-        
+
         <div class="activity-bar">
             <div class="activity-icon active" onclick="togglePanel('tools')" title="Tools">
                 <span class="material-icons">brush</span>
@@ -45,6 +47,9 @@
             </div>
             <div class="activity-icon" onclick="togglePanel('gallery')" title="Gallery">
                 <span class="material-icons">photo_library</span>
+            </div>
+            <div class="activity-icon" onclick="togglePanel('ailab')" title="AI Lab">
+                <span class="material-icons">psychology</span>
             </div>
             <div class="activity-icon" onclick="togglePanel('people')" title="Roster">
                 <span class="material-icons">group</span>
@@ -59,18 +64,23 @@
         </div>
 
         <div id="sidePanel" class="side-panel">
-            
+
             <div id="panel-tools" class="panel-content active">
                 <div class="panel-header">🎨 Drawing Tools</div>
-                
+
                 <div class="control-group">
                     <label>Draw Color</label>
                     <div class="color-picker-row">
-                        <div class="color-swatch active" style="background: #FFD700;" onclick="setColor('#FFD700', this)"></div>
-                        <div class="color-swatch" style="background: #FF4444;" onclick="setColor('#FF4444', this)"></div>
-                        <div class="color-swatch" style="background: #44FF44;" onclick="setColor('#44FF44', this)"></div>
-                        <div class="color-swatch" style="background: #44FFFF;" onclick="setColor('#44FFFF', this)"></div>
-                        <div class="color-swatch" style="background: #FFFFFF;" onclick="setColor('#FFFFFF', this)"></div>
+                        <div class="color-swatch active" style="background: #FFD700;"
+                            onclick="setColor('#FFD700', this)"></div>
+                        <div class="color-swatch" style="background: #FF4444;" onclick="setColor('#FF4444', this)">
+                        </div>
+                        <div class="color-swatch" style="background: #44FF44;" onclick="setColor('#44FF44', this)">
+                        </div>
+                        <div class="color-swatch" style="background: #44FFFF;" onclick="setColor('#44FFFF', this)">
+                        </div>
+                        <div class="color-swatch" style="background: #FFFFFF;" onclick="setColor('#FFFFFF', this)">
+                        </div>
                     </div>
                 </div>
 
@@ -91,56 +101,124 @@
 
                 <div class="control-group">
                     <label>Actions</label>
-                    <button class="btn-leave" style="width: 100%; margin-bottom: 10px;" onclick="clearAnnotations()">Clear My Screen</button>
-                    <button class="btn-leave" style="width: 100%; border-color: #555;" onclick="toggleAnnotationVisibility()">Hide/Show Annotations</button>
+                    <button class="btn-leave" style="width: 100%; margin-bottom: 10px;"
+                        onclick="clearAnnotations()">Clear My Screen</button>
+                    <button class="btn-leave" style="width: 100%; border-color: #555;"
+                        onclick="toggleAnnotationVisibility()">Hide/Show Annotations</button>
                 </div>
             </div>
 
             <div id="panel-adjustments" class="panel-content">
                 <div class="panel-header">🔧 Image Settings</div>
                 <div class="control-group">
-                    <label style="color: #ff6666;">Red Channel: <span id="val-r" style="color:white; float:right">100</span></label>
-                    <input type="range" id="slider-r" min="0" max="255" value="100" oninput="updateRGB('r', this.value)">
+                    <label style="color: #ff6666;">Red Channel: <span id="val-r"
+                            style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-r" min="0" max="255" value="100"
+                        oninput="updateRGB('r', this.value)">
                 </div>
                 <div class="control-group">
-                    <label style="color: #66ff66;">Green Channel: <span id="val-g" style="color:white; float:right">100</span></label>
-                    <input type="range" id="slider-g" min="0" max="255" value="100" oninput="updateRGB('g', this.value)">
+                    <label style="color: #66ff66;">Green Channel: <span id="val-g"
+                            style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-g" min="0" max="255" value="100"
+                        oninput="updateRGB('g', this.value)">
                 </div>
                 <div class="control-group">
-                    <label style="color: #66aaff;">Blue Channel: <span id="val-b" style="color:white; float:right">100</span></label>
-                    <input type="range" id="slider-b" min="0" max="255" value="100" oninput="updateRGB('b', this.value)">
+                    <label style="color: #66aaff;">Blue Channel: <span id="val-b"
+                            style="color:white; float:right">100</span></label>
+                    <input type="range" id="slider-b" min="0" max="255" value="100"
+                        oninput="updateRGB('b', this.value)">
                 </div>
                 <hr style="border-color: #333; margin: 20px 0;">
                 <div class="control-group">
                     <label>Brightness: <span id="val-brightness" style="color:white; float:right">100</span></label>
-                    <input type="range" id="slider-brightness" min="0" max="300" value="100" oninput="updateFilter('brightness', this.value)">
+                    <input type="range" id="slider-brightness" min="0" max="300" value="100"
+                        oninput="updateFilter('brightness', this.value)">
                 </div>
                 <div class="control-group">
                     <label>Contrast: <span id="val-contrast" style="color:white; float:right">100</span></label>
-                    <input type="range" id="slider-contrast" min="0" max="300" value="100" oninput="updateFilter('contrast', this.value)">
+                    <input type="range" id="slider-contrast" min="0" max="300" value="100"
+                        oninput="updateFilter('contrast', this.value)">
                 </div>
                 <div class="control-group">
                     <label>Saturation: <span id="val-saturation" style="color:white; float:right">100</span></label>
-                    <input type="range" id="slider-saturation" min="0" max="300" value="100" oninput="updateFilter('saturation', this.value)">
+                    <input type="range" id="slider-saturation" min="0" max="300" value="100"
+                        oninput="updateFilter('saturation', this.value)">
                 </div>
                 <hr style="border-color: #333; margin: 20px 0;">
                 <div class="control-group">
                     <label>Orientation</label>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <button class="btn-leave" style="flex: 1;" onclick="rotateFeed()"><span class="material-icons" style="font-size: 16px;">rotate_right</span> 90°</button>
+                        <button class="btn-leave" style="flex: 1;" onclick="rotateFeed()"><span class="material-icons"
+                                style="font-size: 16px;">rotate_right</span> 90°</button>
                         <button class="btn-leave" style="flex: 1;" onclick="normalizeFeed()">Normalize</button>
                     </div>
                     <div style="display: flex; gap: 10px;">
-                        <button id="btnFlipH" class="btn-leave" style="flex: 1;" onclick="toggleFlip('h')">Flip H</button>
-                        <button id="btnFlipV" class="btn-leave" style="flex: 1;" onclick="toggleFlip('v')">Flip V</button>
+                        <button id="btnFlipH" class="btn-leave" style="flex: 1;" onclick="toggleFlip('h')">Flip
+                            H</button>
+                        <button id="btnFlipV" class="btn-leave" style="flex: 1;" onclick="toggleFlip('v')">Flip
+                            V</button>
                     </div>
                 </div>
-                <button class="btn-leave" style="width: 100%; border-color: #ff4444; color: #ff4444; margin-top: 10px;" onclick="resetAdjustments()">Reset All</button>
+                <button class="btn-leave" style="width: 100%; border-color: #ff4444; color: #ff4444; margin-top: 10px;"
+                    onclick="resetAdjustments()">Reset All</button>
             </div>
 
             <div id="panel-gallery" class="panel-content">
                 <div class="panel-header">📸 My Gallery</div>
                 <div id="galleryGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+            </div>
+            <!-- AI Lab Panel -->
+            <div id="panel-ailab" class="panel-content">
+                <div class="panel-header">🤖 AI Lab</div>
+
+                <!-- Password Lock Screen -->
+                <div id="aiLockScreen" class="control-group">
+                    <label>🔒 Enter AI Access Password</label>
+                    <input type="password" id="aiPassword" placeholder="Enter password"
+                        style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white; margin-bottom: 5px;"
+                        onkeypress="if(event.key==='Enter') unlockAI()">
+                    <button class="btn-leave" style="width: 100%;" onclick="unlockAI()">
+                        Unlock AI Features
+                    </button>
+                    <div id="passwordStatus" style="margin-top: 5px; font-size: 12px; color: #FF4444;"></div>
+                </div>
+
+                <!-- AI Features (hidden until unlocked) -->
+                <div id="aiFeatures" style="display: none;">
+                    <div
+                        style="color:#44FF44; font-weight:bold; text-align:center; margin-bottom: 15px; border: 1px solid #44FF44; padding: 8px; border-radius: 4px; font-size: 12px;">
+                        <span class="material-icons" style="vertical-align: middle; font-size: 16px;">lock_open</span>
+                        AI UNLOCKED
+                    </div>
+
+                    <div class="control-group">
+                        <label>AI Actions</label>
+                        <button class="btn-leave" style="width: 100%; margin-bottom: 10px;" onclick="describeSample()">
+                            <span class="material-icons"
+                                style="font-size: 16px; vertical-align: middle;">psychology</span>
+                            Describe Sample
+                        </button>
+                    </div>
+
+                    <div class="control-group">
+                        <label>AI Results</label>
+                        <div id="aiResults" style="
+                background: #111; 
+                border: 1px solid #333; 
+                padding: 10px; 
+                border-radius: 4px; 
+                min-height: 100px; 
+                max-height: 300px; 
+                overflow-y: auto; 
+                font-size: 13px; 
+                line-height: 1.6;
+                color: #ccc;
+                white-space: pre-wrap;
+            ">
+                            Results will appear here...
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="panel-people" class="panel-content">
@@ -148,29 +226,34 @@
                 <div id="studentRosterList"></div>
             </div>
 
-             <div id="panel-settings" class="panel-content">
+            <div id="panel-settings" class="panel-content">
                 <div class="panel-header">Settings</div>
-                
+
                 <div id="adminLoginForm">
                     <div class="control-group">
                         <label>Admin Key</label>
-                        <input type="text" id="adminKeyInput" placeholder="Enter Key" style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white;">
-                        <button class="btn-leave" style="width: 100%; margin-top: 5px;" onclick="attemptAdminLogin()">Unlock Host Controls</button>
+                        <input type="text" id="adminKeyInput" placeholder="Enter Key"
+                            style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white;">
+                        <button class="btn-leave" style="width: 100%; margin-top: 5px;"
+                            onclick="attemptAdminLogin()">Unlock Host Controls</button>
                     </div>
                 </div>
 
                 <div id="adminControlsArea" style="display: none;">
-                    <div style="color:#44FF44; font-weight:bold; text-align:center; margin-bottom: 20px; border: 1px solid #44FF44; padding: 10px; border-radius: 6px;">
+                    <div
+                        style="color:#44FF44; font-weight:bold; text-align:center; margin-bottom: 20px; border: 1px solid #44FF44; padding: 10px; border-radius: 6px;">
                         <span class="material-icons" style="vertical-align: middle;">verified</span> HOST ACCESS
                     </div>
 
                     <div class="control-group">
                         <label>Microscope Mode</label>
                         <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-                            <button id="btnModeLive" class="btn-leave active" style="flex: 1; border-color: #FF4444;" onclick="triggerReturnLive()">
+                            <button id="btnModeLive" class="btn-leave active" style="flex: 1; border-color: #FF4444;"
+                                onclick="triggerReturnLive()">
                                 <span class="material-icons" style="font-size:16px;">videocam</span> LIVE
                             </button>
-                            <button id="btnModePhoto" class="btn-leave" style="flex: 1; border-color: #44FF44;" onclick="triggerRequestPhoto()">
+                            <button id="btnModePhoto" class="btn-leave" style="flex: 1; border-color: #44FF44;"
+                                onclick="triggerRequestPhoto()">
                                 <span class="material-icons" style="font-size:16px;">image</span> 4K PHOTO
                             </button>
                         </div>
@@ -184,22 +267,26 @@
                         <label>Classroom Management</label>
                         <div class="checkbox-group">
                             <label>
-                                <input type="checkbox" id="checkFollowMode" onchange="toggleFollowMode()"> 
+                                <input type="checkbox" id="checkFollowMode" onchange="toggleFollowMode()">
                                 <span style="color: #FFD700">Follow Mode</span>
                             </label>
-                            <small style="color:#666; display:block; margin-left:24px;">Force student view to match yours.</small>
+                            <small style="color:#666; display:block; margin-left:24px;">Force student view to match
+                                yours.</small>
 
                             <label style="margin-top: 10px;">
-                                <input type="checkbox" id="checkBroadcast" onchange="toggleBroadcastMode()"> 
+                                <input type="checkbox" id="checkBroadcast" onchange="toggleBroadcastMode()">
                                 <span style="color: #FFD700">Broadcast Drawings</span>
                             </label>
-                            <small style="color:#666; display:block; margin-left:24px;">Students see what you draw.</small>
+                            <small style="color:#666; display:block; margin-left:24px;">Students see what you
+                                draw.</small>
                         </div>
                     </div>
 
                     <div class="control-group">
-                        <button class="btn-leave" style="width: 100%; border-color: #FF4444; color: #FF4444;" onclick="adminClearAll()">
-                            <span class="material-icons" style="font-size: 16px; vertical-align: middle;">delete_forever</span>
+                        <button class="btn-leave" style="width: 100%; border-color: #FF4444; color: #FF4444;"
+                            onclick="adminClearAll()">
+                            <span class="material-icons"
+                                style="font-size: 16px; vertical-align: middle;">delete_forever</span>
                             Clear ALL Screens
                         </button>
                     </div>
@@ -216,15 +303,16 @@
             <div class="viewport-window" id="viewportContainer">
                 <div class="transform-container" id="zoomLayer">
                     <video id="remoteVideo" autoplay playsinline muted></video>
-                    
+
                     <img id="staticPhoto" style="display: none; width: 100%; height: 100%; object-fit: contain;">
-                    
+
                     <canvas id="annotationCanvas"></canvas>
                 </div>
             </div>
 
             <div class="toolbar-dock">
-                <button class="tool-btn active" onclick="setTool('move')" id="btnToolMove" title="Move and Zoom the Image">
+                <button class="tool-btn active" onclick="setTool('move')" id="btnToolMove"
+                    title="Move and Zoom the Image">
                     <span class="material-icons">pan_tool</span>
                 </button>
                 <div class="toolbar-divider"></div>
@@ -237,7 +325,8 @@
                 <button class="tool-btn" onclick="setTool('text')" id="btnToolText" title="Add Text Labels">
                     <span class="material-icons">title</span>
                 </button>
-                <button class="tool-btn" onclick="setTool('count')" id="btnToolCount" title="Count Objects (Click to Add Numbers)">
+                <button class="tool-btn" onclick="setTool('count')" id="btnToolCount"
+                    title="Count Objects (Click to Add Numbers)">
                     <span class="material-icons">touch_app</span>
                     <div id="countBadge" class="count-badge" style="display: none;">0</div>
                 </button>
@@ -255,7 +344,9 @@
     <div id="photoModal" class="modal-overlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <img id="modalImage" class="modal-img">
-            <a id="modalDownload" class="btn-leave" style="text-align: center; background: var(--accent); color: black; border: none; font-weight: bold; text-decoration: none;" download="snapshot.png">DOWNLOAD PHOTO</a>
+            <a id="modalDownload" class="btn-leave"
+                style="text-align: center; background: var(--accent); color: black; border: none; font-weight: bold; text-decoration: none;"
+                download="snapshot.png">DOWNLOAD PHOTO</a>
         </div>
     </div>
 
@@ -276,4 +367,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
