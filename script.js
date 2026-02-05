@@ -71,6 +71,8 @@ window.onload = function () {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
+    initSidebarResize();
+
     canvas.addEventListener('mousedown', handleStart);
     canvas.addEventListener('mousemove', handleMove);
     canvas.addEventListener('mouseup', handleEnd);
@@ -85,6 +87,71 @@ window.onload = function () {
     updateEraserIcon();
 };
 
+// --- SIDEBAR RESIZE (DESKTOP ONLY) ---
+const SIDEBAR_MIN_WIDTH = 220;
+const SIDEBAR_MAX_WIDTH = 520;
+
+function clampSidebarWidth(width) {
+    return Math.min(Math.max(width, SIDEBAR_MIN_WIDTH), SIDEBAR_MAX_WIDTH);
+}
+
+function applySidebarWidth(width) {
+    const clamped = clampSidebarWidth(width);
+    document.documentElement.style.setProperty('--sidebar-width', `${clamped}px`);
+    localStorage.setItem('eagleSidebarWidth', String(clamped));
+    resizeCanvas();
+}
+
+function initSidebarResize() {
+    const sidePanel = document.getElementById('sidePanel');
+    const resizer = document.getElementById('sidebarResizer');
+    const layout = document.querySelector('.main-layout');
+    const activityBar = document.querySelector('.activity-bar');
+
+    if (!sidePanel || !resizer || !layout) return;
+
+    const storedWidth = parseInt(localStorage.getItem('eagleSidebarWidth') || '', 10);
+    if (!Number.isNaN(storedWidth) && window.innerWidth > 900) {
+        applySidebarWidth(storedWidth);
+    }
+
+    let isDragging = false;
+
+    const onMouseMove = (e) => {
+        if (!isDragging) return;
+        const layoutRect = layout.getBoundingClientRect();
+        const activityWidth = activityBar ? activityBar.getBoundingClientRect().width : 0;
+        const newWidth = e.clientX - layoutRect.left - activityWidth;
+        applySidebarWidth(newWidth);
+    };
+
+    const stopDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        document.body.classList.remove('resizing-sidebar');
+        resizer.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', stopDrag);
+    };
+
+    resizer.addEventListener('mousedown', (e) => {
+        if (window.innerWidth <= 900) return;
+        if (sidePanel.classList.contains('collapsed')) return;
+        e.preventDefault();
+        isDragging = true;
+        document.body.classList.add('resizing-sidebar');
+        resizer.classList.add('dragging');
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', stopDrag);
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth <= 900) return;
+        const width = parseInt(localStorage.getItem('eagleSidebarWidth') || '', 10);
+        if (!Number.isNaN(width)) applySidebarWidth(width);
+    });
+}
+
 function leaveSession() {
     if (livekitRoom) livekitRoom.disconnect();
     sessionStorage.clear();
@@ -93,17 +160,10 @@ function leaveSession() {
 
 // --- SNAPSHOT LOGIC ---
 function takeSnapshot() {
-    const sW = videoEl.videoWidth || 1280; const sH = videoEl.videoHeight || 720;
-    const size = Math.min(sW, sH);
-    const snapCanvas = document.createElement('canvas'); snapCanvas.width = size; snapCanvas.height = size;
+    const snapCanvas = getAdjustedCanvas({ cropToSquare: true });
+    if (!snapCanvas) return alert("No snapshot source available yet.");
+    const size = snapCanvas.width;
     const sCtx = snapCanvas.getContext('2d');
-
-    // 1. Draw Feed (Video or Photo)
-    if (isPhotoMode) {
-        sCtx.drawImage(photoEl, 0, 0, size, size);
-    } else {
-        sCtx.drawImage(videoEl, (sW - size) / 2, (sH - size) / 2, size, size, 0, 0, size, size);
-    }
 
     // 2. Save CLEAN version for Broadcasting
     latestSnapshotUrl = snapCanvas.toDataURL('image/jpeg', 0.6);
@@ -248,7 +308,7 @@ function redrawCanvas() {
 function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = viewport.offsetHeight; redrawCanvas(); }
 function clearAnnotations() { history = []; redrawCanvas(); }
 function toggleAnnotationVisibility() { annotationsHidden = !annotationsHidden; canvas.style.opacity = annotationsHidden ? '0' : '1'; canvas.style.pointerEvents = annotationsHidden ? 'none' : 'auto'; }
-function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid #444; cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); togglePanel('gallery'); }
+function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid #444; cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); }
 
 // --- CONNECTION LOGIC ---
 function startConnection() {
@@ -397,12 +457,43 @@ let eagleAITier = null; // null, 'basic', or 'pro'
 let eaglePassword = null;
 let savedAnalyses = JSON.parse(localStorage.getItem('eagleAnalyses') || '[]');
 let eagleSessionTimeout;
+const EAGLE_DEFAULT_PLACEHOLDER = 'Enter access code';
+const EAGLE_PRO_PLACEHOLDER = 'Enter Pro access code';
+
+function setEaglePasswordPlaceholder(text) {
+    const passwordInput = document.getElementById('eaglePasswordInput');
+    if (passwordInput) passwordInput.placeholder = text;
+}
+
+function lockEagleAI() {
+    eagleAITier = null;
+    eaglePassword = null;
+    clearTimeout(eagleSessionTimeout);
+
+    const errorDiv = document.getElementById('eagle-error');
+    const passwordEntry = document.getElementById('eagle-password-entry');
+    const basicTier = document.getElementById('eagle-basic-tier');
+    const proTier = document.getElementById('eagle-pro-tier');
+    const results = document.getElementById('eagle-results');
+    const passwordInput = document.getElementById('eaglePasswordInput');
+
+    if (passwordEntry) passwordEntry.style.display = 'block';
+    if (basicTier) basicTier.style.display = 'none';
+    if (proTier) proTier.style.display = 'none';
+    if (results) results.style.display = 'none';
+    if (passwordInput) passwordInput.value = '';
+    if (errorDiv) errorDiv.style.display = 'none';
+    setEaglePasswordPlaceholder(EAGLE_DEFAULT_PLACEHOLDER);
+}
 
 // Unlock Eagle AI with password
 function unlockEagleAI() {
-    const password = document.getElementById('eaglePasswordInput').value;
+    const password = document.getElementById('eaglePasswordInput').value.trim();
     const errorDiv = document.getElementById('eagle-error');
-    
+
+    // Always start from locked state before validating
+    lockEagleAI();
+
     if (password === EAGLE_BASIC_PASSWORD) {
         eagleAITier = 'basic';
         eaglePassword = password;
@@ -417,17 +508,16 @@ function unlockEagleAI() {
         document.getElementById('eagle-pro-tier').style.display = 'block';
         errorDiv.style.display = 'none';
         resetEagleSession();
-        
+
         // Add character counter for custom questions
         const customQuestionInput = document.getElementById('customQuestionInput');
-        if (customQuestionInput) {
+        if (customQuestionInput && !customQuestionInput.dataset.listenerBound) {
             customQuestionInput.addEventListener('input', updateCharCount);
+            customQuestionInput.dataset.listenerBound = 'true';
         }
     } else {
         errorDiv.textContent = '❌ Invalid access code';
         errorDiv.style.display = 'block';
-        // Clear password field for security
-        document.getElementById('eaglePasswordInput').value = '';
     }
 }
 
@@ -444,86 +534,61 @@ function updateCharCount() {
 function upgradeToPro() {
     document.getElementById('eagle-basic-tier').style.display = 'none';
     document.getElementById('eagle-password-entry').style.display = 'block';
-    document.getElementById('eaglePasswordInput').placeholder = 'Enter Pro access code';
     document.getElementById('eaglePasswordInput').value = '';
+    setEaglePasswordPlaceholder(EAGLE_PRO_PLACEHOLDER);
+    const errorDiv = document.getElementById('eagle-error');
+    if (errorDiv) errorDiv.style.display = 'none';
+    const results = document.getElementById('eagle-results');
+    if (results) results.style.display = 'none';
 }
 
 // Session timeout for security (30 minutes)
 function resetEagleSession() {
     clearTimeout(eagleSessionTimeout);
     eagleSessionTimeout = setTimeout(() => {
-        eagleAITier = null;
-        eaglePassword = null;
-        document.getElementById('eagle-basic-tier').style.display = 'none';
-        document.getElementById('eagle-pro-tier').style.display = 'none';
-        document.getElementById('eagle-password-entry').style.display = 'block';
-        document.getElementById('eaglePasswordInput').value = '';
+        lockEagleAI();
         alert('Session expired. Please re-enter your access code.');
     }, EAGLE_SESSION_TIMEOUT_MS);
 }
 
-// Quick Identify (Basic & Pro)
-async function quickIdentify() {
+// Unified Analyze (Basic & Pro)
+async function analyzeSpecimen() {
     if (!eaglePassword) return;
-    
+
+    const groupName = eagleAITier === 'pro' ? 'eagleModePro' : 'eagleModeBasic';
+    const selected = document.querySelector(`input[name="${groupName}"]:checked`);
+    const mode = selected ? selected.value : 'standard';
+
+    if (mode === 'detailed' && eagleAITier !== 'pro') {
+        displayEagleError('Detailed mode requires Pro access.');
+        return;
+    }
+
     const imageData = captureCurrentFrame();
     if (!imageData) {
         alert('No image available. Please wait for video feed.');
         return;
     }
-    
-    showLoadingState('Analyzing specimen...');
-    resetEagleSession(); // Reset timeout on activity
-    
-    try {
-        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/quick-identify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                password: eaglePassword,
-                image: imageData.split(',')[1]
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            displayEagleResults(result.description, 'Quick Identify');
-        } else {
-            displayEagleError(result.error || 'Analysis failed');
-        }
-    } catch (error) {
-        displayEagleError('Network error: ' + error.message);
-    }
-}
 
-// Describe Slide (Pro only)
-async function describeSlide() {
-    if (eagleAITier !== 'pro') return;
-    
-    const imageData = captureCurrentFrame();
-    if (!imageData) {
-        alert('No image available.');
-        return;
-    }
-    
-    showLoadingState('Performing detailed analysis...');
+    const loadingLabel = mode === 'quick' ? 'Running quick analysis...' : mode === 'detailed' ? 'Performing detailed analysis...' : 'Analyzing specimen...';
+    showLoadingState(loadingLabel);
     resetEagleSession(); // Reset timeout on activity
-    
+
     try {
-        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/describe-slide`, {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/analyze`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 password: eaglePassword,
-                image: imageData.split(',')[1]
+                image: imageData.split(',')[1],
+                mode: mode
             })
         });
-        
+
         const result = await response.json();
-        
-        if (response.ok) {
-            displayEagleResults(result.description, 'Slide Description');
+
+        if (response.ok && result.success) {
+            displayEagleResults(result.response, mode);
         } else {
             displayEagleError(result.error || 'Analysis failed');
         }
@@ -535,22 +600,22 @@ async function describeSlide() {
 // Custom Question (Pro only)
 async function askCustomQuestion() {
     if (eagleAITier !== 'pro') return;
-    
+
     const question = document.getElementById('customQuestionInput').value.trim();
     if (!question) {
         alert('Please enter a question.');
         return;
     }
-    
+
     const imageData = captureCurrentFrame();
     if (!imageData) {
         alert('No image available.');
         return;
     }
-    
+
     showLoadingState('Processing your question...');
     resetEagleSession(); // Reset timeout on activity
-    
+
     try {
         const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/custom-question`, {
             method: 'POST',
@@ -561,9 +626,9 @@ async function askCustomQuestion() {
                 question: question
             })
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok) {
             displayEagleResults(result.description, 'Custom Analysis');
             document.getElementById('customQuestionInput').value = '';
@@ -580,16 +645,18 @@ async function askCustomQuestion() {
 function displayEagleResults(text, analysisType) {
     const resultsDiv = document.getElementById('eagle-results');
     const responseDiv = document.getElementById('eagle-response');
-    
+
     // Convert markdown-style formatting to HTML
     let formattedText = text
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
         .replace(/\n/g, '<br>');
-    
-    responseDiv.innerHTML = `<div class="analysis-type">${analysisType}</div>${formattedText}`;
+
+    const label = analysisType === 'quick' ? 'Quick ID' : analysisType === 'detailed' ? 'Detailed Analysis' : analysisType === 'standard' ? 'Standard Analysis' : analysisType;
+    responseDiv.innerHTML = `<div class="analysis-type">${label}</div>${formattedText}`;
+    responseDiv.classList.toggle('compact', analysisType === 'quick');
     resultsDiv.style.display = 'block';
-    
+
     // Save to history
     savedAnalyses.unshift({
         timestamp: new Date().toISOString(),
@@ -641,28 +708,100 @@ function saveResults() {
 
 // Capture current frame from video or canvas
 function captureCurrentFrame() {
-    const video = document.getElementById('remoteVideo');
+    const adjustedCanvas = getAdjustedCanvas({ cropToSquare: true });
+    if (!adjustedCanvas) return null;
+    return adjustedCanvas.toDataURL('image/jpeg', 0.9);
+}
+
+function getCurrentAdjustments() {
+    if (typeof adjustments !== 'undefined' && adjustments) return adjustments;
+    return { r: 100, g: 100, b: 100, brightness: 100, contrast: 100, saturation: 100, rotate: 0, flipH: 1, flipV: 1 };
+}
+
+function getSourceElement() {
     const photo = document.getElementById('staticPhoto');
-    
-    // Try static photo first (if in photo mode)
-    if (photo && photo.style.display !== 'none') {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = photo.naturalWidth || 1920;
-        tempCanvas.height = photo.naturalHeight || 1080;
-        const ctx = tempCanvas.getContext('2d');
-        ctx.drawImage(photo, 0, 0);
-        return tempCanvas.toDataURL('image/jpeg', 0.9);
+    const video = document.getElementById('remoteVideo');
+    if (photo && photo.style.display !== 'none') return photo;
+    return video;
+}
+
+function getSourceDimensions(source) {
+    if (!source) return null;
+    if (source.tagName === 'IMG') {
+        const w = source.naturalWidth || source.width || 1920;
+        const h = source.naturalHeight || source.height || 1080;
+        return { width: w, height: h };
     }
-    
-    // Otherwise capture from video
-    if (video && video.videoWidth > 0) {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = video.videoWidth;
-        tempCanvas.height = video.videoHeight;
-        const ctx = tempCanvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        return tempCanvas.toDataURL('image/jpeg', 0.9);
+    if (source.tagName === 'VIDEO') {
+        if (source.videoWidth > 0 && source.videoHeight > 0) {
+            return { width: source.videoWidth, height: source.videoHeight };
+        }
     }
-    
     return null;
+}
+
+function applyRgbAdjustments(canvas, adj) {
+    if (!canvas) return;
+    const rMul = (adj.r ?? 100) / 100;
+    const gMul = (adj.g ?? 100) / 100;
+    const bMul = (adj.b ?? 100) / 100;
+    if (rMul === 1 && gMul === 1 && bMul === 1) return;
+
+    const ctx = canvas.getContext('2d');
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = img.data;
+    for (let i = 0; i < data.length; i += 4) {
+        data[i] = Math.min(255, data[i] * rMul);
+        data[i + 1] = Math.min(255, data[i + 1] * gMul);
+        data[i + 2] = Math.min(255, data[i + 2] * bMul);
+    }
+    ctx.putImageData(img, 0, 0);
+}
+
+function drawAdjustedSourceToCanvas(source, width, height) {
+    const adj = getCurrentAdjustments();
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.filter = `brightness(${adj.brightness ?? 100}%) contrast(${adj.contrast ?? 100}%) saturate(${adj.saturation ?? 100}%)`;
+    ctx.save();
+    ctx.translate(width / 2, height / 2);
+    const radians = ((adj.rotate ?? 0) * Math.PI) / 180;
+    ctx.rotate(radians);
+    ctx.scale(adj.flipH ?? 1, adj.flipV ?? 1);
+    ctx.drawImage(source, -width / 2, -height / 2, width, height);
+    ctx.restore();
+    ctx.filter = 'none';
+
+    applyRgbAdjustments(canvas, adj);
+    return canvas;
+}
+
+function getAdjustedCanvas({ cropToSquare } = {}) {
+    const source = getSourceElement();
+    const dims = getSourceDimensions(source);
+    if (!source || !dims) return null;
+
+    const baseCanvas = drawAdjustedSourceToCanvas(source, dims.width, dims.height);
+    if (!cropToSquare) return baseCanvas;
+
+    const size = Math.min(dims.width, dims.height);
+    const cropped = document.createElement('canvas');
+    cropped.width = size;
+    cropped.height = size;
+    const ctx = cropped.getContext('2d');
+    ctx.drawImage(
+        baseCanvas,
+        (dims.width - size) / 2,
+        (dims.height - size) / 2,
+        size,
+        size,
+        0,
+        0,
+        size,
+        size
+    );
+    return cropped;
 }

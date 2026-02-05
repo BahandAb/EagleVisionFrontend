@@ -27,7 +27,7 @@
 
     <div class="top-header">
         <div class="header-left">
-            <span class="brand-title">EagleVision</span>
+            <img src="assets/EagleVisionLogo.png" alt="EagleVision" style="height: 40px;">
         </div>
         <div class="header-right">
             <span id="displaySessionCode" class="session-code">...</span>
@@ -48,8 +48,9 @@
             <div class="activity-icon" onclick="togglePanel('gallery')" title="Gallery">
                 <span class="material-icons">photo_library</span>
             </div>
-            <div class="activity-icon" onclick="togglePanel('ailab')" title="AI Lab">
-                <span class="material-icons">psychology</span>
+            <div class="activity-icon" onclick="togglePanel('ailab')" title="AI Lab" style="flex-direction: column; padding: 8px 0;">
+                <img src="assets/EagleAILogo.png" alt="AI" style="height: 24px; margin-bottom: 4px;">
+                <span style="font-size: 8px; line-height: 1.1; text-align: center; font-weight: 600; letter-spacing: 0.5px;">EAGLE<br>AI</span>
             </div>
             <div class="activity-icon" onclick="togglePanel('people')" title="Roster">
                 <span class="material-icons">group</span>
@@ -169,7 +170,15 @@
             </div>
             <!-- Eagle AI Panel -->
             <div id="panel-ailab" class="panel-content">
-                <div class="panel-header">🦅 Eagle AI</div>
+                <div class="panel-header" style="display:flex; align-items:center; justify-content:space-between;">
+                    <span style="display:flex; align-items:center; gap:8px;"><img src="assets/EagleAILogo.png" alt="Eagle AI" style="height:20px;"> Eagle AI</span>
+                    <button class="btn-leave" style="padding: 6px 10px; font-size: 11px;" onclick="lockEagleAI()">Exit AI</button>
+                </div>
+
+                <div class="ai-disclaimer">
+                    Eagle AI is an assistive tool and may be inaccurate. Always verify results with a qualified expert
+                    or official lab guidance before making decisions.
+                </div>
                 
                 <!-- Password Entry (shown first) -->
                 <div id="eagle-password-entry">
@@ -187,10 +196,25 @@
                 <div id="eagle-basic-tier" style="display: none;">
                     <div class="tier-badge">Basic Access</div>
                     <div class="control-group">
-                        <button class="btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="quickIdentify()">
-                            🎯 Quick Identify
+                        <div class="ai-mode-group">
+                            <label class="ai-mode-option">
+                                <input type="radio" name="eagleModeBasic" value="quick">
+                                <span class="ai-mode-label">Quick ID <small>(one-line answer)</small></span>
+                            </label>
+                            <label class="ai-mode-option">
+                                <input type="radio" name="eagleModeBasic" value="standard" checked>
+                                <span class="ai-mode-label">Standard <small>(balanced detail)</small></span>
+                            </label>
+                            <label class="ai-mode-option disabled">
+                                <input type="radio" name="eagleModeBasic" value="detailed" disabled>
+                                <span class="ai-mode-label">Detailed <small>(full analysis)</small></span>
+                                <span class="ai-pro-badge">PRO</span>
+                            </label>
+                        </div>
+                        <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="analyzeSpecimen()">
+                            Analyze Specimen
                         </button>
-                        <button class="btn-leave" style="width: 100%;" onclick="upgradeToPro()">
+                        <button class="btn-leave" style="width: 100%; margin-top: 10px;" onclick="upgradeToPro()">
                             Unlock Pro Features
                         </button>
                     </div>
@@ -200,14 +224,24 @@
                 <div id="eagle-pro-tier" style="display: none;">
                     <div class="tier-badge pro">Pro Access</div>
                     <div class="control-group">
-                        <div class="button-group">
-                            <button class="btn-primary" onclick="quickIdentify()">
-                                🎯 Quick Identify
-                            </button>
-                            <button class="btn-primary" onclick="describeSlide()">
-                                📋 Describe Slide
-                            </button>
+                        <div class="ai-mode-group">
+                            <label class="ai-mode-option">
+                                <input type="radio" name="eagleModePro" value="quick">
+                                <span class="ai-mode-label">Quick ID <small>(one-line answer)</small></span>
+                            </label>
+                            <label class="ai-mode-option">
+                                <input type="radio" name="eagleModePro" value="standard" checked>
+                                <span class="ai-mode-label">Standard <small>(balanced detail)</small></span>
+                            </label>
+                            <label class="ai-mode-option">
+                                <input type="radio" name="eagleModePro" value="detailed">
+                                <span class="ai-mode-label">Detailed <small>(full analysis)</small></span>
+                                <span class="ai-pro-badge">PRO</span>
+                            </label>
                         </div>
+                        <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="analyzeSpecimen()">
+                            Analyze Specimen
+                        </button>
                     </div>
                     <div class="control-group">
                         <label>Custom Question</label>
@@ -230,10 +264,10 @@
                             <span style="color: #aaa; font-size: 12px; text-transform: uppercase;">Results</span>
                             <div>
                                 <button class="btn-leave" style="padding: 4px 8px; font-size: 12px;" onclick="copyResults()">
-                                    📋 Copy
+                                    Copy
                                 </button>
                                 <button class="btn-leave" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;" onclick="saveResults()">
-                                    💾 Save
+                                    Save
                                 </button>
                             </div>
                         </div>
@@ -320,6 +354,8 @@
             </div>
         </div>
 
+        <div id="sidebarResizer" class="sidebar-resizer" aria-hidden="true"></div>
+
         <div class="workspace-area">
             <div class="viewport-window" id="viewportContainer">
                 <div class="transform-container" id="zoomLayer">
@@ -338,10 +374,10 @@
                 </button>
                 <div class="toolbar-divider"></div>
                 <button class="tool-btn" onclick="setTool('draw')" id="btnToolDraw" title="Draw with Pen">
-                    <span class="material-icons">brush</span>
+                    <img src="assets/Pencil.png" alt="Draw" style="height: 24px;">
                 </button>
                 <button class="tool-btn" onclick="setTool('eraser')" id="btnToolEraser" title="Erase Your Drawings">
-                    <span class="material-icons">cleaning_services</span>
+                    <img src="assets/Eraser.png" alt="Erase" style="height: 24px;">
                 </button>
                 <button class="tool-btn" onclick="setTool('text')" id="btnToolText" title="Add Text Labels">
                     <span class="material-icons">title</span>

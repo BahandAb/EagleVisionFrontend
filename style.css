@@ -19,6 +19,15 @@ body {
     overflow: hidden;
 }
 
+body.resizing-sidebar {
+    cursor: col-resize;
+    user-select: none;
+}
+
+body.resizing-sidebar .side-panel {
+    transition: none;
+}
+
 /* --- LANDING PAGE --- */
 .landing-body {
     display: flex;
@@ -219,6 +228,33 @@ body {
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
+}
+
+.sidebar-resizer {
+    width: 6px;
+    cursor: col-resize;
+    background: transparent;
+    position: relative;
+    z-index: 16;
+}
+
+.sidebar-resizer::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #333;
+    opacity: 0.6;
+}
+
+.sidebar-resizer.dragging {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.side-panel.collapsed + .sidebar-resizer {
+    display: none;
 }
 
 .side-panel.collapsed {
@@ -723,6 +759,10 @@ input[type=range] {
         order: 2;
     }
 
+    .sidebar-resizer {
+        display: none;
+    }
+
     .side-panel.collapsed {
         height: 0;
     }
@@ -884,4 +924,80 @@ input[type=range] {
 
 .button-group button {
     width: 100%;
+}
+
+.ai-disclaimer {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #999;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin: 10px 0 15px 0;
+}
+
+.ai-mode-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.ai-mode-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid transparent;
+}
+
+.ai-mode-option:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.ai-mode-option input[type="radio"] {
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.ai-mode-label {
+    color: #ddd;
+    font-size: 13px;
+}
+
+.ai-mode-label small {
+    color: #888;
+    font-size: 11px;
+    margin-left: 4px;
+}
+
+.ai-mode-option.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.ai-mode-option.disabled input[type="radio"] {
+    cursor: not-allowed;
+}
+
+.ai-pro-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    color: #000;
+    background: var(--accent);
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+.eagle-response.compact {
+    font-size: 13px;
+    padding: 12px;
 }
