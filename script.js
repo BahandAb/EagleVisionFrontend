@@ -1,5 +1,14 @@
 const SIGNALING_SERVER_URL = "https://api.eaglevision.dev";
 
+// --- EAGLE AI CONFIGURATION ---
+// NOTE: Passwords are defined client-side for demo purposes. The actual authentication
+// and validation happens server-side when API requests are made. These passwords are
+// sent to the backend which validates them before processing AI requests.
+const EAGLE_API_BASE_URL = "https://api.eaglevision.dev";
+const EAGLE_BASIC_PASSWORD = "EagleDemo2026";
+const EAGLE_PRO_PASSWORD = "EaglePro2026";
+const EAGLE_SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
 // --- STATE ---
 let socket;
 let livekitRoom = null; // NEW: LiveKit Room Instance
@@ -394,14 +403,14 @@ function unlockEagleAI() {
     const password = document.getElementById('eaglePasswordInput').value;
     const errorDiv = document.getElementById('eagle-error');
     
-    if (password === 'EagleDemo2026') {
+    if (password === EAGLE_BASIC_PASSWORD) {
         eagleAITier = 'basic';
         eaglePassword = password;
         document.getElementById('eagle-password-entry').style.display = 'none';
         document.getElementById('eagle-basic-tier').style.display = 'block';
         errorDiv.style.display = 'none';
         resetEagleSession();
-    } else if (password === 'EaglePro2026') {
+    } else if (password === EAGLE_PRO_PASSWORD) {
         eagleAITier = 'pro';
         eaglePassword = password;
         document.getElementById('eagle-password-entry').style.display = 'none';
@@ -450,7 +459,7 @@ function resetEagleSession() {
         document.getElementById('eagle-password-entry').style.display = 'block';
         document.getElementById('eaglePasswordInput').value = '';
         alert('Session expired. Please re-enter your access code.');
-    }, 30 * 60 * 1000); // 30 minutes
+    }, EAGLE_SESSION_TIMEOUT_MS);
 }
 
 // Quick Identify (Basic & Pro)
@@ -467,7 +476,7 @@ async function quickIdentify() {
     resetEagleSession(); // Reset timeout on activity
     
     try {
-        const response = await fetch('https://api.eaglevision.dev/api/ai/quick-identify', {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/quick-identify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -502,7 +511,7 @@ async function describeSlide() {
     resetEagleSession(); // Reset timeout on activity
     
     try {
-        const response = await fetch('https://api.eaglevision.dev/api/ai/describe-slide', {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/describe-slide`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -543,7 +552,7 @@ async function askCustomQuestion() {
     resetEagleSession(); // Reset timeout on activity
     
     try {
-        const response = await fetch('https://api.eaglevision.dev/api/ai/custom-question', {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/custom-question`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

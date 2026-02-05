@@ -36,15 +36,6 @@
     </div>
 
     <script>
-        // Auto-focus session code on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            const sessionInput = document.getElementById('landingSessionInput');
-            if (sessionInput) {
-                sessionInput.focus();
-                sessionInput.select();
-            }
-        });
-
         function toggleAdminInput() {
             const div = document.getElementById("adminInputDiv");
             div.style.display = (div.style.display === "none") ? "block" : "none";
@@ -83,12 +74,17 @@
             window.location.href = "workspace.html";
         }
         
-        // Enter key navigation: Session Code -> Name -> Submit
+        // Initialize on page load: auto-focus and Enter key navigation
         document.addEventListener('DOMContentLoaded', () => {
             const sessionInput = document.getElementById('landingSessionInput');
             const nameInput = document.getElementById('landingNameInput');
             
+            // Auto-focus session code input
             if (sessionInput) {
+                sessionInput.focus();
+                sessionInput.select();
+                
+                // Enter key navigation: Session Code -> Name
                 sessionInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -97,6 +93,7 @@
                 });
             }
             
+            // Enter key navigation: Name -> Submit
             if (nameInput) {
                 nameInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
