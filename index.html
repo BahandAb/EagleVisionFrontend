@@ -46,6 +46,7 @@
             const name = document.getElementById("landingNameInput").value.trim();
             const adminKey = document.getElementById("landingAdminKey").value.trim();
             const err = document.getElementById("landingError");
+            const joinBtn = document.querySelector('.btn-primary');
 
             if (code.length < 3) {
                 err.innerText = "Invalid Session Code";
@@ -58,6 +59,11 @@
                 return;
             }
 
+            // Show loading state
+            joinBtn.disabled = true;
+            joinBtn.style.opacity = '0.6';
+            joinBtn.innerText = 'CONNECTING...';
+
             // Save Data
             sessionStorage.setItem("eagleSessionCode", code);
             sessionStorage.setItem("eagleUserName", name);
@@ -67,6 +73,36 @@
 
             window.location.href = "workspace.html";
         }
+        
+        // Initialize on page load: auto-focus and Enter key navigation
+        document.addEventListener('DOMContentLoaded', () => {
+            const sessionInput = document.getElementById('landingSessionInput');
+            const nameInput = document.getElementById('landingNameInput');
+            
+            // Auto-focus session code input
+            if (sessionInput) {
+                sessionInput.focus();
+                sessionInput.select();
+                
+                // Enter key navigation: Session Code -> Name
+                sessionInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        nameInput?.focus();
+                    }
+                });
+            }
+            
+            // Enter key navigation: Name -> Submit
+            if (nameInput) {
+                nameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        goToWorkspace();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

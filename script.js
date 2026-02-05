@@ -1,5 +1,14 @@
 const SIGNALING_SERVER_URL = "https://api.eaglevision.dev";
 
+// --- EAGLE AI CONFIGURATION ---
+// NOTE: Passwords are defined client-side for demo purposes. The actual authentication
+// and validation happens server-side when API requests are made. These passwords are
+// sent to the backend which validates them before processing AI requests.
+const EAGLE_API_BASE_URL = "https://api.eaglevision.dev";
+const EAGLE_BASIC_PASSWORD = "EagleDemo2026";
+const EAGLE_PRO_PASSWORD = "EaglePro2026";
+const EAGLE_SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
 // --- STATE ---
 let socket;
 let livekitRoom = null; // NEW: LiveKit Room Instance
@@ -380,130 +389,280 @@ function cancelTextInput() {
 }
 
 // ==========================================
-// AI LAB FUNCTIONS
+// EAGLE AI SYSTEM
 // ==========================================
 
-// Store password in session (cleared on browser close)
-let aiPassword = null;
+// Eagle AI State Management
+let eagleAITier = null; // null, 'basic', or 'pro'
+let eaglePassword = null;
+let savedAnalyses = JSON.parse(localStorage.getItem('eagleAnalyses') || '[]');
+let eagleSessionTimeout;
 
-/**
- * Unlock AI features with password
- */
-function unlockAI() {
-    const passwordInput = document.getElementById('aiPassword');  // ✅ with hyphen
-    const password = passwordInput.value.trim();
-
-    if (!password) {
-        showPasswordStatus('Please enter a password');
-        return;
-    }
-
-    aiPassword = password;
-
-    document.getElementById('aiLockScreen').style.display = 'none';  // ✅ with hyphens
-    document.getElementById('aiFeatures').style.display = 'block';     // ✅ ai-content not aiFeatures
-
-    passwordInput.value = '';
-}
-
-/**
- * Show password status message
- */
-function showPasswordStatus(message) {
-    const statusDiv = document.getElementById('passwordStatus');  // ✅ add hyphen if HTML has it
-    statusDiv.textContent = message;
-    setTimeout(() => {
-        statusDiv.textContent = '';
-    }, 3000);
-}
-
-/**
- * Describe sample using Gemini (via backend)
- */
-async function describeSample() {
-    if (!aiPassword) {
-        showAIResult('❌ Please unlock AI features first!', 'error');
-        return;
-    }
-
-    showAIResult('🔄 Analyzing image with AI...\n\nThis may take 5-10 seconds...', 'loading');
-
-    try {
-        // Get current video frame as base64
-        const video = document.getElementById('remoteVideo');
-        const staticPhoto = document.getElementById('staticPhoto');
-
-        // Check if we're in photo mode or live mode
-        const isPhotoMode = staticPhoto.style.display !== 'none';
-
-        const tempCanvas = document.createElement('canvas');
-
-        if (isPhotoMode) {
-            // Capture from static photo
-            tempCanvas.width = staticPhoto.naturalWidth;
-            tempCanvas.height = staticPhoto.naturalHeight;
-            const ctx = tempCanvas.getContext('2d');
-            ctx.drawImage(staticPhoto, 0, 0);
-        } else {
-            // Capture from video
-            tempCanvas.width = video.videoWidth || 1920;
-            tempCanvas.height = video.videoHeight || 1080;
-            const ctx = tempCanvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
+// Unlock Eagle AI with password
+function unlockEagleAI() {
+    const password = document.getElementById('eaglePasswordInput').value;
+    const errorDiv = document.getElementById('eagle-error');
+    
+    if (password === EAGLE_BASIC_PASSWORD) {
+        eagleAITier = 'basic';
+        eaglePassword = password;
+        document.getElementById('eagle-password-entry').style.display = 'none';
+        document.getElementById('eagle-basic-tier').style.display = 'block';
+        errorDiv.style.display = 'none';
+        resetEagleSession();
+    } else if (password === EAGLE_PRO_PASSWORD) {
+        eagleAITier = 'pro';
+        eaglePassword = password;
+        document.getElementById('eagle-password-entry').style.display = 'none';
+        document.getElementById('eagle-pro-tier').style.display = 'block';
+        errorDiv.style.display = 'none';
+        resetEagleSession();
+        
+        // Add character counter for custom questions
+        const customQuestionInput = document.getElementById('customQuestionInput');
+        if (customQuestionInput) {
+            customQuestionInput.addEventListener('input', updateCharCount);
         }
+    } else {
+        errorDiv.textContent = '❌ Invalid access code';
+        errorDiv.style.display = 'block';
+        // Clear password field for security
+        document.getElementById('eaglePasswordInput').value = '';
+    }
+}
 
-        // Get base64 (remove prefix)
-        const base64Image = tempCanvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+// Update character count for custom questions
+function updateCharCount() {
+    const textarea = document.getElementById('customQuestionInput');
+    const charCount = document.getElementById('charCount');
+    if (textarea && charCount) {
+        charCount.textContent = textarea.value.length;
+    }
+}
 
-        // Call YOUR backend (adjust URL if your backend is on different domain)
-        const backendUrl = window.location.origin;  // ✅ NEW - uses same domain
+// Upgrade from Basic to Pro
+function upgradeToPro() {
+    document.getElementById('eagle-basic-tier').style.display = 'none';
+    document.getElementById('eagle-password-entry').style.display = 'block';
+    document.getElementById('eaglePasswordInput').placeholder = 'Enter Pro access code';
+    document.getElementById('eaglePasswordInput').value = '';
+}
 
-        const response = await fetch(`${backendUrl}/api/ai/describe`, {
+// Session timeout for security (30 minutes)
+function resetEagleSession() {
+    clearTimeout(eagleSessionTimeout);
+    eagleSessionTimeout = setTimeout(() => {
+        eagleAITier = null;
+        eaglePassword = null;
+        document.getElementById('eagle-basic-tier').style.display = 'none';
+        document.getElementById('eagle-pro-tier').style.display = 'none';
+        document.getElementById('eagle-password-entry').style.display = 'block';
+        document.getElementById('eaglePasswordInput').value = '';
+        alert('Session expired. Please re-enter your access code.');
+    }, EAGLE_SESSION_TIMEOUT_MS);
+}
+
+// Quick Identify (Basic & Pro)
+async function quickIdentify() {
+    if (!eaglePassword) return;
+    
+    const imageData = captureCurrentFrame();
+    if (!imageData) {
+        alert('No image available. Please wait for video feed.');
+        return;
+    }
+    
+    showLoadingState('Analyzing specimen...');
+    resetEagleSession(); // Reset timeout on activity
+    
+    try {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/quick-identify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                password: aiPassword,
-                image: base64Image
+                password: eaglePassword,
+                image: imageData.split(',')[1]
             })
         });
-
-        const data = await response.json();
-
-        if (!data.success) {
-            if (response.status === 401) {
-                // Wrong password - lock again
-                aiPassword = null;
-                document.getElementById('aiLockScreen').style.display = 'block';
-                document.getElementById('aiFeatures').style.display = 'none';
-                showPasswordStatus('Invalid password. Please try again.');
-                throw new Error('Invalid password');
-            }
-            throw new Error(data.error || 'Unknown error');
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            displayEagleResults(result.description, 'Quick Identify');
+        } else {
+            displayEagleError(result.error || 'Analysis failed');
         }
-
-        showAIResult('🤖 AI Analysis:\n\n' + data.description, 'success');
-
     } catch (error) {
-        console.error('AI Error:', error);
-        showAIResult('❌ Error: ' + error.message, 'error');
+        displayEagleError('Network error: ' + error.message);
     }
 }
 
-/**
- * Display AI results
- */
-function showAIResult(message, type) {
-    const resultsDiv = document.getElementById('aiResults');
-    resultsDiv.textContent = message;
-
-    if (type === 'error') {
-        resultsDiv.style.borderColor = '#FF4444';
-        resultsDiv.style.color = '#FF6666';
-    } else if (type === 'success') {
-        resultsDiv.style.borderColor = '#44FF44';
-        resultsDiv.style.color = '#E0E0E0';
-    } else if (type === 'loading') {
-        resultsDiv.style.borderColor = '#FFD700';
-        resultsDiv.style.color = '#FFD700';
+// Describe Slide (Pro only)
+async function describeSlide() {
+    if (eagleAITier !== 'pro') return;
+    
+    const imageData = captureCurrentFrame();
+    if (!imageData) {
+        alert('No image available.');
+        return;
     }
+    
+    showLoadingState('Performing detailed analysis...');
+    resetEagleSession(); // Reset timeout on activity
+    
+    try {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/describe-slide`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                password: eaglePassword,
+                image: imageData.split(',')[1]
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            displayEagleResults(result.description, 'Slide Description');
+        } else {
+            displayEagleError(result.error || 'Analysis failed');
+        }
+    } catch (error) {
+        displayEagleError('Network error: ' + error.message);
+    }
+}
+
+// Custom Question (Pro only)
+async function askCustomQuestion() {
+    if (eagleAITier !== 'pro') return;
+    
+    const question = document.getElementById('customQuestionInput').value.trim();
+    if (!question) {
+        alert('Please enter a question.');
+        return;
+    }
+    
+    const imageData = captureCurrentFrame();
+    if (!imageData) {
+        alert('No image available.');
+        return;
+    }
+    
+    showLoadingState('Processing your question...');
+    resetEagleSession(); // Reset timeout on activity
+    
+    try {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/custom-question`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                password: eaglePassword,
+                image: imageData.split(',')[1],
+                question: question
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            displayEagleResults(result.description, 'Custom Analysis');
+            document.getElementById('customQuestionInput').value = '';
+            updateCharCount();
+        } else {
+            displayEagleError(result.error || 'Analysis failed');
+        }
+    } catch (error) {
+        displayEagleError('Network error: ' + error.message);
+    }
+}
+
+// Display results with markdown support
+function displayEagleResults(text, analysisType) {
+    const resultsDiv = document.getElementById('eagle-results');
+    const responseDiv = document.getElementById('eagle-response');
+    
+    // Convert markdown-style formatting to HTML
+    let formattedText = text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+    
+    responseDiv.innerHTML = `<div class="analysis-type">${analysisType}</div>${formattedText}`;
+    resultsDiv.style.display = 'block';
+    
+    // Save to history
+    savedAnalyses.unshift({
+        timestamp: new Date().toISOString(),
+        type: analysisType,
+        result: text
+    });
+    if (savedAnalyses.length > 50) savedAnalyses = savedAnalyses.slice(0, 50);
+    localStorage.setItem('eagleAnalyses', JSON.stringify(savedAnalyses));
+}
+
+function displayEagleError(message) {
+    const resultsDiv = document.getElementById('eagle-results');
+    const responseDiv = document.getElementById('eagle-response');
+    responseDiv.innerHTML = `<div class="error-message">❌ ${message}</div>`;
+    resultsDiv.style.display = 'block';
+}
+
+function showLoadingState(message) {
+    const resultsDiv = document.getElementById('eagle-results');
+    const responseDiv = document.getElementById('eagle-response');
+    responseDiv.innerHTML = `<div class="loading-state">⏳ ${message}</div>`;
+    resultsDiv.style.display = 'block';
+}
+
+// Copy results to clipboard
+function copyResults() {
+    const responseDiv = document.getElementById('eagle-response');
+    const text = responseDiv.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('✓ Copied to clipboard!');
+    }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy. Please try again.');
+    });
+}
+
+// Save results as text file
+function saveResults() {
+    const responseDiv = document.getElementById('eagle-response');
+    const text = responseDiv.innerText;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `eagle-ai-analysis-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Capture current frame from video or canvas
+function captureCurrentFrame() {
+    const video = document.getElementById('remoteVideo');
+    const photo = document.getElementById('staticPhoto');
+    
+    // Try static photo first (if in photo mode)
+    if (photo && photo.style.display !== 'none') {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = photo.naturalWidth || 1920;
+        tempCanvas.height = photo.naturalHeight || 1080;
+        const ctx = tempCanvas.getContext('2d');
+        ctx.drawImage(photo, 0, 0);
+        return tempCanvas.toDataURL('image/jpeg', 0.9);
+    }
+    
+    // Otherwise capture from video
+    if (video && video.videoWidth > 0) {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = video.videoWidth;
+        tempCanvas.height = video.videoHeight;
+        const ctx = tempCanvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        return tempCanvas.toDataURL('image/jpeg', 0.9);
+    }
+    
+    return null;
 }

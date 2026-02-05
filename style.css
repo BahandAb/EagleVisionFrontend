@@ -781,3 +781,107 @@ input[type=range] {
         transform: translateY(0);
     }
 }
+
+/* --- EAGLE AI STYLES --- */
+
+/* Eagle AI Tier Badges */
+.tier-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tier-badge.pro {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Eagle AI Results */
+.eagle-response {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+.analysis-type {
+    font-weight: bold;
+    color: #FFD700;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}
+
+.error-message {
+    color: #ff4444;
+    padding: 12px;
+    background: rgba(255, 68, 68, 0.1);
+    border-radius: 4px;
+}
+
+/* Results Header */
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.results-header button {
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+/* Custom Question Section */
+.custom-question-section {
+    margin-top: 0;
+}
+
+.custom-question-section textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.custom-question-section textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Button Groups */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.button-group button {
+    width: 100%;
+}
