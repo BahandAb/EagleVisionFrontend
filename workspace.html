@@ -167,56 +167,77 @@
                 <div class="panel-header">📸 My Gallery</div>
                 <div id="galleryGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
             </div>
-            <!-- AI Lab Panel -->
+            <!-- Eagle AI Panel -->
             <div id="panel-ailab" class="panel-content">
-                <div class="panel-header">🤖 AI Lab</div>
-
-                <!-- Password Lock Screen -->
-                <div id="aiLockScreen" class="control-group">
-                    <label>🔒 Enter AI Access Password</label>
-                    <input type="password" id="aiPassword" placeholder="Enter password"
-                        style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white; margin-bottom: 5px;"
-                        onkeypress="if(event.key==='Enter') unlockAI()">
-                    <button class="btn-leave" style="width: 100%;" onclick="unlockAI()">
-                        Unlock AI Features
-                    </button>
-                    <div id="passwordStatus" style="margin-top: 5px; font-size: 12px; color: #FF4444;"></div>
-                </div>
-
-                <!-- AI Features (hidden until unlocked) -->
-                <div id="aiFeatures" style="display: none;">
-                    <div
-                        style="color:#44FF44; font-weight:bold; text-align:center; margin-bottom: 15px; border: 1px solid #44FF44; padding: 8px; border-radius: 4px; font-size: 12px;">
-                        <span class="material-icons" style="vertical-align: middle; font-size: 16px;">lock_open</span>
-                        AI UNLOCKED
-                    </div>
-
+                <div class="panel-header">🦅 Eagle AI</div>
+                
+                <!-- Password Entry (shown first) -->
+                <div id="eagle-password-entry">
                     <div class="control-group">
-                        <label>AI Actions</label>
-                        <button class="btn-leave" style="width: 100%; margin-bottom: 10px;" onclick="describeSample()">
-                            <span class="material-icons"
-                                style="font-size: 16px; vertical-align: middle;">psychology</span>
-                            Describe Sample
+                        <label>Access Code</label>
+                        <input type="password" id="eaglePasswordInput" placeholder="Enter access code"
+                            style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white; margin-bottom: 5px;"
+                            onkeypress="if(event.key==='Enter') unlockEagleAI()">
+                        <button class="btn-leave" style="width: 100%;" onclick="unlockEagleAI()">Unlock</button>
+                        <div id="eagle-error" style="color: #ff4444; display: none; margin-top: 5px; font-size: 12px;"></div>
+                    </div>
+                </div>
+                
+                <!-- Basic Tier (unlocked with basic password) -->
+                <div id="eagle-basic-tier" style="display: none;">
+                    <div class="tier-badge">Basic Access</div>
+                    <div class="control-group">
+                        <button class="btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="quickIdentify()">
+                            🎯 Quick Identify
+                        </button>
+                        <button class="btn-leave" style="width: 100%;" onclick="upgradeToPro()">
+                            Unlock Pro Features
                         </button>
                     </div>
-
+                </div>
+                
+                <!-- Pro Tier (unlocked with pro password) -->
+                <div id="eagle-pro-tier" style="display: none;">
+                    <div class="tier-badge pro">Pro Access</div>
                     <div class="control-group">
-                        <label>AI Results</label>
-                        <div id="aiResults" style="
-                background: #111; 
-                border: 1px solid #333; 
-                padding: 10px; 
-                border-radius: 4px; 
-                min-height: 100px; 
-                max-height: 300px; 
-                overflow-y: auto; 
-                font-size: 13px; 
-                line-height: 1.6;
-                color: #ccc;
-                white-space: pre-wrap;
-            ">
-                            Results will appear here...
+                        <div class="button-group">
+                            <button class="btn-primary" onclick="quickIdentify()">
+                                🎯 Quick Identify
+                            </button>
+                            <button class="btn-primary" onclick="describeSlide()">
+                                📋 Describe Slide
+                            </button>
                         </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Custom Question</label>
+                        <div class="custom-question-section">
+                            <textarea id="customQuestionInput" placeholder="Ask anything about the specimen..." maxlength="500"></textarea>
+                            <button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="askCustomQuestion()">
+                                Ask Eagle AI
+                            </button>
+                            <small style="color: #666; font-size: 11px; display: block; margin-top: 4px;">
+                                <span id="charCount">0</span>/500 characters
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results Display (shared) -->
+                <div id="eagle-results" style="display: none;">
+                    <div class="control-group">
+                        <div class="results-header">
+                            <span style="color: #aaa; font-size: 12px; text-transform: uppercase;">Results</span>
+                            <div>
+                                <button class="btn-leave" style="padding: 4px 8px; font-size: 12px;" onclick="copyResults()">
+                                    📋 Copy
+                                </button>
+                                <button class="btn-leave" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;" onclick="saveResults()">
+                                    💾 Save
+                                </button>
+                            </div>
+                        </div>
+                        <div id="eagle-response" class="eagle-response"></div>
                     </div>
                 </div>
             </div>
