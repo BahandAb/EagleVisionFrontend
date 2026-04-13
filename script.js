@@ -381,7 +381,7 @@ function startConnection() {
             console.log("Remote participants:", livekitRoom.participants.size);
 
             // Check existing participants and their tracks
-            livekitRoom.participants.forEach((participant, identity) => {
+            livekitRoom.remoteParticipants.forEach((participant, identity) => {
                 console.log("Found participant:", identity);
                 console.log("  Video tracks:", participant.videoTracks.size);
                 console.log("  Audio tracks:", participant.audioTracks.size);
