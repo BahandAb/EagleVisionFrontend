@@ -19,8 +19,22 @@
             <a href="about.html" class="home-nav-link">About</a>
             <a href="#contact" class="home-nav-link">Contact</a>
         </div>
-        <a href="session.html" class="home-nav-cta">Join Session</a>
+        <div class="home-nav-right">
+            <a href="session.html" class="home-nav-cta">Join Session</a>
+            <button class="hamburger" id="hamburger" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#use-cases" class="mobile-menu-link">Use Cases</a>
+        <a href="#how-it-works" class="mobile-menu-link">How It Works</a>
+        <a href="about.html" class="mobile-menu-link">About</a>
+        <a href="#contact" class="mobile-menu-link">Contact</a>
+        <a href="session.html" class="mobile-menu-link mobile-menu-cta">Join Session</a>
+    </div>
 
     <!-- HERO -->
     <section class="hero">
@@ -402,6 +416,20 @@
     </footer>
 
     <script>
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+        mobileMenu.querySelectorAll('.mobile-menu-link').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            });
+        });
+
         // Back to top visibility
         const backToTop = document.getElementById('backToTop');
         window.addEventListener('scroll', () => {
