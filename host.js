@@ -156,6 +156,7 @@ async function startSession() {
   const [w, h] = getResolution();
   canvasEl.width  = w;
   canvasEl.height = h;
+  canvasEl.style.aspectRatio = `${w}/${h}`;
 
   document.getElementById('setup-screen').style.display  = 'none';
   document.getElementById('session-screen').style.display = 'flex';
@@ -220,6 +221,19 @@ function connectSocket() {
   socket.on('connect_error', err => {
     setSocketStatus(false);
     console.warn('Socket error:', err.message);
+  });
+
+  socket.on('host_error', data => {
+    const msg = (data && data.message) ? data.message : 'Session error. Try a new code.';
+    console.warn('Host error:', msg);
+    // Surface the error in the status panel so the host sees it
+    const statusBody = document.getElementById('status-body');
+    if (statusBody) {
+      const p = document.createElement('p');
+      p.style.cssText = 'font-size:.85rem;color:#f87171;margin:0';
+      p.textContent = msg;
+      statusBody.prepend(p);
+    }
   });
 }
 
@@ -377,17 +391,32 @@ function closeMobilePanel() {
 // ── Roster ────────────────────────────────────
 function renderRoster() {
   const body = document.getElementById('roster-body');
-  if (!roster.length) { body.innerHTML = '<p style="font-size:.85rem;color:var(--muted,#7c83a8)">No students yet.</p>'; return; }
+  if (!roster.length) {
+    body.innerHTML = '<p style="font-size:.85rem;color:var(--muted,#7c83a8)">No students yet.</p>';
+    return;
+  }
   body.innerHTML = '';
   roster.forEach(student => {
     const initials = (student.name || '?').slice(0, 2).toUpperCase();
+
+    const avatar = document.createElement('div');
+    avatar.className = 'roster-avatar';
+    avatar.textContent = initials;
+
+    const name = document.createElement('span');
+    name.className = 'roster-name';
+    name.textContent = student.name || student.id;
+
+    const kick = document.createElement('button');
+    kick.className = 'roster-kick';
+    kick.textContent = 'Kick';
+    kick.addEventListener('click', () => kickUser(student.id));
+
     const div = document.createElement('div');
     div.className = 'roster-item';
-    div.innerHTML = `
-      <div class="roster-avatar">${initials}</div>
-      <span class="roster-name">${student.name || student.id}</span>
-      <button class="roster-kick" onclick="kickUser('${student.id}')">Kick</button>
-    `;
+    div.appendChild(avatar);
+    div.appendChild(name);
+    div.appendChild(kick);
     body.appendChild(div);
   });
 }
@@ -395,7 +424,7 @@ function renderRoster() {
 // ── Admin commands ────────────────────────────
 function kickUser(studentId) {
   if (!socket) return;
-  socket.emit('kick_user', { code: sessionCode, adminKey, targetId: studentId });
+  socket.emit('kick_student', { code: sessionCode, adminKey, targetId: studentId });
 }
 
 function triggerReturnLive() {
