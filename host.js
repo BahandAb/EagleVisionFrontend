@@ -1,83 +1,70 @@
-const SIGNALING_SERVER_URL = "https://api.eaglevision.dev";
+/* ─────────────────────────────────────────────
+   EagleVision – Host Page  (host.js)
+   ───────────────────────────────────────────── */
 
-// --- STATE ---
-let socket = null;
-let livekitRoom = null;
-let localVideoTrack = null;
-let canvasStream = null;
-let cameraStream = null;
-let hiddenVideo = null;
+// ── State ────────────────────────────────────
+let socket            = null;
+let livekitRoom       = null;
+let cameraStream      = null;
+let canvasStream      = null;
+let sessionCode       = '';
+let adminKey          = '';
+let roster            = [];          // [{id, name}]
+let animFrameId       = null;
 
-let sessionCode = "";
-let adminKey = "";
-let currentRoomID = "";
+// Crop state
+let cropActive        = false;
+let cropRect          = { x: 0, y: 0, w: 1, h: 1 };  // normalised 0-1
+let dragState         = null;        // {type:'move'|corner, corner, startX, startY, startRect}
 
-let cropEnabled = false;
-let cropRect = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
-let dragState = null;
+// ── DOM refs (populated after DOMContentLoaded) ──
+let videoEl, canvasEl, ctx, cropOverlay;
 
-let rafHandle = null;
-let latestRoster = {};
-let isFollowMode = false;
-let isBroadcastMode = false;
-let availableCameras = [];
+// ── Init ───────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  videoEl     = document.getElementById('preview-video');
+  canvasEl    = document.getElementById('host-canvas');
+  ctx         = canvasEl.getContext('2d');
+  cropOverlay = document.getElementById('crop-overlay');
 
-// --- INIT ---
-document.addEventListener('DOMContentLoaded', async () => {
   sessionCode = generateCode();
   document.getElementById('session-code-display').textContent = sessionCode;
-  document.getElementById('stat-code').textContent = sessionCode;
 
-  hiddenVideo = document.createElement('video');
-  hiddenVideo.autoplay = true;
-  hiddenVideo.muted = true;
-  hiddenVideo.playsInline = true;
-  hiddenVideo.style.display = 'none';
-  document.body.appendChild(hiddenVideo);
+  populateCameras();
 
-  document.getElementById('regen-code-btn').addEventListener('click', regenerateCode);
-  document.getElementById('start-btn').addEventListener('click', startSession);
-  document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
-  document.getElementById('end-btn').addEventListener('click', endSession);
-  document.getElementById('instruction-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendInstruction();
+  document.getElementById('btn-regen').addEventListener('click', regenerateCode);
+  document.getElementById('btn-start').addEventListener('click', startSession);
+  document.getElementById('btn-end').addEventListener('click', endSession);
+  document.getElementById('camera-select').addEventListener('change', onCameraChange);
+  document.getElementById('resolution-select').addEventListener('change', onResolutionChange);
+
+  // Activity bar navigation
+  document.querySelectorAll('.ab-btn[data-panel]').forEach(btn => {
+    btn.addEventListener('click', () => showHostPanel(btn.dataset.panel));
   });
 
-  document.querySelectorAll('.act-btn[data-panel]').forEach(btn => {
-    btn.addEventListener('click', () => showPanel(btn.dataset.panel));
+  // Session camera switcher (in controls panel)
+  document.getElementById('session-camera-select').addEventListener('change', e => {
+    switchCamera(e.target.value);
   });
 
-  try {
-    const tmp = await navigator.mediaDevices.getUserMedia({ video: true });
-    tmp.getTracks().forEach(t => t.stop());
-  } catch {
-    showSetupError('Camera permission denied. Please allow camera access and reload.');
-    return;
-  }
-
-  await populateCameraSelect();
-  const firstId = document.getElementById('camera-select').value;
-  if (firstId) await startPreview(firstId);
-
-  document.getElementById('camera-select').addEventListener('change', () => {
-    startPreview(document.getElementById('camera-select').value);
-  });
-  document.getElementById('resolution-select').addEventListener('change', () => {
-    startPreview(document.getElementById('camera-select').value);
-  });
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  }
-
+  // Fullscreen listener
   document.addEventListener('fullscreenchange', () => {
-    const icon = document.querySelector('#fullscreen-btn .material-icons');
-    if (icon) icon.textContent = document.fullscreenElement ? 'fullscreen_exit' : 'fullscreen';
+    if (!document.fullscreenElement) {
+      document.getElementById('workspace').style.background = '#000';
+    }
   });
+
+  // Crop drag
+  initCropDrag();
 });
 
+// ── Code helpers ────────────────────────────
 function generateCode() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
 }
 
 function regenerateCode() {
@@ -85,403 +72,356 @@ function regenerateCode() {
   document.getElementById('session-code-display').textContent = sessionCode;
 }
 
-async function populateCameraSelect() {
-  const select = document.getElementById('camera-select');
-  const prevVal = select.value;
-  select.innerHTML = '';
+// ── Camera helpers ──────────────────────────
+async function populateCameras() {
+  try {
+    // Trigger permission prompt
+    const tmp = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    tmp.getTracks().forEach(t => t.stop());
 
-  const devices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
-  availableCameras = devices.filter(d => d.kind === 'videoinput');
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cams = devices.filter(d => d.kind === 'videoinput');
 
-  if (availableCameras.length === 0) {
-    select.innerHTML = '<option value="">No cameras found</option>';
-    return;
+    const sel  = document.getElementById('camera-select');
+    const ssel = document.getElementById('session-camera-select');
+    sel.innerHTML  = '';
+    ssel.innerHTML = '';
+    cams.forEach((cam, i) => {
+      const label = cam.label || `Camera ${i + 1}`;
+      [sel, ssel].forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = cam.deviceId;
+        opt.textContent = label;
+        s.appendChild(opt);
+      });
+    });
+
+    await startPreview();
+  } catch (err) {
+    showSetupError('Camera access denied: ' + err.message);
   }
-  availableCameras.forEach((cam, i) => {
-    const opt = document.createElement('option');
-    opt.value = cam.deviceId;
-    opt.textContent = cam.label || `Camera ${i + 1}`;
-    select.appendChild(opt);
-  });
-  if (prevVal) select.value = prevVal;
 }
 
-function parseResolution() {
-  const val = document.getElementById('resolution-select').value;
-  const [w, h] = val.split('x').map(Number);
-  return { width: w || 1280, height: h || 720 };
-}
-
-async function startPreview(deviceId) {
+async function startPreview() {
   if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
 
-  const { width, height } = parseResolution();
+  const [w, h] = getResolution();
+  const deviceId = document.getElementById('camera-select').value;
+  const constraints = {
+    video: { deviceId: deviceId ? { exact: deviceId } : undefined, width: { ideal: w }, height: { ideal: h } },
+    audio: false
+  };
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    videoEl.srcObject = cameraStream;
+  } catch (err) {
+    showSetupError('Could not open camera: ' + err.message);
+  }
+}
+
+async function onCameraChange() { await startPreview(); }
+async function onResolutionChange() { await startPreview(); }
+
+async function switchCamera(deviceId) {
+  if (!deviceId) return;
+  if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+  const [w, h] = getResolution();
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        deviceId: deviceId ? { exact: deviceId } : undefined,
-        width: { ideal: width },
-        height: { ideal: height }
-      }
+      video: { deviceId: { exact: deviceId }, width: { ideal: w }, height: { ideal: h } },
+      audio: false
     });
-    document.getElementById('preview-video').srcObject = cameraStream;
-    await populateCameraSelect();
-    if (deviceId) document.getElementById('camera-select').value = deviceId;
+    videoEl.srcObject = cameraStream;
   } catch (err) {
-    showSetupError(`Camera error: ${err.message}`);
+    console.warn('Camera switch failed:', err);
   }
 }
 
+function getResolution() {
+  const val = document.getElementById('resolution-select').value;
+  return val.split('x').map(Number);
+}
+
+// ── Session start ──────────────────────────
 async function startSession() {
-  const btn = document.getElementById('start-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="material-icons">hourglass_top</span> Connecting…';
+  const code = document.getElementById('session-code-display').textContent.trim();
+  if (!code || code === '------') return showSetupError('Generate a session code first.');
+  sessionCode = code;
+  adminKey    = document.getElementById('admin-key-input').value.trim();
 
-  if (!cameraStream) {
-    showSetupError('No camera available. Allow camera access and try again.');
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-icons">videocam</span> Start Session';
-    return;
-  }
+  if (!cameraStream) return showSetupError('No camera stream available.');
 
-  adminKey = document.getElementById('admin-key-input').value.trim()
-    || String(Math.floor(1000 + Math.random() * 9000));
-  currentRoomID = sessionCode;
+  // Set canvas size to match resolution
+  const [w, h] = getResolution();
+  canvasEl.width  = w;
+  canvasEl.height = h;
 
-  hiddenVideo.srcObject = cameraStream;
-  await hiddenVideo.play().catch(() => {});
+  // Switch screens
+  document.getElementById('setup-screen').style.display  = 'none';
+  document.getElementById('session-screen').style.display = 'flex';
+  document.getElementById('hdr-code').textContent = sessionCode;
 
   startRenderLoop();
-
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('session-screen').style.display = 'flex';
-  document.getElementById('live-code-display').textContent = sessionCode;
-  document.getElementById('stat-code').textContent = sessionCode;
-
-  const { width, height } = parseResolution();
-  document.getElementById('stat-resolution').textContent = `${width}×${height}`;
-
-  const camLabel = document.getElementById('camera-select').selectedOptions[0]?.text || '—';
-  document.getElementById('stat-camera').textContent = camLabel;
-
-  buildCamSwitchBar();
-  connectSocket(currentRoomID, adminKey);
+  connectSocket();
 }
 
+// ── Render loop ─────────────────────────────
 function startRenderLoop() {
-  const canvas = document.getElementById('host-canvas');
-  const ctx = canvas.getContext('2d');
+  const draw = () => {
+    if (!videoEl.videoWidth) { animFrameId = requestAnimationFrame(draw); return; }
 
-  function render() {
-    const vw = hiddenVideo.videoWidth;
-    const vh = hiddenVideo.videoHeight;
+    const vw = videoEl.videoWidth;
+    const vh = videoEl.videoHeight;
+    const cw = canvasEl.width;
+    const ch = canvasEl.height;
 
-    if (vw && vh) {
-      if (canvas.width !== vw || canvas.height !== vh) {
-        canvas.width = vw;
-        canvas.height = vh;
-      }
-      if (cropEnabled) {
-        ctx.drawImage(
-          hiddenVideo,
-          cropRect.x * vw, cropRect.y * vh,
-          cropRect.w * vw, cropRect.h * vh,
-          0, 0, canvas.width, canvas.height
-        );
-      } else {
-        ctx.drawImage(hiddenVideo, 0, 0, canvas.width, canvas.height);
-      }
+    let sx = 0, sy = 0, sw = vw, sh = vh;
+    if (cropActive) {
+      sx = Math.round(cropRect.x * vw);
+      sy = Math.round(cropRect.y * vh);
+      sw = Math.round(cropRect.w * vw);
+      sh = Math.round(cropRect.h * vh);
     }
-    rafHandle = requestAnimationFrame(render);
-  }
 
-  rafHandle = requestAnimationFrame(render);
-  canvasStream = canvas.captureStream(30);
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(videoEl, sx, sy, sw, sh, 0, 0, cw, ch);
+    animFrameId = requestAnimationFrame(draw);
+  };
+  animFrameId = requestAnimationFrame(draw);
+
+  // Capture canvas stream for LiveKit
+  canvasStream = canvasEl.captureStream(30);
 }
 
-function connectSocket(roomId, key) {
-  socket = io(SIGNALING_SERVER_URL, { transports: ['polling', 'websocket'] });
+// ── Socket.IO ───────────────────────────────
+function connectSocket() {
+  const BACKEND = 'https://api.eaglevision.dev';
+  socket = io(BACKEND, { transports: ['websocket'] });
 
   socket.on('connect', () => {
     setSocketStatus(true);
-    socket.emit('register_host', { room: roomId, key });
+    socket.emit('register_host', { code: sessionCode, adminKey });
   });
 
   socket.on('disconnect', () => setSocketStatus(false));
 
-  socket.on('host_registered', async (data) => {
-    await publishToLiveKit(data.livekit_url, data.token);
+  socket.on('host_registered', data => {
+    console.log('Host registered:', data);
+    publishToLiveKit(data.livekitToken, data.livekitUrl);
   });
 
-  socket.on('roster_update', roster => {
-    latestRoster = roster;
+  socket.on('roster_update', data => {
+    roster = data.roster || [];
+    document.getElementById('hdr-viewers').textContent = `${roster.length} viewer${roster.length !== 1 ? 's' : ''}`;
     renderRoster();
+  });
+
+  socket.on('connect_error', err => {
+    setSocketStatus(false);
+    console.warn('Socket error:', err.message);
   });
 }
 
 function setSocketStatus(ok) {
-  document.getElementById('socket-status-pill').classList.toggle('connected', ok);
-  document.getElementById('socket-status-label').textContent = ok ? 'Socket: connected' : 'Socket: disconnected';
+  const badge = document.getElementById('badge-socket');
+  badge.textContent = ok ? 'Socket ✓' : 'Socket ✗';
+  badge.className   = `badge badge-socket${ok ? '' : ' err'}`;
 }
 
 function setLiveKitStatus(ok) {
-  document.getElementById('livekit-status-pill').classList.toggle('connected', ok);
-  document.getElementById('livekit-status-label').textContent = ok ? 'LiveKit: streaming' : 'LiveKit: disconnected';
-  document.getElementById('stat-livekit').textContent = ok ? 'streaming' : 'disconnected';
+  const badge = document.getElementById('badge-lk');
+  badge.textContent = ok ? 'LiveKit ✓' : 'LiveKit ✗';
+  badge.className   = `badge badge-lk${ok ? '' : ' err'}`;
 }
 
-async function publishToLiveKit(livekitUrl, token) {
-  livekitRoom = new LivekitClient.Room();
-  livekitRoom.on(LivekitClient.RoomEvent.Connected,    () => setLiveKitStatus(true));
-  livekitRoom.on(LivekitClient.RoomEvent.Disconnected, () => setLiveKitStatus(false));
-
+// ── LiveKit ─────────────────────────────────
+async function publishToLiveKit(token, url) {
+  if (!token || !url) { setLiveKitStatus(false); return; }
   try {
-    await livekitRoom.connect(livekitUrl, token);
-    const mediaTrack = canvasStream.getVideoTracks()[0];
-    localVideoTrack  = new LivekitClient.LocalVideoTrack(mediaTrack);
-    await livekitRoom.localParticipant.publishTrack(localVideoTrack, {
-      name: 'microscope',
-      source: LivekitClient.Track.Source.Camera,
-      simulcast: false  // canvas tracks bypass hardware encoder; simulcast unsupported
-    });
+    livekitRoom = new LivekitClient.Room();
+    await livekitRoom.connect(url, token);
+    setLiveKitStatus(true);
+
+    const videoTrack = await LivekitClient.createLocalVideoTrack({ mediaStreamTrack: canvasStream.getVideoTracks()[0] });
+    await livekitRoom.localParticipant.publishTrack(videoTrack);
   } catch (err) {
-    console.error('LiveKit publish error:', err);
     setLiveKitStatus(false);
+    console.warn('LiveKit error:', err);
   }
 }
 
-function buildCamSwitchBar() {
-  const bar = document.getElementById('cam-switch-bar');
-  bar.innerHTML = '';
-  if (availableCameras.length <= 1) { bar.style.display = 'none'; return; }
-
-  const currentId = document.getElementById('camera-select').value;
-  availableCameras.forEach((cam, i) => {
-    const pill = document.createElement('button');
-    pill.className = 'cam-pill' + (cam.deviceId === currentId ? ' active' : '');
-    pill.textContent = cam.label || `Camera ${i + 1}`;
-    pill.addEventListener('click', () => switchCameraTo(cam.deviceId));
-    bar.appendChild(pill);
-  });
-}
-
-async function switchCamera() {
-  const currentId = cameraStream?.getVideoTracks()[0]?.getSettings().deviceId;
-  const idx = availableCameras.findIndex(c => c.deviceId === currentId);
-  const next = availableCameras[(idx + 1) % availableCameras.length];
-  if (next) await switchCameraTo(next.deviceId);
-}
-
-async function switchCameraTo(deviceId) {
-  if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
-  const { width, height } = parseResolution();
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { exact: deviceId }, width: { ideal: width }, height: { ideal: height } }
-    });
-    hiddenVideo.srcObject = cameraStream;
-    document.getElementById('stat-camera').textContent =
-      availableCameras.find(c => c.deviceId === deviceId)?.label || deviceId;
-    document.querySelectorAll('.cam-pill').forEach((p, i) => {
-      p.classList.toggle('active', availableCameras[i]?.deviceId === deviceId);
-    });
-  } catch (err) {
-    console.error('Camera switch failed:', err);
-  }
-}
-
+// ── Crop ────────────────────────────────────
 function toggleCrop() {
-  cropEnabled = !cropEnabled;
-  const overlay = document.getElementById('crop-overlay');
-  if (cropEnabled) {
-    overlay.style.display = 'block';
-    positionCropOverlay();
-    initCropDrag();
+  cropActive = !cropActive;
+  if (cropActive) {
+    cropRect = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
+    cropOverlay.style.display = 'block';
+    updateCropOverlay();
   } else {
-    overlay.style.display = 'none';
-    removeCropDrag();
+    cropOverlay.style.display = 'none';
+    cropRect = { x: 0, y: 0, w: 1, h: 1 };
   }
-  document.getElementById('crop-btn').classList.toggle('active', cropEnabled);
-  document.getElementById('crop-ws-btn').classList.toggle('active', cropEnabled);
 }
 
 function resetCrop() {
   cropRect = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
-  positionCropOverlay();
+  if (cropActive) updateCropOverlay();
 }
 
-function positionCropOverlay() {
-  const wrap    = document.getElementById('canvas-wrap');
-  const overlay = document.getElementById('crop-overlay');
-  const canvas  = document.getElementById('host-canvas');
-  const wrapRect   = wrap.getBoundingClientRect();
-  const canvasRect = canvas.getBoundingClientRect();
-  const offX = canvasRect.left - wrapRect.left;
-  const offY = canvasRect.top  - wrapRect.top;
-  overlay.style.left   = (offX + cropRect.x * canvasRect.width)  + 'px';
-  overlay.style.top    = (offY + cropRect.y * canvasRect.height) + 'px';
-  overlay.style.width  = (cropRect.w * canvasRect.width)  + 'px';
-  overlay.style.height = (cropRect.h * canvasRect.height) + 'px';
+function updateCropOverlay() {
+  const ws = document.getElementById('workspace');
+  const rect = canvasEl.getBoundingClientRect();
+  const wsRect = ws.getBoundingClientRect();
+
+  const left   = rect.left - wsRect.left + cropRect.x * rect.width;
+  const top    = rect.top  - wsRect.top  + cropRect.y * rect.height;
+  const width  = cropRect.w * rect.width;
+  const height = cropRect.h * rect.height;
+
+  cropOverlay.style.left   = left   + 'px';
+  cropOverlay.style.top    = top    + 'px';
+  cropOverlay.style.width  = width  + 'px';
+  cropOverlay.style.height = height + 'px';
 }
 
 function initCropDrag() {
-  document.getElementById('crop-overlay').addEventListener('mousedown', onCropDown);
-  document.addEventListener('mousemove', onCropMove);
-  document.addEventListener('mouseup',   onCropUp);
+  cropOverlay.addEventListener('mousedown', onCropMouseDown);
+  document.addEventListener('mousemove',   onCropMouseMove);
+  document.addEventListener('mouseup',     onCropMouseUp);
 }
 
 function removeCropDrag() {
-  document.getElementById('crop-overlay').removeEventListener('mousedown', onCropDown);
-  document.removeEventListener('mousemove', onCropMove);
-  document.removeEventListener('mouseup',   onCropUp);
-  dragState = null;
+  cropOverlay.removeEventListener('mousedown', onCropMouseDown);
+  document.removeEventListener('mousemove',   onCropMouseMove);
+  document.removeEventListener('mouseup',     onCropMouseUp);
 }
 
-function onCropDown(e) {
-  const cornerClass = [...e.target.classList].find(c => ['tl','tr','bl','br'].includes(c));
-  const canvas = document.getElementById('host-canvas');
-  const rect   = canvas.getBoundingClientRect();
+function onCropMouseDown(e) {
+  const corner = e.target.dataset.corner;
+  const canvasRect = canvasEl.getBoundingClientRect();
   dragState = {
-    type:  cornerClass ? 'resize' : 'move',
-    corner: cornerClass || null,
-    startX: e.clientX, startY: e.clientY,
+    type:      corner ? 'corner' : 'move',
+    corner:    corner || null,
+    startX:    e.clientX,
+    startY:    e.clientY,
     startRect: { ...cropRect },
-    cw: rect.width, ch: rect.height
+    canvasRect
   };
   e.preventDefault();
-  e.stopPropagation();
 }
 
-function onCropMove(e) {
+function onCropMouseMove(e) {
   if (!dragState) return;
-  const dx = (e.clientX - dragState.startX) / dragState.cw;
-  const dy = (e.clientY - dragState.startY) / dragState.ch;
-  const sr = dragState.startRect;
-  const MIN = 0.05;
+  const { canvasRect, startX, startY, startRect, type, corner } = dragState;
+  const dx = (e.clientX - startX) / canvasRect.width;
+  const dy = (e.clientY - startY) / canvasRect.height;
 
-  if (dragState.type === 'move') {
-    cropRect.x = Math.max(0, Math.min(1 - sr.w, sr.x + dx));
-    cropRect.y = Math.max(0, Math.min(1 - sr.h, sr.y + dy));
-    cropRect.w = sr.w; cropRect.h = sr.h;
+  if (type === 'move') {
+    cropRect.x = Math.max(0, Math.min(1 - startRect.w, startRect.x + dx));
+    cropRect.y = Math.max(0, Math.min(1 - startRect.h, startRect.y + dy));
   } else {
-    let { x, y, w, h } = sr;
-    const c = dragState.corner;
-    if (c === 'br') {
-      w = Math.max(MIN, Math.min(1 - x, w + dx));
-      h = Math.max(MIN, Math.min(1 - y, h + dy));
-    } else if (c === 'bl') {
-      const nx = Math.max(0, Math.min(x + w - MIN, x + dx));
-      w = w + (x - nx); x = nx;
-      h = Math.max(MIN, Math.min(1 - y, h + dy));
-    } else if (c === 'tr') {
-      w = Math.max(MIN, Math.min(1 - x, w + dx));
-      const ny = Math.max(0, Math.min(y + h - MIN, y + dy));
-      h = h + (y - ny); y = ny;
-    } else if (c === 'tl') {
-      const nx = Math.max(0, Math.min(x + w - MIN, x + dx));
-      w = w + (x - nx); x = nx;
-      const ny = Math.max(0, Math.min(y + h - MIN, y + dy));
-      h = h + (y - ny); y = ny;
-    }
+    let { x, y, w, h } = startRect;
+    if (corner.includes('r')) { w = Math.max(0.05, Math.min(1 - x, w + dx)); }
+    if (corner.includes('l')) { const nx = Math.max(0, Math.min(x + w - 0.05, x + dx)); w = x + w - nx; x = nx; }
+    if (corner.includes('b')) { h = Math.max(0.05, Math.min(1 - y, h + dy)); }
+    if (corner.includes('t')) { const ny = Math.max(0, Math.min(y + h - 0.05, y + dy)); h = y + h - ny; y = ny; }
     cropRect = { x, y, w, h };
   }
-  positionCropOverlay();
+  updateCropOverlay();
 }
 
-function onCropUp() { dragState = null; }
+function onCropMouseUp() { dragState = null; }
 
-window.addEventListener('resize', () => { if (cropEnabled) positionCropOverlay(); });
-
-function showPanel(name) {
-  ['status', 'roster', 'controls'].forEach(n => {
-    document.getElementById('panel-' + n).classList.toggle('active', n === name);
-  });
-  document.querySelectorAll('.act-btn[data-panel]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.panel === name);
-  });
+// ── Panel navigation ──────────────────────────
+function showHostPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ab-btn[data-panel]').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById(`panel-${name}`);
+  if (panel) panel.classList.add('active');
+  const btn = document.querySelector(`.ab-btn[data-panel="${name}"]`);
+  if (btn) btn.classList.add('active');
 }
 
+// ── Roster ──────────────────────────────────
 function renderRoster() {
-  const list = document.getElementById('roster-list');
-  let c = 0;
-  list.innerHTML = '';
-
-  for (const [sid, user] of Object.entries(latestRoster)) {
-    c++;
-    const isHostUser = user.role === 'admin';
+  const body = document.getElementById('roster-body');
+  if (!roster.length) { body.innerHTML = '<p style="font-size:.85rem;color:var(--muted,#7c83a8)">No students yet.</p>'; return; }
+  body.innerHTML = '';
+  roster.forEach(student => {
+    const initials = (student.name || '?').slice(0, 2).toUpperCase();
     const div = document.createElement('div');
     div.className = 'roster-item';
     div.innerHTML = `
-      <div>
-        <div class="roster-name" style="color:${isHostUser ? '#FFD700' : '#e8eaf0'}">
-          ${user.name}
-          ${isHostUser ? '<span class="material-icons" style="font-size:13px;vertical-align:middle;margin-left:4px;">verified</span>' : ''}
-        </div>
-        <div class="roster-role">${isHostUser ? 'Host' : 'Student'}</div>
-      </div>
-      ${!isHostUser ? `<button class="btn-kick" onclick="kickUser('${sid}')">Kick</button>` : ''}
+      <div class="roster-avatar">${initials}</div>
+      <span class="roster-name">${student.name || student.id}</span>
+      <button class="roster-kick" onclick="kickUser('${student.id}')">Kick</button>
     `;
-    list.appendChild(div);
-  }
-
-  if (c === 0) list.innerHTML = '<div class="roster-empty">No students connected yet</div>';
-  document.getElementById('stat-students').textContent = String(c);
+    body.appendChild(div);
+  });
 }
 
-function kickUser(sid) {
-  if (confirm('Kick this student?'))
-    socket?.emit('kick_student', { room: currentRoomID, key: adminKey, target_sid: sid });
+// ── Admin commands ──────────────────────────
+function kickUser(studentId) {
+  if (!socket) return;
+  socket.emit('kick_user', { code: sessionCode, adminKey, targetId: studentId });
 }
 
 function triggerReturnLive() {
-  socket?.emit('admin_return_live', { room: currentRoomID, key: adminKey });
+  if (!socket) return;
+  socket.emit('host_command', { code: sessionCode, adminKey, command: 'return_live' });
 }
 
 function triggerRequestPhoto() {
-  socket?.emit('admin_trigger_photo', { room: currentRoomID, key: adminKey });
+  if (!socket) return;
+  socket.emit('host_command', { code: sessionCode, adminKey, command: 'request_photo' });
 }
 
 function setFollowMode() {
-  isFollowMode = !isFollowMode;
-  document.getElementById('follow-mode-btn').classList.toggle('active', isFollowMode);
+  if (!socket) return;
+  socket.emit('host_command', { code: sessionCode, adminKey, command: 'set_mode', mode: 'follow' });
 }
 
 function setBroadcastMode() {
-  isBroadcastMode = !isBroadcastMode;
-  document.getElementById('broadcast-mode-btn').classList.toggle('active', isBroadcastMode);
+  if (!socket) return;
+  socket.emit('host_command', { code: sessionCode, adminKey, command: 'set_mode', mode: 'broadcast' });
 }
 
 function clearAllScreens() {
-  if (confirm('Clear all student annotation screens?'))
-    socket?.emit('admin_clear_all', { room: currentRoomID, key: adminKey });
+  if (!socket) return;
+  socket.emit('host_command', { code: sessionCode, adminKey, command: 'clear_screens' });
 }
 
 function sendInstruction() {
-  const msg = document.getElementById('instruction-input').value.trim();
-  if (!msg) return;
-  socket?.emit('broadcast_instruction', { room: currentRoomID, key: adminKey, message: msg });
+  const text = document.getElementById('instruction-input').value.trim();
+  if (!text || !socket) return;
+  socket.emit('host_command', { code: sessionCode, adminKey, command: 'instruction', text });
   document.getElementById('instruction-input').value = '';
 }
 
+// ── Fullscreen ──────────────────────────────
 function toggleFullscreen() {
+  const ws = document.getElementById('workspace');
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(console.error);
+    ws.requestFullscreen().catch(err => console.warn('Fullscreen error:', err));
   } else {
     document.exitFullscreen();
   }
 }
 
+// ── End session ─────────────────────────────
 function endSession() {
-  if (!confirm('End this session for everyone?')) return;
-  socket?.disconnect();
+  if (!confirm('End the session for all students?')) return;
+  if (socket) { socket.emit('end_session', { code: sessionCode, adminKey }); socket.disconnect(); }
   if (livekitRoom) livekitRoom.disconnect();
-  if (rafHandle) cancelAnimationFrame(rafHandle);
+  if (animFrameId) cancelAnimationFrame(animFrameId);
   if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
   window.location.href = 'index.html';
 }
 
+// ── Utility ──────────────────────────────────
 function showSetupError(msg) {
   const el = document.getElementById('setup-error');
   el.textContent = msg;
-  el.classList.add('visible');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
 }

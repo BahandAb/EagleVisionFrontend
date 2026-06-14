@@ -3,640 +3,320 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EagleVision — Host a Session</title>
+  <title>EagleVision – Host</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg, #0a0f1c);
-      color: var(--text, #e8eaf0);
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .host-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      background: rgba(10,15,28,0.95);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .host-nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .host-nav-logo img { height: 32px; }
-    .host-nav-logo span { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 0.3px; }
-    .host-nav-back {
-      display: flex; align-items: center; gap: 6px;
-      color: rgba(255,255,255,0.5); font-size: 13px; text-decoration: none;
-      transition: color 0.2s;
-    }
-    .host-nav-back:hover { color: #fff; }
+    /* ── Host-page overrides ── */
+    body { background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6); font-family: 'Inter', sans-serif; margin: 0; }
+
+    /* ── Setup screen ── */
     #setup-screen {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 16px;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 2rem; gap: 1.5rem;
     }
+    #setup-screen h1 { font-size: 2rem; margin: 0; }
     .setup-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 16px;
-      padding: 36px;
-      width: 100%;
-      max-width: 820px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 36px;
+      background: var(--surface, #141929);
+      border: 1px solid var(--border, #2a3050);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      width: 100%; max-width: 560px;
+      display: flex; flex-direction: column; gap: 1.1rem;
     }
-    @media (max-width: 700px) {
-      .setup-card { grid-template-columns: 1fr; padding: 24px; }
-    }
-    .preview-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 10px;
+    .setup-card label { font-size: .85rem; color: var(--muted, #7c83a8); margin-bottom: .25rem; display: block; }
+    .setup-card select, .setup-card input {
+      width: 100%; padding: .55rem .8rem;
+      background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6);
+      border: 1px solid var(--border, #2a3050); border-radius: 8px;
+      font-size: .95rem; box-sizing: border-box;
     }
     #preview-video {
-      width: 100%;
-      aspect-ratio: 4/3;
-      background: #000;
-      border-radius: 10px;
-      object-fit: cover;
-      border: 1px solid rgba(255,255,255,0.08);
+      width: 100%; border-radius: 8px; background: #000;
+      aspect-ratio: 16/9; object-fit: cover;
     }
-    .setup-settings-col {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+    .code-row {
+      display: flex; align-items: center; gap: .6rem;
     }
-    .setup-heading {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 4px;
+    #session-code-display {
+      flex: 1; padding: .55rem .8rem;
+      background: var(--bg, #0a0f1c); color: var(--accent, #FFD700);
+      border: 1px solid var(--border, #2a3050); border-radius: 8px;
+      font-size: 1.4rem; font-weight: 700; letter-spacing: .15em; text-align: center;
     }
-    .setup-sub {
-      font-size: 13px;
-      color: rgba(255,255,255,0.4);
-      line-height: 1.5;
+    #btn-regen {
+      padding: .5rem .9rem; border-radius: 8px;
+      border: 1px solid var(--border, #2a3050);
+      background: transparent; color: var(--muted, #7c83a8);
+      cursor: pointer; font-size: 1rem;
     }
-    .field-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 6px;
+    #btn-regen:hover { color: var(--text, #e8eaf6); }
+    #btn-start {
+      padding: .75rem; border-radius: 10px;
+      background: var(--accent, #FFD700); color: #0a0f1c;
+      border: none; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: opacity .2s;
     }
-    .field-select, .field-input {
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      color: #e8eaf0;
-      font-size: 14px;
-      padding: 10px 12px;
-      outline: none;
-      transition: border-color 0.2s;
-      appearance: none;
-    }
-    .field-select:focus, .field-input:focus { border-color: rgba(255,215,0,0.5); }
-    .field-select option { background: #0d1220; }
-    .code-row { display: flex; align-items: center; gap: 10px; }
-    .code-display {
-      flex: 1;
-      background: rgba(255,215,0,0.07);
-      border: 1px solid rgba(255,215,0,0.2);
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: 6px;
-      color: #FFD700;
-      text-align: center;
-      font-family: 'Courier New', monospace;
-    }
-    .btn-icon {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      color: rgba(255,255,255,0.6);
-      cursor: pointer;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn-icon:hover { background: rgba(255,255,255,0.12); color: #fff; }
-    .btn-start {
-      background: #FFD700;
-      color: #0a0f1c;
-      border: none;
-      border-radius: 10px;
-      padding: 14px 24px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: background 0.2s, transform 0.1s;
-      margin-top: 4px;
-    }
-    .btn-start:hover { background: #ffe033; }
-    .btn-start:active { transform: scale(0.98); }
-    .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
-    .setup-error {
-      background: rgba(255,80,80,0.12);
-      border: 1px solid rgba(255,80,80,0.3);
-      border-radius: 8px;
-      color: #ff7070;
-      font-size: 13px;
-      padding: 10px 12px;
-      display: none;
-    }
-    .setup-error.visible { display: block; }
-    #session-screen {
-      display: none;
-      flex-direction: column;
-      flex: 1;
-      height: calc(100vh - 57px);
-    }
-    .session-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      background: rgba(10,15,28,0.9);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      flex-shrink: 0;
-      gap: 12px;
-    }
-    .session-code-badge {
-      background: rgba(255,215,0,0.1);
-      border: 1px solid rgba(255,215,0,0.3);
-      border-radius: 8px;
-      padding: 5px 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .session-code-badge .badge-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: rgba(255,215,0,0.6);
-    }
-    .session-code-badge .badge-code {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: 4px;
-      color: #FFD700;
-      font-family: 'Courier New', monospace;
-    }
-    .session-status-badges { display: flex; align-items: center; gap: 8px; }
-    .status-pill {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      border-radius: 20px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
-    .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .status-pill.socket { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
-    .status-pill.socket.connected { background: rgba(80,200,120,0.15); color: #50c878; }
-    .status-pill.socket .dot { background: rgba(255,255,255,0.3); }
-    .status-pill.socket.connected .dot { background: #50c878; }
-    .status-pill.livekit { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
-    .status-pill.livekit.connected { background: rgba(80,160,255,0.15); color: #50a0ff; }
-    .status-pill.livekit .dot { background: rgba(255,255,255,0.3); }
-    .status-pill.livekit.connected .dot { background: #50a0ff; }
-    .session-header-actions { display: flex; align-items: center; gap: 8px; }
-    .btn-header {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      color: rgba(255,255,255,0.7);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn-header:hover { background: rgba(255,255,255,0.12); color: #fff; }
-    .btn-header.danger { color: #ff6060; }
-    .btn-header.danger:hover { background: rgba(255,80,80,0.15); border-color: rgba(255,80,80,0.3); }
-    .main-layout { display: flex; flex: 1; overflow: hidden; }
-    .activity-bar {
-      width: 48px;
-      background: rgba(5,9,18,0.8);
-      border-right: 1px solid rgba(255,255,255,0.06);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 8px 0;
-      gap: 4px;
+    #btn-start:hover { opacity: .85; }
+    #setup-error { color: #f87171; font-size: .9rem; display: none; }
+
+    /* ── Session screen ── */
+    #session-screen { display: none; flex-direction: column; height: 100vh; }
+
+    /* top header */
+    #session-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .6rem 1.2rem;
+      background: var(--surface, #141929);
+      border-bottom: 1px solid var(--border, #2a3050);
       flex-shrink: 0;
     }
-    .act-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: transparent;
-      border: none;
-      color: rgba(255,255,255,0.35);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s, color 0.2s;
+    #session-header .logo { font-weight: 800; font-size: 1.1rem; color: var(--accent, #FFD700); }
+    #hdr-code { font-weight: 700; font-size: 1rem; letter-spacing: .1em; }
+    .badge {
+      padding: .2rem .65rem; border-radius: 999px;
+      font-size: .75rem; font-weight: 600;
     }
-    .act-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
-    .act-btn.active { background: rgba(255,215,0,0.1); color: #FFD700; }
-    .act-btn .material-icons { font-size: 20px; }
-    .side-panel {
-      width: 260px;
-      background: rgba(8,12,24,0.95);
-      border-right: 1px solid rgba(255,255,255,0.06);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      overflow: hidden;
+    .badge-socket { background: #1e3a2f; color: #4ade80; }
+    .badge-socket.err { background: #3b1a1a; color: #f87171; }
+    .badge-lk { background: #1a2a3b; color: #60a5fa; }
+    .badge-lk.err { background: #3b1a1a; color: #f87171; }
+    #hdr-viewers { margin-left: auto; font-size: .85rem; color: var(--muted, #7c83a8); }
+    #btn-end {
+      padding: .3rem .8rem; border-radius: 8px;
+      background: #7f1d1d; color: #fca5a5;
+      border: none; cursor: pointer; font-size: .85rem;
     }
-    .panel-section { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-    .panel-section.active { display: flex; }
-    .panel-heading {
-      padding: 14px 16px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      flex-shrink: 0;
+
+    /* main layout */
+    #main-layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* activity bar */
+    #activity-bar {
+      width: 52px; background: var(--surface, #141929);
+      border-right: 1px solid var(--border, #2a3050);
+      display: flex; flex-direction: column; align-items: center;
+      padding: .5rem 0; gap: .4rem; flex-shrink: 0;
     }
-    .panel-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .ab-btn {
+      width: 38px; height: 38px; border-radius: 8px;
+      border: none; background: transparent;
+      color: var(--muted, #7c83a8); cursor: pointer;
+      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
     }
-    .panel-body::-webkit-scrollbar { width: 4px; }
-    .panel-body::-webkit-scrollbar-track { background: transparent; }
-    .panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-    .stat-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
-      font-size: 12px;
+    .ab-btn:hover, .ab-btn.active { background: var(--border, #2a3050); color: var(--text, #e8eaf6); }
+
+    /* side panel */
+    #side-panel {
+      width: 260px; background: var(--surface, #141929);
+      border-right: 1px solid var(--border, #2a3050);
+      display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
     }
-    .stat-row .stat-label { color: rgba(255,255,255,0.4); }
-    .stat-row .stat-val { color: #e8eaf0; font-weight: 600; }
-    .roster-list { display: flex; flex-direction: column; gap: 6px; }
+    .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .panel.active { display: flex; }
+    .panel-title {
+      padding: .7rem 1rem; font-size: .8rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--muted, #7c83a8);
+      border-bottom: 1px solid var(--border, #2a3050);
+    }
+    .panel-body { padding: .75rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: .5rem; }
+
+    /* roster */
     .roster-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
+      display: flex; align-items: center; gap: .5rem;
+      padding: .4rem .5rem; border-radius: 6px;
+      background: var(--bg, #0a0f1c);
     }
-    .roster-name { font-size: 13px; color: #e8eaf0; }
-    .roster-role { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 0.5px; }
-    .btn-kick {
-      background: rgba(255,80,80,0.08);
-      border: 1px solid rgba(255,80,80,0.2);
-      border-radius: 6px;
-      color: #ff6060;
-      font-size: 11px;
-      padding: 3px 8px;
-      cursor: pointer;
-      transition: background 0.2s;
+    .roster-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent, #FFD700); color: #0a0f1c;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; flex-shrink: 0;
     }
-    .btn-kick:hover { background: rgba(255,80,80,0.2); }
-    .roster-empty { font-size: 12px; color: rgba(255,255,255,0.25); text-align: center; padding: 20px 0; }
-    .ctrl-section-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      padding: 4px 2px 6px;
+    .roster-name { flex: 1; font-size: .85rem; }
+    .roster-kick {
+      padding: .15rem .4rem; border-radius: 4px;
+      background: #3b1a1a; color: #f87171;
+      border: none; cursor: pointer; font-size: .75rem;
     }
+
+    /* controls panel */
+    .ctrl-group { display: flex; flex-direction: column; gap: .4rem; }
+    .ctrl-label { font-size: .75rem; color: var(--muted, #7c83a8); }
     .ctrl-btn {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 8px;
-      color: rgba(255,255,255,0.8);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 9px 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.2s, color 0.2s;
-      text-align: left;
+      padding: .45rem .7rem; border-radius: 8px;
+      border: 1px solid var(--border, #2a3050);
+      background: transparent; color: var(--text, #e8eaf6);
+      cursor: pointer; font-size: .83rem; text-align: left;
     }
-    .ctrl-btn:hover { background: rgba(255,255,255,0.09); color: #fff; }
-    .ctrl-btn .material-icons { font-size: 16px; color: rgba(255,255,255,0.4); }
-    .ctrl-btn.active { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.25); color: #FFD700; }
-    .ctrl-btn.active .material-icons { color: #FFD700; }
-    .ctrl-input-row { display: flex; gap: 6px; }
-    .ctrl-input {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      color: #e8eaf0;
-      font-size: 13px;
-      padding: 8px 10px;
-      outline: none;
+    .ctrl-btn:hover { background: var(--border, #2a3050); }
+    .ctrl-btn.danger { border-color: #7f1d1d; color: #f87171; }
+    .ctrl-btn.danger:hover { background: #7f1d1d; }
+    #instruction-input {
+      width: 100%; padding: .45rem .6rem;
+      background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6);
+      border: 1px solid var(--border, #2a3050); border-radius: 8px;
+      font-size: .85rem; box-sizing: border-box;
     }
-    .ctrl-input:focus { border-color: rgba(255,215,0,0.4); }
-    .ctrl-send {
-      background: rgba(255,215,0,0.12);
-      border: 1px solid rgba(255,215,0,0.25);
-      border-radius: 8px;
-      color: #FFD700;
-      cursor: pointer;
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      transition: background 0.2s;
+
+    /* workspace */
+    #workspace {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #000; position: relative; overflow: hidden;
     }
-    .ctrl-send:hover { background: rgba(255,215,0,0.22); }
-    .workspace-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-      background: #000;
-    }
-    .canvas-wrap {
-      flex: 1;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    #host-canvas { max-width: 100%; max-height: 100%; display: block; border-radius: 4px; }
+    #host-canvas { max-width: 100%; max-height: 100%; display: block; }
     #crop-overlay {
-      position: absolute;
-      border: 2px solid #FFD700;
-      background: rgba(255,215,0,0.06);
-      box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
-      cursor: move;
-      display: none;
-      border-radius: 3px;
+      position: absolute; border: 2px dashed var(--accent, #FFD700);
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.5);
+      cursor: move; display: none; box-sizing: border-box;
     }
     #crop-overlay .crop-handle {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: #FFD700;
-      border-radius: 2px;
+      position: absolute; width: 10px; height: 10px;
+      background: var(--accent, #FFD700); border-radius: 2px;
     }
     #crop-overlay .crop-handle.tl { top: -5px; left: -5px; cursor: nw-resize; }
     #crop-overlay .crop-handle.tr { top: -5px; right: -5px; cursor: ne-resize; }
     #crop-overlay .crop-handle.bl { bottom: -5px; left: -5px; cursor: sw-resize; }
     #crop-overlay .crop-handle.br { bottom: -5px; right: -5px; cursor: se-resize; }
-    .workspace-toolbar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 12px;
-      background: rgba(8,12,24,0.9);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    .ws-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 7px;
-      color: rgba(255,255,255,0.7);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 6px 11px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: background 0.2s, color 0.2s;
-      letter-spacing: 0.3px;
-    }
-    .ws-btn .material-icons { font-size: 15px; }
-    .ws-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .ws-btn.active { background: rgba(255,215,0,0.12); border-color: rgba(255,215,0,0.3); color: #FFD700; }
-    .ws-toolbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.08); margin: 0 2px; }
-    .cam-switch-bar {
-      display: flex;
-      gap: 6px;
-      padding: 6px 12px;
-      background: rgba(5,9,18,0.85);
-      border-top: 1px solid rgba(255,255,255,0.05);
-      flex-shrink: 0;
-      overflow-x: auto;
-    }
-    .cam-pill {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 20px;
-      color: rgba(255,255,255,0.5);
-      font-size: 11px;
-      padding: 4px 12px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.2s, color 0.2s;
-      flex-shrink: 0;
-    }
-    .cam-pill.active { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.3); color: #FFD700; }
-    .cam-pill:hover { background: rgba(255,255,255,0.1); color: #fff; }
   </style>
 </head>
 <body>
-  <nav class="host-nav">
-    <a href="index.html" class="host-nav-logo">
-      <img src="assets/EagleVisionLogo.png" alt="EagleVision">
-      <span>EagleVision</span>
-    </a>
-    <a href="index.html" class="host-nav-back">
-      <span class="material-icons" style="font-size:16px;">arrow_back</span>
-      Back to home
-    </a>
-  </nav>
 
-  <div id="setup-screen">
-    <div class="setup-card">
-      <div class="setup-preview-col">
-        <div class="preview-label">Camera Preview</div>
-        <video id="preview-video" autoplay muted playsinline></video>
-      </div>
-      <div class="setup-settings-col">
-        <div>
-          <div class="setup-heading">Host a Session</div>
-          <div class="setup-sub">Configure your camera, then start streaming to your students.</div>
-        </div>
-        <div>
-          <div class="field-label">Camera Source</div>
-          <select id="camera-select" class="field-select"><option value="">Loading cameras…</option></select>
-        </div>
-        <div>
-          <div class="field-label">Resolution</div>
-          <select id="resolution-select" class="field-select">
-            <option value="1920x1080">1080p (1920 × 1080)</option>
-            <option value="1280x720" selected>720p (1280 × 720)</option>
-            <option value="854x480">480p (854 × 480)</option>
-            <option value="640x360">360p (640 × 360)</option>
-          </select>
-        </div>
-        <div>
-          <div class="field-label">Session Code</div>
-          <div class="code-row">
-            <div class="code-display" id="session-code-display">------</div>
-            <button class="btn-icon" id="regen-code-btn" title="Regenerate code">
-              <span class="material-icons" style="font-size:18px;">refresh</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <div class="field-label">Admin Key</div>
-          <input type="password" id="admin-key-input" class="field-input" placeholder="Your admin key (optional)">
-        </div>
-        <div class="setup-error" id="setup-error"></div>
-        <button class="btn-start" id="start-btn">
-          <span class="material-icons">videocam</span>
-          Start Session
-        </button>
+<!-- ══════════════ SETUP SCREEN ══════════════ -->
+<div id="setup-screen">
+  <h1>🦅 Host a Session</h1>
+
+  <div class="setup-card">
+    <div>
+      <label for="camera-select">Camera</label>
+      <select id="camera-select"><option value="">Loading cameras…</option></select>
+    </div>
+
+    <video id="preview-video" autoplay muted playsinline></video>
+
+    <div>
+      <label for="resolution-select">Resolution</label>
+      <select id="resolution-select">
+        <option value="1920x1080">1080p (1920×1080)</option>
+        <option value="1280x720" selected>720p (1280×720)</option>
+        <option value="854x480">480p (854×480)</option>
+        <option value="640x360">360p (640×360)</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Session Code</label>
+      <div class="code-row">
+        <div id="session-code-display">------</div>
+        <button id="btn-regen" title="New code">↺</button>
       </div>
     </div>
+
+    <div>
+      <label for="admin-key-input">Admin Key (optional)</label>
+      <input id="admin-key-input" type="password" placeholder="Leave blank for open session">
+    </div>
+
+    <p id="setup-error"></p>
+    <button id="btn-start">Start Session</button>
+  </div>
+</div>
+
+<!-- ══════════════ SESSION SCREEN ══════════════ -->
+<div id="session-screen">
+
+  <!-- Header -->
+  <div id="session-header">
+    <span class="logo">🦅 EagleVision</span>
+    <span id="hdr-code"></span>
+    <span id="badge-socket" class="badge badge-socket err">Socket ✗</span>
+    <span id="badge-lk"     class="badge badge-lk err">LiveKit ✗</span>
+    <span id="hdr-viewers">0 viewers</span>
+    <button id="btn-end">End Session</button>
   </div>
 
-  <div id="session-screen">
-    <div class="session-header">
-      <div class="session-code-badge">
-        <span class="badge-label">Session</span>
-        <span class="badge-code" id="live-code-display">------</span>
-      </div>
-      <div class="session-status-badges">
-        <div class="status-pill socket" id="socket-status-pill">
-          <div class="dot"></div>
-          <span id="socket-status-label">Socket: disconnected</span>
-        </div>
-        <div class="status-pill livekit" id="livekit-status-pill">
-          <div class="dot"></div>
-          <span id="livekit-status-label">LiveKit: idle</span>
-        </div>
-      </div>
-      <div class="session-header-actions">
-        <button class="btn-header" id="fullscreen-btn">
-          <span class="material-icons" style="font-size:14px;">fullscreen</span>
-          Fullscreen
-        </button>
-        <button class="btn-header danger" id="end-btn">
-          <span class="material-icons" style="font-size:14px;">stop_circle</span>
-          End Session
-        </button>
-      </div>
-    </div>
-    <div class="main-layout">
-      <div class="activity-bar">
-        <button class="act-btn active" data-panel="status" title="Status"><span class="material-icons">info</span></button>
-        <button class="act-btn" data-panel="roster" title="Roster"><span class="material-icons">group</span></button>
-        <button class="act-btn" data-panel="controls" title="Controls"><span class="material-icons">tune</span></button>
-      </div>
-      <div class="side-panel">
-        <div class="panel-section active" id="panel-status">
-          <div class="panel-heading">Session Status</div>
-          <div class="panel-body">
-            <div class="stat-row"><span class="stat-label">Code</span><span class="stat-val" id="stat-code">—</span></div>
-            <div class="stat-row"><span class="stat-label">Students</span><span class="stat-val" id="stat-students">0</span></div>
-            <div class="stat-row"><span class="stat-label">Camera</span><span class="stat-val" id="stat-camera">—</span></div>
-            <div class="stat-row"><span class="stat-label">Resolution</span><span class="stat-val" id="stat-resolution">—</span></div>
-            <div class="stat-row"><span class="stat-label">LiveKit</span><span class="stat-val" id="stat-livekit">idle</span></div>
-          </div>
-        </div>
-        <div class="panel-section" id="panel-roster">
-          <div class="panel-heading">Participants</div>
-          <div class="panel-body">
-            <div class="roster-list" id="roster-list"><div class="roster-empty">No students connected yet</div></div>
-          </div>
-        </div>
-        <div class="panel-section" id="panel-controls">
-          <div class="panel-heading">Instructor Controls</div>
-          <div class="panel-body">
-            <div class="ctrl-section-label">View</div>
-            <button class="ctrl-btn" id="follow-mode-btn" onclick="setFollowMode()"><span class="material-icons">visibility</span>Follow Mode</button>
-            <button class="ctrl-btn" id="broadcast-mode-btn" onclick="setBroadcastMode()"><span class="material-icons">broadcast_on_personal</span>Broadcast Strokes</button>
-            <div class="ctrl-section-label" style="margin-top:10px;">Camera</div>
-            <button class="ctrl-btn" id="switch-camera-btn" onclick="switchCamera()"><span class="material-icons">flip_camera_android</span>Switch Camera</button>
-            <button class="ctrl-btn" id="crop-btn" onclick="toggleCrop()"><span class="material-icons">crop</span>Crop / Region</button>
-            <div class="ctrl-section-label" style="margin-top:10px;">Session</div>
-            <button class="ctrl-btn" onclick="triggerReturnLive()"><span class="material-icons">live_tv</span>Return All to Live</button>
-            <button class="ctrl-btn" onclick="triggerRequestPhoto()"><span class="material-icons">photo_camera</span>Request Photo</button>
-            <button class="ctrl-btn" onclick="clearAllScreens()"><span class="material-icons">layers_clear</span>Clear All Screens</button>
-            <div class="ctrl-section-label" style="margin-top:10px;">Broadcast Message</div>
-            <div class="ctrl-input-row">
-              <input type="text" class="ctrl-input" id="instruction-input" placeholder="Type a message…">
-              <button class="ctrl-send" onclick="sendInstruction()"><span class="material-icons" style="font-size:16px;">send</span></button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="workspace-area">
-        <div class="canvas-wrap" id="canvas-wrap">
-          <canvas id="host-canvas"></canvas>
-          <div id="crop-overlay">
-            <div class="crop-handle tl"></div>
-            <div class="crop-handle tr"></div>
-            <div class="crop-handle bl"></div>
-            <div class="crop-handle br"></div>
-          </div>
-        </div>
-        <div class="cam-switch-bar" id="cam-switch-bar"></div>
-        <div class="workspace-toolbar">
-          <button class="ws-btn" id="crop-ws-btn" onclick="toggleCrop()"><span class="material-icons">crop</span>Crop</button>
-          <button class="ws-btn" onclick="resetCrop()"><span class="material-icons">crop_free</span>Reset Crop</button>
-          <div class="ws-toolbar-sep"></div>
-          <button class="ws-btn" onclick="triggerReturnLive()"><span class="material-icons">live_tv</span>Return Live</button>
-          <button class="ws-btn" onclick="triggerRequestPhoto()"><span class="material-icons">photo_camera</span>Snapshot</button>
-          <div class="ws-toolbar-sep"></div>
-          <button class="ws-btn" onclick="toggleFullscreen()"><span class="material-icons">fullscreen</span>Fullscreen</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Body -->
+  <div id="main-layout">
 
-  <script src="js/socket.io.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
-  <script src="host.js"></script>
+    <!-- Activity bar -->
+    <div id="activity-bar">
+      <button class="ab-btn active" data-panel="status"    title="Status">📦</button>
+      <button class="ab-btn"        data-panel="roster"    title="Roster">👥</button>
+      <button class="ab-btn"        data-panel="controls"  title="Controls">🎛️</button>
+    </div>
+
+    <!-- Side panel -->
+    <div id="side-panel">
+
+      <!-- Status panel -->
+      <div id="panel-status" class="panel active">
+        <div class="panel-title">Status</div>
+        <div class="panel-body" id="status-body">
+          <p style="font-size:.85rem;color:var(--muted,#7c83a8)">Session is live. Waiting for students to join…</p>
+        </div>
+      </div>
+
+      <!-- Roster panel -->
+      <div id="panel-roster" class="panel">
+        <div class="panel-title">Roster</div>
+        <div class="panel-body" id="roster-body"></div>
+      </div>
+
+      <!-- Controls panel -->
+      <div id="panel-controls" class="panel">
+        <div class="panel-title">Controls</div>
+        <div class="panel-body">
+          <div class="ctrl-group">
+            <span class="ctrl-label">Camera</span>
+            <select id="session-camera-select" class="ctrl-btn" style="cursor:pointer"></select>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">Broadcast</span>
+            <button class="ctrl-btn" onclick="triggerReturnLive()">↩ Return to Live</button>
+            <button class="ctrl-btn" onclick="triggerRequestPhoto()">📷 Request Photo</button>
+            <button class="ctrl-btn" onclick="clearAllScreens()">🗑 Clear Screens</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">View Mode</span>
+            <button class="ctrl-btn" onclick="setFollowMode()">🔗 Follow Mode</button>
+            <button class="ctrl-btn" onclick="setBroadcastMode()">📡 Broadcast Mode</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">Crop / Zoom</span>
+            <button class="ctrl-btn" onclick="toggleCrop()">✂️ Toggle Crop</button>
+            <button class="ctrl-btn" onclick="resetCrop()">↺ Reset Crop</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">Instruction</span>
+            <input id="instruction-input" type="text" placeholder="Type instruction…">
+            <button class="ctrl-btn" onclick="sendInstruction()">Send</button>
+          </div>
+          <div class="ctrl-group">
+            <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            <button class="ctrl-btn danger" onclick="endSession()">⏹ End Session</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /side-panel -->
+
+    <!-- Workspace -->
+    <div id="workspace">
+      <canvas id="host-canvas" width="1280" height="720"></canvas>
+      <div id="crop-overlay">
+        <div class="crop-handle tl" data-corner="tl"></div>
+        <div class="crop-handle tr" data-corner="tr"></div>
+        <div class="crop-handle bl" data-corner="bl"></div>
+        <div class="crop-handle br" data-corner="br"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-layout -->
+</div><!-- /session-screen -->
+
+<script src="js/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
+<script src="host.js"></script>
 </body>
 </html>
