@@ -20,7 +20,7 @@ let dragState         = null;        // {type:'move'|corner, corner, startX, sta
 // ── DOM refs (populated after DOMContentLoaded) ──
 let videoEl, canvasEl, ctx, cropOverlay;
 
-// ── Init ───────────────────────────────────
+// ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   videoEl     = document.getElementById('preview-video');
   canvasEl    = document.getElementById('host-canvas');
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCropDrag();
 });
 
-// ── Code helpers ────────────────────────────
+// ── Code helpers ──────────────────────────────
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -72,7 +72,7 @@ function regenerateCode() {
   document.getElementById('session-code-display').textContent = sessionCode;
 }
 
-// ── Camera helpers ──────────────────────────
+// ── Camera helpers ────────────────────────────
 async function populateCameras() {
   try {
     // Trigger permission prompt
@@ -142,7 +142,7 @@ function getResolution() {
   return val.split('x').map(Number);
 }
 
-// ── Session start ──────────────────────────
+// ── Session start ─────────────────────────────
 async function startSession() {
   const code = document.getElementById('session-code-display').textContent.trim();
   if (!code || code === '------') return showSetupError('Generate a session code first.');
@@ -165,7 +165,7 @@ async function startSession() {
   connectSocket();
 }
 
-// ── Render loop ─────────────────────────────
+// ── Render loop ───────────────────────────────
 function startRenderLoop() {
   const draw = () => {
     if (!videoEl.videoWidth) { animFrameId = requestAnimationFrame(draw); return; }
@@ -193,25 +193,27 @@ function startRenderLoop() {
   canvasStream = canvasEl.captureStream(30);
 }
 
-// ── Socket.IO ───────────────────────────────
+// ── Socket.IO ─────────────────────────────────
 function connectSocket() {
   const BACKEND = 'https://api.eaglevision.dev';
   socket = io(BACKEND, { transports: ['websocket'] });
 
   socket.on('connect', () => {
     setSocketStatus(true);
-    socket.emit('register_host', { code: sessionCode, adminKey });
+    socket.emit('register_host', { room: sessionCode, key: adminKey });
   });
 
   socket.on('disconnect', () => setSocketStatus(false));
 
   socket.on('host_registered', data => {
     console.log('Host registered:', data);
-    publishToLiveKit(data.livekitToken, data.livekitUrl);
+    publishToLiveKit(data.token, data.livekit_url);
   });
 
   socket.on('roster_update', data => {
-    roster = data.roster || [];
+    // Backend sends roster as { sid: { name, role } } object
+    const rosterObj = data.roster || {};
+    roster = Object.entries(rosterObj).map(([id, info]) => ({ id, name: info.name || id }));
     document.getElementById('hdr-viewers').textContent = `${roster.length} viewer${roster.length !== 1 ? 's' : ''}`;
     renderRoster();
   });
@@ -234,7 +236,7 @@ function setLiveKitStatus(ok) {
   badge.className   = `badge badge-lk${ok ? '' : ' err'}`;
 }
 
-// ── LiveKit ─────────────────────────────────
+// ── LiveKit ───────────────────────────────────
 async function publishToLiveKit(token, url) {
   if (!token || !url) { setLiveKitStatus(false); return; }
   try {
@@ -250,7 +252,7 @@ async function publishToLiveKit(token, url) {
   }
 }
 
-// ── Crop ────────────────────────────────────
+// ── Crop ──────────────────────────────────────
 function toggleCrop() {
   cropActive = !cropActive;
   if (cropActive) {
@@ -342,7 +344,7 @@ function showHostPanel(name) {
   if (btn) btn.classList.add('active');
 }
 
-// ── Roster ──────────────────────────────────
+// ── Roster ────────────────────────────────────
 function renderRoster() {
   const body = document.getElementById('roster-body');
   if (!roster.length) { body.innerHTML = '<p style="font-size:.85rem;color:var(--muted,#7c83a8)">No students yet.</p>'; return; }
@@ -360,7 +362,7 @@ function renderRoster() {
   });
 }
 
-// ── Admin commands ──────────────────────────
+// ── Admin commands ────────────────────────────
 function kickUser(studentId) {
   if (!socket) return;
   socket.emit('kick_user', { code: sessionCode, adminKey, targetId: studentId });
@@ -398,7 +400,7 @@ function sendInstruction() {
   document.getElementById('instruction-input').value = '';
 }
 
-// ── Fullscreen ──────────────────────────────
+// ── Fullscreen ────────────────────────────────
 function toggleFullscreen() {
   const ws = document.getElementById('workspace');
   if (!document.fullscreenElement) {
@@ -408,7 +410,7 @@ function toggleFullscreen() {
   }
 }
 
-// ── End session ─────────────────────────────
+// ── End session ───────────────────────────────
 function endSession() {
   if (!confirm('End the session for all students?')) return;
   if (socket) { socket.emit('end_session', { code: sessionCode, adminKey }); socket.disconnect(); }
@@ -418,7 +420,7 @@ function endSession() {
   window.location.href = 'index.html';
 }
 
-// ── Utility ──────────────────────────────────
+// ── Utility ───────────────────────────────────
 function showSetupError(msg) {
   const el = document.getElementById('setup-error');
   el.textContent = msg;

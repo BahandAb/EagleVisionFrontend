@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="landing.css?v=8">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EagleVision">
+    <link rel="apple-touch-icon" href="assets/EagleVisionLogo.png">
+    <meta name="theme-color" content="#0a0f1c">
 </head>
 <body class="home-body">
 
@@ -50,6 +56,7 @@
             <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;letter-spacing:0.5px;">Patent Pending</p>
             <div class="hero-actions">
                 <a href="session.html" class="btn-hero-primary">Join a Session</a>
+                <a href="host.html" class="btn-hero-outline" style="border-color:#FFD700;color:#FFD700;">Host a Session</a>
                 <a href="#contact" class="btn-hero-outline">Get Access for Your School</a>
             </div>
         </div>
@@ -460,6 +467,13 @@
                 btn.disabled = false;
             }
         });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 </html>

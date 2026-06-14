@@ -51,11 +51,11 @@ No special hardware is required on the student side — any modern browser on a 
 
 ### Instructor Flow
 
-1. Connect the microscope camera to your computer
-2. Start the instructor-side broadcasting client (separate from this frontend)
-3. The backend generates a **6-digit session code** for your room
-4. Share that code with your students
-5. When prompted, enter your **admin key** on the session join page to unlock instructor controls
+1. Connect the microscope camera (USB, HDMI capture card, or webcam) to your computer
+2. Go to [eaglevision.dev/host.html](https://eaglevision.dev/host.html)
+3. Select your camera, choose a resolution, and optionally set an admin key
+4. A **6-digit session code** is auto-generated — share it with your students
+5. Click **Start Session** — you are live immediately, no install required
 
 ### Student Flow
 
@@ -152,11 +152,15 @@ Both endpoints are at `https://api.eaglevision.dev`.
 ```
 /
 ├── index.html          Landing page (hero, use cases, how it works, contact)
-├── session.html        Session join form
-├── workspace.html      Main collaboration workspace
+├── host.html           Instructor host page (camera setup, live streaming, admin controls)
+├── host.js             Host logic (camera, LiveKit publish, crop, Socket.IO)
+├── session.html        Student session join form
+├── workspace.html      Main student collaboration workspace
 ├── about.html          Team, origin story, milestones
-├── script.js           Core workspace logic (808 lines)
-├── img_processor.js    Image filter and adjustment module (153 lines)
+├── manifest.json       PWA manifest (installable on desktop/mobile)
+├── sw.js               Service worker (offline static asset caching)
+├── script.js           Core workspace logic
+├── img_processor.js    Image filter and adjustment module
 ├── style.css           Workspace styles (dark theme)
 ├── landing.css         Landing and about page styles
 ├── js/
@@ -238,7 +242,7 @@ Eagle AI is a two-tier feature that lets users ask questions about whatever is o
 
 The frontend is a **static site** — no build step required. It can be served from any static host (GitHub Pages, Netlify, Cloudflare Pages, nginx, etc.).
 
-The live site is deployed at **eaglevision.dev** via GitHub Pages (see `CNAME`).
+The live site is deployed at **eaglevision.dev** via GitHub Pages (see `CNAME`). The backend runs on an Oracle Cloud VM (free tier) via `start.sh` using eventlet WSGI.
 
 ### What you need to self-host the full stack
 
@@ -252,7 +256,7 @@ The live site is deployed at **eaglevision.dev** via GitHub Pages (see `CNAME`).
 The backend and broadcaster are in separate repositories (not public). To run a fully self-hosted instance, you would need to:
 
 1. Deploy a LiveKit server (self-hosted or LiveKit Cloud)
-2. Deploy the Node.js signaling backend, pointed at your LiveKit instance
+2. Deploy the Python Flask + Socket.IO backend, pointed at your LiveKit instance
 3. Update `SIGNALING_SERVER_URL` and `EAGLE_API_BASE_URL` in `script.js`
 4. Serve this frontend from any static host
 
@@ -294,7 +298,7 @@ const EAGLE_SESSION_TIMEOUT_MS = 30 * 60 * 1000;  // 30 minutes
 | Real-time video | [LiveKit](https://livekit.io) (WebRTC) |
 | Signaling | Socket.IO |
 | Image processing | Canvas API, SVG filters |
-| AI analysis | Claude API (via backend proxy) |
+| AI analysis | Gemini API (Google) via backend proxy |
 | Storage | SessionStorage (session state), LocalStorage (AI history) |
 | Hosting | GitHub Pages |
 
