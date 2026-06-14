@@ -1,0 +1,22 @@
+{
+  "name": "EagleVision",
+  "short_name": "EagleVision",
+  "description": "Live microscopy streaming for educators",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f1c",
+  "theme_color": "#0a0f1c",
+  "icons": [
+    {
+      "src": "assets/EagleVisionLogo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/EagleVisionLogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
