@@ -20,6 +20,8 @@ let dragState         = null;
 // ── DOM refs (populated after DOMContentLoaded) ──
 let videoEl, canvasEl, ctx, cropOverlay;
 
+const BACKEND = 'https://api.eaglevision.dev';
+
 // ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   videoEl     = document.getElementById('preview-video');
@@ -27,10 +29,46 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx         = canvasEl.getContext('2d');
   cropOverlay = document.getElementById('crop-overlay');
 
-  sessionCode = generateCode();
-  document.getElementById('session-code-display').textContent = sessionCode;
+  // ── Access gate ──
+  const gateSubmit = document.getElementById('btn-gate-submit');
+  const gateInput  = document.getElementById('gate-password-input');
 
-  populateCameras();
+  async function submitGate() {
+    const password = gateInput.value.trim();
+    if (!password) return;
+    gateSubmit.disabled = true;
+    gateSubmit.textContent = 'Checking…';
+    try {
+      const res = await fetch(`${BACKEND}/api/host-access`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('gate-screen').style.display = 'none';
+        document.getElementById('setup-screen').style.display = 'flex';
+        sessionCode = generateCode();
+        document.getElementById('session-code-display').textContent = sessionCode;
+        populateCameras();
+      } else {
+        const err = document.getElementById('gate-error');
+        err.textContent = data.error || 'Incorrect password.';
+        err.style.display = 'block';
+        gateInput.value = '';
+        gateInput.focus();
+      }
+    } catch {
+      const err = document.getElementById('gate-error');
+      err.textContent = 'Could not reach server. Try again.';
+      err.style.display = 'block';
+    }
+    gateSubmit.disabled = false;
+    gateSubmit.textContent = 'Continue';
+  }
+
+  gateSubmit.addEventListener('click', submitGate);
+  gateInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitGate(); });
 
   document.getElementById('btn-regen').addEventListener('click', regenerateCode);
   document.getElementById('btn-start').addEventListener('click', startSession);
@@ -194,7 +232,6 @@ function startRenderLoop() {
 
 // ── Socket.IO ─────────────────────────────────
 function connectSocket() {
-  const BACKEND = 'https://api.eaglevision.dev';
   socket = io(BACKEND, { transports: ['websocket'] });
 
   socket.on('connect', () => {

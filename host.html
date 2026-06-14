@@ -59,6 +59,20 @@
     #btn-start:active { opacity: .75; }
     #setup-error { color: #f87171; font-size: .9rem; display: none; margin: 0; }
 
+    /* ── Access gate ── */
+    #gate-screen {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 1.5rem 1rem; gap: 1.25rem;
+    }
+    #gate-screen h1 { font-size: 1.6rem; margin: 0; text-align: center; }
+    #gate-screen p { font-size: .9rem; color: var(--muted, #7c83a8); margin: 0; text-align: center; }
+    #gate-error { color: #f87171; font-size: .9rem; display: none; margin: 0; text-align: center; }
+    @media (max-width: 640px) {
+      #gate-screen { padding: 1rem .75rem; justify-content: flex-start; padding-top: 2.5rem; }
+      #gate-screen h1 { font-size: 1.35rem; }
+    }
+
     /* ── Session screen ── */
     #session-screen { display: none; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 
@@ -276,8 +290,22 @@
 </head>
 <body>
 
+<!-- ══════════════ ACCESS GATE ══════════════ -->
+<div id="gate-screen">
+  <h1>EagleVision</h1>
+  <p>Enter your host access password to continue.</p>
+  <div class="setup-card" style="max-width:380px;gap:.85rem;">
+    <div>
+      <label for="gate-password-input">Access Password</label>
+      <input id="gate-password-input" type="password" placeholder="Enter password…" autocomplete="current-password">
+    </div>
+    <p id="gate-error"></p>
+    <button id="btn-gate-submit" class="ctrl-btn" style="background:var(--accent,#FFD700);color:#0a0f1c;font-weight:700;border:none;padding:.85rem;border-radius:10px;font-size:1rem;cursor:pointer;">Continue</button>
+  </div>
+</div>
+
 <!-- ══════════════ SETUP SCREEN ══════════════ -->
-<div id="setup-screen">
+<div id="setup-screen" style="display:none;">
   <a href="index.html" style="align-self:flex-start;display:flex;align-items:center;gap:.35rem;color:var(--muted,#7c83a8);text-decoration:none;font-size:.9rem;margin-bottom:-.25rem;">
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 4 7 10 13 16"/></svg>
     Back
