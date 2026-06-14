@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EagleVision – Host</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Host-page overrides ── */
+    body { background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6); font-family: 'Inter', sans-serif; margin: 0; }
+
+    /* ── Setup screen ── */
+    #setup-screen {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 2rem; gap: 1.5rem;
+    }
+    #setup-screen h1 { font-size: 2rem; margin: 0; }
+    .setup-card {
+      background: var(--surface, #141929);
+      border: 1px solid var(--border, #2a3050);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      width: 100%; max-width: 560px;
+      display: flex; flex-direction: column; gap: 1.1rem;
+    }
+    .setup-card label { font-size: .85rem; color: var(--muted, #7c83a8); margin-bottom: .25rem; display: block; }
+    .setup-card select, .setup-card input {
+      width: 100%; padding: .55rem .8rem;
+      background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6);
+      border: 1px solid var(--border, #2a3050); border-radius: 8px;
+      font-size: .95rem; box-sizing: border-box;
+    }
+    #preview-video {
+      width: 100%; border-radius: 8px; background: #000;
+      aspect-ratio: 16/9; object-fit: cover;
+    }
+    .code-row {
+      display: flex; align-items: center; gap: .6rem;
+    }
+    #session-code-display {
+      flex: 1; padding: .55rem .8rem;
+      background: var(--bg, #0a0f1c); color: var(--accent, #FFD700);
+      border: 1px solid var(--border, #2a3050); border-radius: 8px;
+      font-size: 1.4rem; font-weight: 700; letter-spacing: .15em; text-align: center;
+    }
+    #btn-regen {
+      padding: .5rem .9rem; border-radius: 8px;
+      border: 1px solid var(--border, #2a3050);
+      background: transparent; color: var(--muted, #7c83a8);
+      cursor: pointer; font-size: 1rem;
+    }
+    #btn-regen:hover { color: var(--text, #e8eaf6); }
+    #btn-start {
+      padding: .75rem; border-radius: 10px;
+      background: var(--accent, #FFD700); color: #0a0f1c;
+      border: none; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: opacity .2s;
+    }
+    #btn-start:hover { opacity: .85; }
+    #setup-error { color: #f87171; font-size: .9rem; display: none; }
+
+    /* ── Session screen ── */
+    #session-screen { display: none; flex-direction: column; height: 100vh; }
+
+    /* top header */
+    #session-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .6rem 1.2rem;
+      background: var(--surface, #141929);
+      border-bottom: 1px solid var(--border, #2a3050);
+      flex-shrink: 0;
+    }
+    #session-header .logo { font-weight: 800; font-size: 1.1rem; color: var(--accent, #FFD700); }
+    #hdr-code { font-weight: 700; font-size: 1rem; letter-spacing: .1em; }
+    .badge {
+      padding: .2rem .65rem; border-radius: 999px;
+      font-size: .75rem; font-weight: 600;
+    }
+    .badge-socket { background: #1e3a2f; color: #4ade80; }
+    .badge-socket.err { background: #3b1a1a; color: #f87171; }
+    .badge-lk { background: #1a2a3b; color: #60a5fa; }
+    .badge-lk.err { background: #3b1a1a; color: #f87171; }
+    #hdr-viewers { margin-left: auto; font-size: .85rem; color: var(--muted, #7c83a8); }
+    #btn-end {
+      padding: .3rem .8rem; border-radius: 8px;
+      background: #7f1d1d; color: #fca5a5;
+      border: none; cursor: pointer; font-size: .85rem;
+    }
+
+    /* main layout */
+    #main-layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* activity bar */
+    #activity-bar {
+      width: 52px; background: var(--surface, #141929);
+      border-right: 1px solid var(--border, #2a3050);
+      display: flex; flex-direction: column; align-items: center;
+      padding: .5rem 0; gap: .4rem; flex-shrink: 0;
+    }
+    .ab-btn {
+      width: 38px; height: 38px; border-radius: 8px;
+      border: none; background: transparent;
+      color: var(--muted, #7c83a8); cursor: pointer;
+      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .ab-btn:hover, .ab-btn.active { background: var(--border, #2a3050); color: var(--text, #e8eaf6); }
+
+    /* side panel */
+    #side-panel {
+      width: 260px; background: var(--surface, #141929);
+      border-right: 1px solid var(--border, #2a3050);
+      display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+    }
+    .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .panel.active { display: flex; }
+    .panel-title {
+      padding: .7rem 1rem; font-size: .8rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--muted, #7c83a8);
+      border-bottom: 1px solid var(--border, #2a3050);
+    }
+    .panel-body { padding: .75rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: .5rem; }
+
+    /* roster */
+    .roster-item {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .4rem .5rem; border-radius: 6px;
+      background: var(--bg, #0a0f1c);
+    }
+    .roster-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent, #FFD700); color: #0a0f1c;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; flex-shrink: 0;
+    }
+    .roster-name { flex: 1; font-size: .85rem; }
+    .roster-kick {
+      padding: .15rem .4rem; border-radius: 4px;
+      background: #3b1a1a; color: #f87171;
+      border: none; cursor: pointer; font-size: .75rem;
+    }
+
+    /* controls panel */
+    .ctrl-group { display: flex; flex-direction: column; gap: .4rem; }
+    .ctrl-label { font-size: .75rem; color: var(--muted, #7c83a8); }
+    .ctrl-btn {
+      padding: .45rem .7rem; border-radius: 8px;
+      border: 1px solid var(--border, #2a3050);
+      background: transparent; color: var(--text, #e8eaf6);
+      cursor: pointer; font-size: .83rem; text-align: left;
+    }
+    .ctrl-btn:hover { background: var(--border, #2a3050); }
+    .ctrl-btn.danger { border-color: #7f1d1d; color: #f87171; }
+    .ctrl-btn.danger:hover { background: #7f1d1d; }
+    #instruction-input {
+      width: 100%; padding: .45rem .6rem;
+      background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6);
+      border: 1px solid var(--border, #2a3050); border-radius: 8px;
+      font-size: .85rem; box-sizing: border-box;
+    }
+
+    /* workspace */
+    #workspace {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #000; position: relative; overflow: hidden;
+    }
+    #host-canvas { max-width: 100%; max-height: 100%; display: block; }
+    #crop-overlay {
+      position: absolute; border: 2px dashed var(--accent, #FFD700);
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.5);
+      cursor: move; display: none; box-sizing: border-box;
+    }
+    #crop-overlay .crop-handle {
+      position: absolute; width: 10px; height: 10px;
+      background: var(--accent, #FFD700); border-radius: 2px;
+    }
+    #crop-overlay .crop-handle.tl { top: -5px; left: -5px; cursor: nw-resize; }
+    #crop-overlay .crop-handle.tr { top: -5px; right: -5px; cursor: ne-resize; }
+    #crop-overlay .crop-handle.bl { bottom: -5px; left: -5px; cursor: sw-resize; }
+    #crop-overlay .crop-handle.br { bottom: -5px; right: -5px; cursor: se-resize; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ SETUP SCREEN ══════════════ -->
+<div id="setup-screen">
+  <h1>🦅 Host a Session</h1>
+
+  <div class="setup-card">
+    <div>
+      <label for="camera-select">Camera</label>
+      <select id="camera-select"><option value="">Loading cameras…</option></select>
+    </div>
+
+    <video id="preview-video" autoplay muted playsinline></video>
+
+    <div>
+      <label for="resolution-select">Resolution</label>
+      <select id="resolution-select">
+        <option value="1920x1080">1080p (1920×1080)</option>
+        <option value="1280x720" selected>720p (1280×720)</option>
+        <option value="854x480">480p (854×480)</option>
+        <option value="640x360">360p (640×360)</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Session Code</label>
+      <div class="code-row">
+        <div id="session-code-display">------</div>
+        <button id="btn-regen" title="New code">↺</button>
+      </div>
+    </div>
+
+    <div>
+      <label for="admin-key-input">Admin Key (optional)</label>
+      <input id="admin-key-input" type="password" placeholder="Leave blank for open session">
+    </div>
+
+    <p id="setup-error"></p>
+    <button id="btn-start">Start Session</button>
+  </div>
+</div>
+
+<!-- ══════════════ SESSION SCREEN ══════════════ -->
+<div id="session-screen">
+
+  <!-- Header -->
+  <div id="session-header">
+    <span class="logo">🦅 EagleVision</span>
+    <span id="hdr-code"></span>
+    <span id="badge-socket" class="badge badge-socket err">Socket ✗</span>
+    <span id="badge-lk"     class="badge badge-lk err">LiveKit ✗</span>
+    <span id="hdr-viewers">0 viewers</span>
+    <button id="btn-end">End Session</button>
+  </div>
+
+  <!-- Body -->
+  <div id="main-layout">
+
+    <!-- Activity bar -->
+    <div id="activity-bar">
+      <button class="ab-btn active" data-panel="status"    title="Status">📶</button>
+      <button class="ab-btn"        data-panel="roster"    title="Roster">👥</button>
+      <button class="ab-btn"        data-panel="controls"  title="Controls">🎛️</button>
+    </div>
+
+    <!-- Side panel -->
+    <div id="side-panel">
+
+      <!-- Status panel -->
+      <div id="panel-status" class="panel active">
+        <div class="panel-title">Status</div>
+        <div class="panel-body" id="status-body">
+          <p style="font-size:.85rem;color:var(--muted,#7c83a8)">Session is live. Waiting for students to join…</p>
+        </div>
+      </div>
+
+      <!-- Roster panel -->
+      <div id="panel-roster" class="panel">
+        <div class="panel-title">Roster</div>
+        <div class="panel-body" id="roster-body"></div>
+      </div>
+
+      <!-- Controls panel -->
+      <div id="panel-controls" class="panel">
+        <div class="panel-title">Controls</div>
+        <div class="panel-body">
+          <div class="ctrl-group">
+            <span class="ctrl-label">Camera</span>
+            <select id="session-camera-select" class="ctrl-btn" style="cursor:pointer"></select>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">Broadcast</span>
+            <button class="ctrl-btn" onclick="triggerReturnLive()">↩ Return to Live</button>
+            <button class="ctrl-btn" onclick="triggerRequestPhoto()">📷 Request Photo</button>
+            <button class="ctrl-btn" onclick="clearAllScreens()">🗑 Clear Screens</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">View Mode</span>
+            <button class="ctrl-btn" onclick="setFollowMode()">🔗 Follow Mode</button>
+            <button class="ctrl-btn" onclick="setBroadcastMode()">📡 Broadcast Mode</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">Crop / Zoom</span>
+            <button class="ctrl-btn" onclick="toggleCrop()">✂️ Toggle Crop</button>
+            <button class="ctrl-btn" onclick="resetCrop()">↺ Reset Crop</button>
+          </div>
+          <div class="ctrl-group">
+            <span class="ctrl-label">Instruction</span>
+            <input id="instruction-input" type="text" placeholder="Type instruction…">
+            <button class="ctrl-btn" onclick="sendInstruction()">Send</button>
+          </div>
+          <div class="ctrl-group">
+            <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            <button class="ctrl-btn danger" onclick="endSession()">⏹ End Session</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /side-panel -->
+
+    <!-- Workspace -->
+    <div id="workspace">
+      <canvas id="host-canvas" width="1280" height="720"></canvas>
+      <div id="crop-overlay">
+        <div class="crop-handle tl" data-corner="tl"></div>
+        <div class="crop-handle tr" data-corner="tr"></div>
+        <div class="crop-handle bl" data-corner="bl"></div>
+        <div class="crop-handle br" data-corner="br"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-layout -->
+</div><!-- /session-screen -->
+
+<script src="js/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
+<script src="host.js"></script>
+</body>
+</html>
