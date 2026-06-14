@@ -51,6 +51,8 @@ No special hardware is required on the student side — any modern browser on a 
 
 ### Instructor Flow
 
+> **Note:** The browser-based host page (`host.html`) is now the primary way to host a session. The Android app is a secondary option for mobile-first setups.
+
 1. Connect the microscope camera (USB, HDMI capture card, or webcam) to your computer
 2. Go to [eaglevision.dev/host.html](https://eaglevision.dev/host.html)
 3. Select your camera, choose a resolution, and optionally set an admin key
@@ -86,12 +88,12 @@ Browser (Student/Instructor)
     ├── script.js         ← Core logic
     └── img_processor.js  ← Image adjustments
          │
-         ├── Socket.IO ──────────────────────────── api.eaglevision.dev
+         ├── Socket.IO ──────────────────────── api.eaglevision.dev
          │   (signaling, admin commands,              ├── Signaling server
          │    roster updates, view sync,              ├── LiveKit token issuer
          │    broadcast strokes)                      └── Eagle AI proxy
          │
-         └── LiveKit (WebRTC) ────────────────────── LiveKit media server
+         └── LiveKit (WebRTC) ──────────────────── LiveKit media server
              (video stream)                           (hosted separately)
 ```
 
