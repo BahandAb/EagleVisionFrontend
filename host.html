@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <style>
     /* ── Base ── */
-    body { background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6); font-family: 'Inter', sans-serif; margin: 0; }
+    body { background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6); font-family: 'Inter', sans-serif; margin: 0; overflow-y: auto; }
 
     /* ── Setup screen ── */
     #setup-screen {
@@ -60,7 +60,7 @@
     #setup-error { color: #f87171; font-size: .9rem; display: none; margin: 0; }
 
     /* ── Session screen ── */
-    #session-screen { display: none; flex-direction: column; height: 100dvh; height: 100vh; }
+    #session-screen { display: none; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
 
     /* Header */
     #session-header {
@@ -104,8 +104,10 @@
       width: 40px; height: 40px; border-radius: 8px;
       border: none; background: transparent;
       color: var(--muted, #7c83a8); cursor: pointer;
-      font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     }
+    .ab-btn svg { flex-shrink: 0; }
+    .ab-label { font-size: .6rem; font-weight: 600; letter-spacing: .02em; display: none; }
     .ab-btn:hover, .ab-btn.active { background: var(--border, #2a3050); color: var(--text, #e8eaf6); }
 
     /* Side panel — desktop */
@@ -170,7 +172,7 @@
       flex: 1; display: flex; align-items: center; justify-content: center;
       background: #000; position: relative; overflow: hidden;
     }
-    #host-canvas { max-width: 100%; max-height: 100%; display: block; }
+    #host-canvas { max-width: 100%; max-height: 100%; display: block; aspect-ratio: 16/9; width: auto; height: auto; }
     #crop-overlay {
       position: absolute; border: 2px dashed var(--accent, #FFD700);
       box-shadow: 0 0 0 9999px rgba(0,0,0,.5);
@@ -196,24 +198,27 @@
     /* ── Mobile layout ── */
     @media (max-width: 640px) {
       #session-header .logo { display: none; }
+      #hdr-code { font-size: 1.05rem; letter-spacing: .12em; }
+      #badge-socket, #badge-lk { display: none; }
 
       /* Activity bar becomes bottom tab bar */
       #activity-bar {
         position: fixed; bottom: 0; left: 0; right: 0;
-        width: 100%; height: 56px;
+        width: 100%; height: 60px;
         flex-direction: row; justify-content: space-around;
         padding: 0; gap: 0;
         border-right: none; border-top: 1px solid var(--border, #2a3050);
         z-index: 20;
       }
-      .ab-btn { width: 56px; height: 56px; border-radius: 0; font-size: 1.4rem; }
+      .ab-btn { width: auto; flex: 1; height: 60px; border-radius: 0; }
+      .ab-label { display: block; }
 
       /* Main layout fills to above tab bar */
-      #main-layout { padding-bottom: 56px; }
+      #main-layout { padding-bottom: 60px; }
 
       /* Side panel slides in as overlay from left */
       #side-panel {
-        position: fixed; left: 0; top: 0; bottom: 56px;
+        position: fixed; left: 0; top: 0; bottom: 60px;
         width: min(85vw, 300px);
         transform: translateX(-100%);
         z-index: 20;
@@ -244,7 +249,7 @@
 
 <!-- ══════════════ SETUP SCREEN ══════════════ -->
 <div id="setup-screen">
-  <h1>🦅 Host a Session</h1>
+  <h1>Host a Session</h1>
 
   <div class="setup-card">
     <div>
@@ -287,7 +292,7 @@
 
   <!-- Header -->
   <div id="session-header">
-    <span class="logo">🦅 EagleVision</span>
+    <span class="logo">EagleVision</span>
     <span id="hdr-code"></span>
     <span id="badge-socket" class="badge badge-socket err">Socket ✗</span>
     <span id="badge-lk"     class="badge badge-lk err">LiveKit ✗</span>
@@ -300,9 +305,28 @@
 
     <!-- Activity bar -->
     <div id="activity-bar">
-      <button class="ab-btn active" data-panel="status"   title="Status">📶</button>
-      <button class="ab-btn"       data-panel="roster"   title="Roster">👥</button>
-      <button class="ab-btn"       data-panel="controls" title="Controls">🎛️</button>
+      <button class="ab-btn active" data-panel="status" title="Status">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <rect x="1" y="11" width="3" height="8" rx="1"/><rect x="6" y="7" width="3" height="12" rx="1"/>
+          <rect x="11" y="3" width="3" height="16" rx="1"/><rect x="16" y="0" width="3" height="19" rx="1"/>
+        </svg>
+        <span class="ab-label">Status</span>
+      </button>
+      <button class="ab-btn" data-panel="roster" title="Roster">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <circle cx="7" cy="6" r="3"/><path d="M1 18c0-3.3 2.7-6 6-6h1" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <circle cx="14" cy="6" r="3"/><path d="M12 12h1c3.3 0 6 2.7 6 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span class="ab-label">Roster</span>
+      </button>
+      <button class="ab-btn" data-panel="controls" title="Controls">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <line x1="3" y1="5" x2="17" y2="5"/><circle cx="7" cy="5" r="2.2" fill="currentColor" stroke="none"/>
+          <line x1="3" y1="10" x2="17" y2="10"/><circle cx="13" cy="10" r="2.2" fill="currentColor" stroke="none"/>
+          <line x1="3" y1="15" x2="17" y2="15"/><circle cx="8" cy="15" r="2.2" fill="currentColor" stroke="none"/>
+        </svg>
+        <span class="ab-label">Controls</span>
+      </button>
     </div>
 
     <!-- Panel backdrop (mobile tap-to-close) -->
@@ -344,19 +368,19 @@
           </div>
           <div class="ctrl-group">
             <span class="ctrl-label">Broadcast</span>
-            <button class="ctrl-btn" onclick="triggerReturnLive()">↩ Return to Live</button>
-            <button class="ctrl-btn" onclick="triggerRequestPhoto()">📷 Request Photo</button>
-            <button class="ctrl-btn" onclick="clearAllScreens()">🗑 Clear Screens</button>
+            <button class="ctrl-btn" onclick="triggerReturnLive()">Return to Live</button>
+            <button class="ctrl-btn" onclick="triggerRequestPhoto()">Request Photo</button>
+            <button class="ctrl-btn" onclick="clearAllScreens()">Clear Screens</button>
           </div>
           <div class="ctrl-group">
             <span class="ctrl-label">View Mode</span>
-            <button class="ctrl-btn" onclick="setFollowMode()">🔗 Follow Mode</button>
-            <button class="ctrl-btn" onclick="setBroadcastMode()">📡 Broadcast Mode</button>
+            <button class="ctrl-btn" onclick="setFollowMode()">Follow Mode</button>
+            <button class="ctrl-btn" onclick="setBroadcastMode()">Broadcast Mode</button>
           </div>
           <div class="ctrl-group">
             <span class="ctrl-label">Crop / Zoom</span>
-            <button class="ctrl-btn" onclick="toggleCrop()">✂️ Toggle Crop</button>
-            <button class="ctrl-btn" onclick="resetCrop()">↺ Reset Crop</button>
+            <button class="ctrl-btn" onclick="toggleCrop()">Toggle Crop</button>
+            <button class="ctrl-btn" onclick="resetCrop()">Reset Crop</button>
           </div>
           <div class="ctrl-group">
             <span class="ctrl-label">Instruction</span>
@@ -364,8 +388,7 @@
             <button class="ctrl-btn" onclick="sendInstruction()">Send</button>
           </div>
           <div class="ctrl-group">
-            <button class="ctrl-btn" onclick="toggleFullscreen()">⧆ Fullscreen</button>
-            <button class="ctrl-btn danger" onclick="endSession()">⏹ End Session</button>
+            <button class="ctrl-btn" onclick="toggleFullscreen()">Fullscreen</button>
           </div>
         </div>
       </div>
