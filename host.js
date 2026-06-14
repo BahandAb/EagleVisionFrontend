@@ -15,12 +15,12 @@ let animFrameId       = null;
 // Crop state
 let cropActive        = false;
 let cropRect          = { x: 0, y: 0, w: 1, h: 1 };  // normalised 0-1
-let dragState         = null;        // {type:'move'|corner, corner, startX, startY, startRect}
+let dragState         = null;
 
 // ── DOM refs (populated after DOMContentLoaded) ──
 let videoEl, canvasEl, ctx, cropOverlay;
 
-// ── Init ───────────────────────────────────────
+// ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   videoEl     = document.getElementById('preview-video');
   canvasEl    = document.getElementById('host-canvas');
@@ -55,11 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Backdrop tap closes panel on mobile
+  document.getElementById('panel-backdrop').addEventListener('click', closeMobilePanel);
+
   // Crop drag
   initCropDrag();
 });
 
-// ── Code helpers ──────────────────────────────────
+// ── Code helpers ──────────────────────────────
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -72,10 +75,9 @@ function regenerateCode() {
   document.getElementById('session-code-display').textContent = sessionCode;
 }
 
-// ── Camera helpers ────────────────────────────────
+// ── Camera helpers ────────────────────────────
 async function populateCameras() {
   try {
-    // Trigger permission prompt
     const tmp = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
     tmp.getTracks().forEach(t => t.stop());
 
@@ -142,7 +144,7 @@ function getResolution() {
   return val.split('x').map(Number);
 }
 
-// ── Session start ─────────────────────────────────
+// ── Session start ─────────────────────────────
 async function startSession() {
   const code = document.getElementById('session-code-display').textContent.trim();
   if (!code || code === '------') return showSetupError('Generate a session code first.');
@@ -151,12 +153,10 @@ async function startSession() {
 
   if (!cameraStream) return showSetupError('No camera stream available.');
 
-  // Set canvas size to match resolution
   const [w, h] = getResolution();
   canvasEl.width  = w;
   canvasEl.height = h;
 
-  // Switch screens
   document.getElementById('setup-screen').style.display  = 'none';
   document.getElementById('session-screen').style.display = 'flex';
   document.getElementById('hdr-code').textContent = sessionCode;
@@ -165,7 +165,7 @@ async function startSession() {
   connectSocket();
 }
 
-// ── Render loop ─────────────────────────────────────
+// ── Render loop ───────────────────────────────
 function startRenderLoop() {
   const draw = () => {
     if (!videoEl.videoWidth) { animFrameId = requestAnimationFrame(draw); return; }
@@ -189,29 +189,30 @@ function startRenderLoop() {
   };
   animFrameId = requestAnimationFrame(draw);
 
-  // Capture canvas stream for LiveKit
   canvasStream = canvasEl.captureStream(30);
 }
 
-// ── Socket.IO ─────────────────────────────────────────
+// ── Socket.IO ─────────────────────────────────
 function connectSocket() {
   const BACKEND = 'https://api.eaglevision.dev';
   socket = io(BACKEND, { transports: ['websocket'] });
 
   socket.on('connect', () => {
     setSocketStatus(true);
-    socket.emit('register_host', { code: sessionCode, adminKey });
+    socket.emit('register_host', { room: sessionCode, key: adminKey });
   });
 
   socket.on('disconnect', () => setSocketStatus(false));
 
   socket.on('host_registered', data => {
     console.log('Host registered:', data);
-    publishToLiveKit(data.livekitToken, data.livekitUrl);
+    publishToLiveKit(data.token, data.livekit_url);
   });
 
   socket.on('roster_update', data => {
-    roster = data.roster || [];
+    // Backend sends roster as { sid: { name, role } } object
+    const rosterObj = data.roster || {};
+    roster = Object.entries(rosterObj).map(([id, info]) => ({ id, name: info.name || id }));
     document.getElementById('hdr-viewers').textContent = `${roster.length} viewer${roster.length !== 1 ? 's' : ''}`;
     renderRoster();
   });
@@ -234,7 +235,7 @@ function setLiveKitStatus(ok) {
   badge.className   = `badge badge-lk${ok ? '' : ' err'}`;
 }
 
-// ── LiveKit ───────────────────────────────────────────
+// ── LiveKit ───────────────────────────────────
 async function publishToLiveKit(token, url) {
   if (!token || !url) { setLiveKitStatus(false); return; }
   try {
@@ -250,7 +251,7 @@ async function publishToLiveKit(token, url) {
   }
 }
 
-// ── Crop ────────────────────────────────────────────────
+// ── Crop ──────────────────────────────────────
 function toggleCrop() {
   cropActive = !cropActive;
   if (cropActive) {
@@ -285,36 +286,40 @@ function updateCropOverlay() {
 }
 
 function initCropDrag() {
-  cropOverlay.addEventListener('mousedown', onCropMouseDown);
-  document.addEventListener('mousemove',   onCropMouseMove);
-  document.addEventListener('mouseup',     onCropMouseUp);
+  cropOverlay.addEventListener('mousedown',  onCropMouseDown);
+  document.addEventListener('mousemove',    onCropMouseMove);
+  document.addEventListener('mouseup',      onCropMouseUp);
+  cropOverlay.addEventListener('touchstart', onCropTouchStart, { passive: false });
+  document.addEventListener('touchmove',    onCropTouchMove,  { passive: false });
+  document.addEventListener('touchend',     onCropMouseUp);
 }
 
 function removeCropDrag() {
-  cropOverlay.removeEventListener('mousedown', onCropMouseDown);
-  document.removeEventListener('mousemove',   onCropMouseMove);
-  document.removeEventListener('mouseup',     onCropMouseUp);
+  cropOverlay.removeEventListener('mousedown',  onCropMouseDown);
+  document.removeEventListener('mousemove',    onCropMouseMove);
+  document.removeEventListener('mouseup',      onCropMouseUp);
+  cropOverlay.removeEventListener('touchstart', onCropTouchStart);
+  document.removeEventListener('touchmove',    onCropTouchMove);
+  document.removeEventListener('touchend',     onCropMouseUp);
 }
 
-function onCropMouseDown(e) {
-  const corner = e.target.dataset.corner;
-  const canvasRect = canvasEl.getBoundingClientRect();
+function startDrag(clientX, clientY, target) {
+  const corner = target.dataset.corner;
   dragState = {
     type:      corner ? 'corner' : 'move',
     corner:    corner || null,
-    startX:    e.clientX,
-    startY:    e.clientY,
+    startX:    clientX,
+    startY:    clientY,
     startRect: { ...cropRect },
-    canvasRect
+    canvasRect: canvasEl.getBoundingClientRect()
   };
-  e.preventDefault();
 }
 
-function onCropMouseMove(e) {
+function moveDrag(clientX, clientY) {
   if (!dragState) return;
   const { canvasRect, startX, startY, startRect, type, corner } = dragState;
-  const dx = (e.clientX - startX) / canvasRect.width;
-  const dy = (e.clientY - startY) / canvasRect.height;
+  const dx = (clientX - startX) / canvasRect.width;
+  const dy = (clientY - startY) / canvasRect.height;
 
   if (type === 'move') {
     cropRect.x = Math.max(0, Math.min(1 - startRect.w, startRect.x + dx));
@@ -330,19 +335,47 @@ function onCropMouseMove(e) {
   updateCropOverlay();
 }
 
-function onCropMouseUp() { dragState = null; }
+function onCropMouseDown(e)  { startDrag(e.clientX, e.clientY, e.target); e.preventDefault(); }
+function onCropMouseMove(e)  { moveDrag(e.clientX, e.clientY); }
+function onCropMouseUp()     { dragState = null; }
 
-// ── Panel navigation ──────────────────────────────────
+function onCropTouchStart(e) { const t = e.touches[0]; startDrag(t.clientX, t.clientY, e.target); e.preventDefault(); }
+function onCropTouchMove(e)  { if (!dragState) return; const t = e.touches[0]; moveDrag(t.clientX, t.clientY); e.preventDefault(); }
+
+// ── Panel navigation ──────────────────────────
 function showHostPanel(name) {
+  const isMobile = window.innerWidth <= 640;
+  const sidePanel = document.getElementById('side-panel');
+  const backdrop  = document.getElementById('panel-backdrop');
+
+  // Tapping the active panel on mobile toggles it closed
+  const activeBtn = document.querySelector('.ab-btn.active');
+  if (isMobile && activeBtn && activeBtn.dataset.panel === name && sidePanel.classList.contains('open')) {
+    closeMobilePanel();
+    return;
+  }
+
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.ab-btn[data-panel]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel-close-btn').forEach(b => b.style.display = isMobile ? 'block' : 'none');
+
   const panel = document.getElementById(`panel-${name}`);
   if (panel) panel.classList.add('active');
   const btn = document.querySelector(`.ab-btn[data-panel="${name}"]`);
   if (btn) btn.classList.add('active');
+
+  if (isMobile) {
+    sidePanel.classList.add('open');
+    backdrop.classList.add('open');
+  }
 }
 
-// ── Roster ────────────────────────────────────────────
+function closeMobilePanel() {
+  document.getElementById('side-panel').classList.remove('open');
+  document.getElementById('panel-backdrop').classList.remove('open');
+}
+
+// ── Roster ────────────────────────────────────
 function renderRoster() {
   const body = document.getElementById('roster-body');
   if (!roster.length) { body.innerHTML = '<p style="font-size:.85rem;color:var(--muted,#7c83a8)">No students yet.</p>'; return; }
@@ -360,7 +393,7 @@ function renderRoster() {
   });
 }
 
-// ── Admin commands ────────────────────────────────────
+// ── Admin commands ────────────────────────────
 function kickUser(studentId) {
   if (!socket) return;
   socket.emit('kick_user', { code: sessionCode, adminKey, targetId: studentId });
@@ -398,7 +431,7 @@ function sendInstruction() {
   document.getElementById('instruction-input').value = '';
 }
 
-// ── Fullscreen ──────────────────────────────────────────
+// ── Fullscreen ────────────────────────────────
 function toggleFullscreen() {
   const ws = document.getElementById('workspace');
   if (!document.fullscreenElement) {
@@ -408,7 +441,7 @@ function toggleFullscreen() {
   }
 }
 
-// ── End session ───────────────────────────────────────────
+// ── End session ───────────────────────────────
 function endSession() {
   if (!confirm('End the session for all students?')) return;
   if (socket) { socket.emit('end_session', { code: sessionCode, adminKey }); socket.disconnect(); }
@@ -418,7 +451,7 @@ function endSession() {
   window.location.href = 'index.html';
 }
 
-// ── Utility ───────────────────────────────────────────────
+// ── Utility ───────────────────────────────────
 function showSetupError(msg) {
   const el = document.getElementById('setup-error');
   el.textContent = msg;
