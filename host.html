@@ -68,11 +68,16 @@
       padding: .5rem .75rem;
       background: var(--surface, #141929);
       border-bottom: 1px solid var(--border, #2a3050);
-      flex-shrink: 0; flex-wrap: wrap;
-      min-height: 44px;
+      flex-shrink: 0;
+      min-height: 48px;
     }
     #session-header .logo { font-weight: 800; font-size: 1rem; color: var(--accent, #FFD700); white-space: nowrap; }
-    #hdr-code { font-weight: 700; font-size: .95rem; letter-spacing: .1em; white-space: nowrap; }
+    #hdr-code {
+      font-weight: 700; font-size: 1rem; letter-spacing: .12em; white-space: nowrap;
+      color: var(--accent, #FFD700);
+      background: rgba(255,215,0,.08); border: 1px solid rgba(255,215,0,.2);
+      padding: .2rem .6rem; border-radius: 6px;
+    }
     .badge {
       padding: .2rem .5rem; border-radius: 999px;
       font-size: .7rem; font-weight: 600; white-space: nowrap;
@@ -81,12 +86,15 @@
     .badge-socket.err { background: #3b1a1a; color: #f87171; }
     .badge-lk { background: #1a2a3b; color: #60a5fa; }
     .badge-lk.err { background: #3b1a1a; color: #f87171; }
-    #hdr-viewers { margin-left: auto; font-size: .8rem; color: var(--muted, #7c83a8); white-space: nowrap; }
+    #hdr-viewers {
+      margin-left: auto; font-size: .8rem; color: var(--muted, #7c83a8);
+      white-space: nowrap; flex-shrink: 0;
+    }
     #btn-end {
       padding: .35rem .75rem; border-radius: 8px;
       background: #7f1d1d; color: #fca5a5;
       border: none; cursor: pointer; font-size: .8rem; white-space: nowrap;
-      min-height: 34px;
+      min-height: 34px; flex-shrink: 0;
     }
 
     /* Main layout */
@@ -197,44 +205,65 @@
 
     /* ── Mobile layout ── */
     @media (max-width: 640px) {
+      /* Header: single tight row — hide logo and status badges */
+      #session-header { padding: .4rem .6rem; gap: .4rem; }
       #session-header .logo { display: none; }
-      #hdr-code { font-size: 1.05rem; letter-spacing: .12em; }
       #badge-socket, #badge-lk { display: none; }
 
-      /* Activity bar becomes bottom tab bar */
+      /* Bottom tab bar */
       #activity-bar {
         position: fixed; bottom: 0; left: 0; right: 0;
-        width: 100%; height: 60px;
+        width: 100%; height: 58px;
         flex-direction: row; justify-content: space-around;
         padding: 0; gap: 0;
         border-right: none; border-top: 1px solid var(--border, #2a3050);
-        z-index: 20;
+        z-index: 20; background: var(--surface, #141929);
       }
-      .ab-btn { width: auto; flex: 1; height: 60px; border-radius: 0; }
+      .ab-btn { width: auto; flex: 1; height: 58px; border-radius: 0; }
       .ab-label { display: block; }
 
-      /* Main layout fills to above tab bar */
-      #main-layout { padding-bottom: 60px; }
+      /* Main layout above tab bar, no side panel taking width */
+      #main-layout { padding-bottom: 58px; }
 
-      /* Side panel slides in as overlay from left */
+      /* Side panel → bottom sheet that slides up above the tab bar */
       #side-panel {
-        position: fixed; left: 0; top: 0; bottom: 60px;
-        width: min(85vw, 300px);
-        transform: translateX(-100%);
+        position: fixed;
+        left: 0; right: 0;
+        bottom: 58px;
+        top: auto;
+        width: 100%;
+        max-height: 52vh;
+        border-right: none;
+        border-top: 1px solid var(--border, #2a3050);
+        border-radius: 14px 14px 0 0;
+        transform: translateY(100%);
+        transition: transform .28s cubic-bezier(.32,.72,0,1);
         z-index: 20;
-        border-right: 1px solid var(--border, #2a3050);
+        overflow: hidden;
       }
-      #side-panel.open { transform: translateX(0); }
+      #side-panel.open { transform: translateY(0); }
+
+      /* Drag handle on the sheet */
+      #side-panel::before {
+        content: '';
+        display: block;
+        width: 36px; height: 4px;
+        background: var(--border, #2a3050);
+        border-radius: 2px;
+        margin: .55rem auto .1rem;
+        flex-shrink: 0;
+      }
+
       .panel-close-btn { display: block !important; }
       #panel-backdrop.open { display: block; }
 
-      /* Workspace fills full width */
+      /* Workspace fills remaining space */
       #workspace { touch-action: none; }
 
-      /* Setup screen adjustments */
-      #setup-screen { padding: 1rem .75rem; justify-content: flex-start; padding-top: 2rem; }
-      #setup-screen h1 { font-size: 1.4rem; }
-      .setup-card { padding: 1rem; }
+      /* Setup screen */
+      #setup-screen { padding: 1rem .75rem; justify-content: flex-start; padding-top: 1.5rem; }
+      #setup-screen h1 { font-size: 1.35rem; }
+      .setup-card { padding: 1rem; gap: .85rem; }
     }
 
     @media (hover: hover) {
@@ -260,12 +289,12 @@
     <video id="preview-video" autoplay muted playsinline></video>
 
     <div>
-      <label for="resolution-select">Resolution</label>
+      <label for="resolution-select">Feed Quality <span style="font-weight:400;color:var(--muted,#7c83a8)">(controls what students see)</span></label>
       <select id="resolution-select">
-        <option value="1920x1080">1080p (1920×1080)</option>
-        <option value="1280x720" selected>720p (1280×720)</option>
-        <option value="854x480">480p (854×480)</option>
-        <option value="640x360">360p (640×360)</option>
+        <option value="1920x1080">High – 1080p</option>
+        <option value="1280x720" selected>Standard – 720p</option>
+        <option value="854x480">Low – 480p</option>
+        <option value="640x360">Very Low – 360p</option>
       </select>
     </div>
 
