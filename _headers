@@ -1,0 +1,8 @@
+/sw.js
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/host.js
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/host.html
+  Cache-Control: no-store, no-cache, must-revalidate
