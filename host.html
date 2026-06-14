@@ -6,161 +6,166 @@
   <title>EagleVision – Host</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* ── Host-page overrides ── */
+    /* ── Base ── */
     body { background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6); font-family: 'Inter', sans-serif; margin: 0; }
 
     /* ── Setup screen ── */
     #setup-screen {
       min-height: 100vh;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 2rem; gap: 1.5rem;
+      padding: 1.5rem 1rem; gap: 1.25rem;
     }
-    #setup-screen h1 { font-size: 2rem; margin: 0; }
+    #setup-screen h1 { font-size: 1.6rem; margin: 0; text-align: center; }
     .setup-card {
       background: var(--surface, #141929);
       border: 1px solid var(--border, #2a3050);
       border-radius: 12px;
-      padding: 1.5rem 2rem;
+      padding: 1.25rem 1.25rem;
       width: 100%; max-width: 560px;
-      display: flex; flex-direction: column; gap: 1.1rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      box-sizing: border-box;
     }
     .setup-card label { font-size: .85rem; color: var(--muted, #7c83a8); margin-bottom: .25rem; display: block; }
     .setup-card select, .setup-card input {
-      width: 100%; padding: .55rem .8rem;
+      width: 100%; padding: .65rem .8rem;
       background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6);
       border: 1px solid var(--border, #2a3050); border-radius: 8px;
-      font-size: .95rem; box-sizing: border-box;
+      font-size: 1rem; box-sizing: border-box;
+      -webkit-appearance: none; appearance: none;
     }
     #preview-video {
       width: 100%; border-radius: 8px; background: #000;
       aspect-ratio: 16/9; object-fit: cover;
     }
-    .code-row {
-      display: flex; align-items: center; gap: .6rem;
-    }
+    .code-row { display: flex; align-items: center; gap: .6rem; }
     #session-code-display {
-      flex: 1; padding: .55rem .8rem;
+      flex: 1; padding: .6rem .8rem;
       background: var(--bg, #0a0f1c); color: var(--accent, #FFD700);
       border: 1px solid var(--border, #2a3050); border-radius: 8px;
       font-size: 1.4rem; font-weight: 700; letter-spacing: .15em; text-align: center;
     }
     #btn-regen {
-      padding: .5rem .9rem; border-radius: 8px;
+      padding: .55rem 1rem; border-radius: 8px;
       border: 1px solid var(--border, #2a3050);
       background: transparent; color: var(--muted, #7c83a8);
-      cursor: pointer; font-size: 1rem;
+      cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
     }
-    #btn-regen:hover { color: var(--text, #e8eaf6); }
     #btn-start {
-      padding: .75rem; border-radius: 10px;
+      padding: .85rem; border-radius: 10px;
       background: var(--accent, #FFD700); color: #0a0f1c;
       border: none; font-size: 1rem; font-weight: 700;
       cursor: pointer; transition: opacity .2s;
     }
-    #btn-start:hover { opacity: .85; }
-    #setup-error { color: #f87171; font-size: .9rem; display: none; }
+    #btn-start:active { opacity: .75; }
+    #setup-error { color: #f87171; font-size: .9rem; display: none; margin: 0; }
 
     /* ── Session screen ── */
-    #session-screen { display: none; flex-direction: column; height: 100vh; }
+    #session-screen { display: none; flex-direction: column; height: 100dvh; height: 100vh; }
 
-    /* top header */
+    /* Header */
     #session-header {
-      display: flex; align-items: center; gap: 1rem;
-      padding: .6rem 1.2rem;
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem .75rem;
       background: var(--surface, #141929);
       border-bottom: 1px solid var(--border, #2a3050);
-      flex-shrink: 0;
+      flex-shrink: 0; flex-wrap: wrap;
+      min-height: 44px;
     }
-    #session-header .logo { font-weight: 800; font-size: 1.1rem; color: var(--accent, #FFD700); }
-    #hdr-code { font-weight: 700; font-size: 1rem; letter-spacing: .1em; }
+    #session-header .logo { font-weight: 800; font-size: 1rem; color: var(--accent, #FFD700); white-space: nowrap; }
+    #hdr-code { font-weight: 700; font-size: .95rem; letter-spacing: .1em; white-space: nowrap; }
     .badge {
-      padding: .2rem .65rem; border-radius: 999px;
-      font-size: .75rem; font-weight: 600;
+      padding: .2rem .5rem; border-radius: 999px;
+      font-size: .7rem; font-weight: 600; white-space: nowrap;
     }
     .badge-socket { background: #1e3a2f; color: #4ade80; }
     .badge-socket.err { background: #3b1a1a; color: #f87171; }
     .badge-lk { background: #1a2a3b; color: #60a5fa; }
     .badge-lk.err { background: #3b1a1a; color: #f87171; }
-    #hdr-viewers { margin-left: auto; font-size: .85rem; color: var(--muted, #7c83a8); }
+    #hdr-viewers { margin-left: auto; font-size: .8rem; color: var(--muted, #7c83a8); white-space: nowrap; }
     #btn-end {
-      padding: .3rem .8rem; border-radius: 8px;
+      padding: .35rem .75rem; border-radius: 8px;
       background: #7f1d1d; color: #fca5a5;
-      border: none; cursor: pointer; font-size: .85rem;
+      border: none; cursor: pointer; font-size: .8rem; white-space: nowrap;
+      min-height: 34px;
     }
 
-    /* main layout */
-    #main-layout { display: flex; flex: 1; overflow: hidden; }
+    /* Main layout */
+    #main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-    /* activity bar */
+    /* Activity bar — desktop: vertical left column */
     #activity-bar {
       width: 52px; background: var(--surface, #141929);
       border-right: 1px solid var(--border, #2a3050);
       display: flex; flex-direction: column; align-items: center;
       padding: .5rem 0; gap: .4rem; flex-shrink: 0;
+      z-index: 10;
     }
     .ab-btn {
-      width: 38px; height: 38px; border-radius: 8px;
+      width: 40px; height: 40px; border-radius: 8px;
       border: none; background: transparent;
       color: var(--muted, #7c83a8); cursor: pointer;
-      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
     }
     .ab-btn:hover, .ab-btn.active { background: var(--border, #2a3050); color: var(--text, #e8eaf6); }
 
-    /* side panel */
+    /* Side panel — desktop */
     #side-panel {
       width: 260px; background: var(--surface, #141929);
       border-right: 1px solid var(--border, #2a3050);
       display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+      transition: transform .25s ease;
     }
     .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
     .panel.active { display: flex; }
     .panel-title {
-      padding: .7rem 1rem; font-size: .8rem; font-weight: 700;
+      padding: .7rem 1rem .6rem; font-size: .8rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .08em;
       color: var(--muted, #7c83a8);
       border-bottom: 1px solid var(--border, #2a3050);
+      display: flex; align-items: center; justify-content: space-between;
     }
     .panel-body { padding: .75rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: .5rem; }
 
-    /* roster */
+    /* Roster */
     .roster-item {
       display: flex; align-items: center; gap: .5rem;
-      padding: .4rem .5rem; border-radius: 6px;
+      padding: .45rem .5rem; border-radius: 6px;
       background: var(--bg, #0a0f1c);
     }
     .roster-avatar {
-      width: 28px; height: 28px; border-radius: 50%;
+      width: 30px; height: 30px; border-radius: 50%;
       background: var(--accent, #FFD700); color: #0a0f1c;
       display: flex; align-items: center; justify-content: center;
       font-size: .75rem; font-weight: 700; flex-shrink: 0;
     }
     .roster-name { flex: 1; font-size: .85rem; }
     .roster-kick {
-      padding: .15rem .4rem; border-radius: 4px;
+      padding: .25rem .5rem; border-radius: 4px;
       background: #3b1a1a; color: #f87171;
-      border: none; cursor: pointer; font-size: .75rem;
+      border: none; cursor: pointer; font-size: .8rem; min-height: 30px;
     }
 
-    /* controls panel */
+    /* Controls panel */
     .ctrl-group { display: flex; flex-direction: column; gap: .4rem; }
     .ctrl-label { font-size: .75rem; color: var(--muted, #7c83a8); }
     .ctrl-btn {
-      padding: .45rem .7rem; border-radius: 8px;
+      padding: .55rem .7rem; border-radius: 8px;
       border: 1px solid var(--border, #2a3050);
       background: transparent; color: var(--text, #e8eaf6);
-      cursor: pointer; font-size: .83rem; text-align: left;
+      cursor: pointer; font-size: .85rem; text-align: left;
+      min-height: 40px;
     }
-    .ctrl-btn:hover { background: var(--border, #2a3050); }
+    .ctrl-btn:active { background: var(--border, #2a3050); }
     .ctrl-btn.danger { border-color: #7f1d1d; color: #f87171; }
-    .ctrl-btn.danger:hover { background: #7f1d1d; }
+    .ctrl-btn.danger:active { background: #7f1d1d; }
     #instruction-input {
-      width: 100%; padding: .45rem .6rem;
+      width: 100%; padding: .55rem .6rem;
       background: var(--bg, #0a0f1c); color: var(--text, #e8eaf6);
       border: 1px solid var(--border, #2a3050); border-radius: 8px;
-      font-size: .85rem; box-sizing: border-box;
+      font-size: .9rem; box-sizing: border-box; min-height: 40px;
     }
 
-    /* workspace */
+    /* Workspace */
     #workspace {
       flex: 1; display: flex; align-items: center; justify-content: center;
       background: #000; position: relative; overflow: hidden;
@@ -170,15 +175,69 @@
       position: absolute; border: 2px dashed var(--accent, #FFD700);
       box-shadow: 0 0 0 9999px rgba(0,0,0,.5);
       cursor: move; display: none; box-sizing: border-box;
+      touch-action: none;
     }
     #crop-overlay .crop-handle {
-      position: absolute; width: 10px; height: 10px;
-      background: var(--accent, #FFD700); border-radius: 2px;
+      position: absolute; width: 22px; height: 22px;
+      background: var(--accent, #FFD700); border-radius: 4px;
     }
-    #crop-overlay .crop-handle.tl { top: -5px; left: -5px; cursor: nw-resize; }
-    #crop-overlay .crop-handle.tr { top: -5px; right: -5px; cursor: ne-resize; }
-    #crop-overlay .crop-handle.bl { bottom: -5px; left: -5px; cursor: sw-resize; }
-    #crop-overlay .crop-handle.br { bottom: -5px; right: -5px; cursor: se-resize; }
+    #crop-overlay .crop-handle.tl { top: -11px; left: -11px; cursor: nw-resize; }
+    #crop-overlay .crop-handle.tr { top: -11px; right: -11px; cursor: ne-resize; }
+    #crop-overlay .crop-handle.bl { bottom: -11px; left: -11px; cursor: sw-resize; }
+    #crop-overlay .crop-handle.br { bottom: -11px; right: -11px; cursor: se-resize; }
+
+    /* Panel backdrop (mobile) */
+    #panel-backdrop {
+      display: none;
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 19;
+    }
+
+    /* ── Mobile layout ── */
+    @media (max-width: 640px) {
+      #session-header .logo { display: none; }
+
+      /* Activity bar becomes bottom tab bar */
+      #activity-bar {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        width: 100%; height: 56px;
+        flex-direction: row; justify-content: space-around;
+        padding: 0; gap: 0;
+        border-right: none; border-top: 1px solid var(--border, #2a3050);
+        z-index: 20;
+      }
+      .ab-btn { width: 56px; height: 56px; border-radius: 0; font-size: 1.4rem; }
+
+      /* Main layout fills to above tab bar */
+      #main-layout { padding-bottom: 56px; }
+
+      /* Side panel slides in as overlay from left */
+      #side-panel {
+        position: fixed; left: 0; top: 0; bottom: 56px;
+        width: min(85vw, 300px);
+        transform: translateX(-100%);
+        z-index: 20;
+        border-right: 1px solid var(--border, #2a3050);
+      }
+      #side-panel.open { transform: translateX(0); }
+      .panel-close-btn { display: block !important; }
+      #panel-backdrop.open { display: block; }
+
+      /* Workspace fills full width */
+      #workspace { touch-action: none; }
+
+      /* Setup screen adjustments */
+      #setup-screen { padding: 1rem .75rem; justify-content: flex-start; padding-top: 2rem; }
+      #setup-screen h1 { font-size: 1.4rem; }
+      .setup-card { padding: 1rem; }
+    }
+
+    @media (hover: hover) {
+      .ctrl-btn:hover { background: var(--border, #2a3050); }
+      .ctrl-btn.danger:hover { background: #7f1d1d; }
+      #btn-start:hover { opacity: .85; }
+      #btn-regen:hover { color: var(--text, #e8eaf6); }
+    }
   </style>
 </head>
 <body>
@@ -241,17 +300,23 @@
 
     <!-- Activity bar -->
     <div id="activity-bar">
-      <button class="ab-btn active" data-panel="status"    title="Status">📶</button>
-      <button class="ab-btn"        data-panel="roster"    title="Roster">👥</button>
-      <button class="ab-btn"        data-panel="controls"  title="Controls">🎛️</button>
+      <button class="ab-btn active" data-panel="status"   title="Status">📶</button>
+      <button class="ab-btn"       data-panel="roster"   title="Roster">👥</button>
+      <button class="ab-btn"       data-panel="controls" title="Controls">🎛️</button>
     </div>
+
+    <!-- Panel backdrop (mobile tap-to-close) -->
+    <div id="panel-backdrop"></div>
 
     <!-- Side panel -->
     <div id="side-panel">
 
       <!-- Status panel -->
       <div id="panel-status" class="panel active">
-        <div class="panel-title">Status</div>
+        <div class="panel-title">
+          Status
+          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close" style="display:none;background:none;border:none;color:var(--muted,#7c83a8);font-size:1.1rem;cursor:pointer;padding:0 .25rem;">✕</button>
+        </div>
         <div class="panel-body" id="status-body">
           <p style="font-size:.85rem;color:var(--muted,#7c83a8)">Session is live. Waiting for students to join…</p>
         </div>
@@ -259,13 +324,19 @@
 
       <!-- Roster panel -->
       <div id="panel-roster" class="panel">
-        <div class="panel-title">Roster</div>
+        <div class="panel-title">
+          Roster
+          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close" style="display:none;background:none;border:none;color:var(--muted,#7c83a8);font-size:1.1rem;cursor:pointer;padding:0 .25rem;">✕</button>
+        </div>
         <div class="panel-body" id="roster-body"></div>
       </div>
 
       <!-- Controls panel -->
       <div id="panel-controls" class="panel">
-        <div class="panel-title">Controls</div>
+        <div class="panel-title">
+          Controls
+          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close" style="display:none;background:none;border:none;color:var(--muted,#7c83a8);font-size:1.1rem;cursor:pointer;padding:0 .25rem;">✕</button>
+        </div>
         <div class="panel-body">
           <div class="ctrl-group">
             <span class="ctrl-label">Camera</span>
@@ -293,7 +364,7 @@
             <button class="ctrl-btn" onclick="sendInstruction()">Send</button>
           </div>
           <div class="ctrl-group">
-            <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            <button class="ctrl-btn" onclick="toggleFullscreen()">⧆ Fullscreen</button>
             <button class="ctrl-btn danger" onclick="endSession()">⏹ End Session</button>
           </div>
         </div>
