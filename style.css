@@ -121,6 +121,10 @@ body.resizing-sidebar .side-panel {
     gap: 15px;
 }
 
+.header-logo {
+    height: 40px;
+}
+
 .session-code {
     font-size: 36px;
     font-weight: 900;
@@ -305,7 +309,9 @@ body.resizing-sidebar .side-panel {
     position: relative;
     width: 100%;
     height: 100%;
-    max-width: 80vh;
+    /* Capped by both viewport height (desktop row layout) and available
+       width (mobile column layout) so the square never overflows either axis. */
+    max-width: min(80vh, 100%);
     /* Force 1:1 Aspect Ratio to match the app crop */
     aspect-ratio: 1/1;
     border: 1px solid #333;
@@ -735,25 +741,83 @@ input[type=range] {
 
 /* --- MOBILE / TABLET OVERRIDES --- */
 @media (max-width: 900px) {
-    .main-layout {
-        flex-direction: column;
+    body {
+        overflow: hidden;
     }
 
+    /* HEADER: shrink and let it compress instead of overflowing */
+    .top-header {
+        height: 52px;
+        padding: 0 10px;
+        gap: 8px;
+    }
+
+    .header-logo {
+        height: 28px;
+    }
+
+    .header-right {
+        gap: 8px;
+    }
+
+    .session-code {
+        font-size: 18px;
+        letter-spacing: 2px;
+        padding: 3px 6px;
+    }
+
+    .tag-live {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+
+    .btn-leave {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .main-layout {
+        flex-direction: column;
+        height: calc(100vh - 52px);
+        height: calc(100dvh - 52px);
+    }
+
+    /* ACTIVITY BAR: bottom tab bar sized to actually fit its icons */
     .activity-bar {
         width: 100%;
-        height: 50px;
+        height: 54px;
         flex-direction: row;
         justify-content: space-around;
+        align-items: stretch;
         padding: 0;
+        gap: 0;
         border-right: none;
         border-top: 1px solid #333;
         order: 3;
         background: #000;
     }
 
+    .activity-icon {
+        width: auto;
+        height: auto;
+        flex: 1;
+        min-width: 0;
+        border-radius: 0;
+    }
+
+    .activity-icon .material-icons {
+        font-size: 22px;
+    }
+
+    .activity-icon.active {
+        border-left: none;
+        border-top: 3px solid var(--accent);
+    }
+
     .side-panel {
         width: 100%;
         height: 40vh;
+        height: 40dvh;
         border-right: none;
         border-top: 1px solid #333;
         order: 2;
@@ -767,10 +831,28 @@ input[type=range] {
         height: 0;
     }
 
+    .panel-content {
+        padding: 14px;
+    }
+
+    .control-group {
+        margin-bottom: 16px;
+    }
+
+    /* Bigger touch targets for the most-tapped controls */
+    .thickness-btn {
+        height: 40px;
+    }
+
+    .color-swatch {
+        width: 44px;
+        height: 44px;
+    }
+
     .workspace-area {
         order: 1;
         padding: 10px;
-        gap: 15px;
+        gap: 12px;
         flex-direction: column;
     }
 
@@ -781,18 +863,55 @@ input[type=range] {
         height: auto;
     }
 
+    /* TOOLBAR: smaller buttons + horizontal scroll fallback so it can never
+       overflow its rounded dock, even on the narrowest phones. */
     .toolbar-dock {
         flex-direction: row;
-        padding: 10px 20px;
+        padding: 8px 14px;
         width: 100%;
-        max-width: 350px;
+        max-width: 420px;
         justify-content: space-between;
+        gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tool-btn {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+    }
+
+    .tool-btn .material-icons {
+        font-size: 24px;
     }
 
     .toolbar-divider {
         width: 1px;
         height: 20px;
-        margin: auto 0;
+        margin: auto 2px;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 380px) {
+    .session-code {
+        font-size: 15px;
+        letter-spacing: 1px;
+    }
+
+    .btn-leave {
+        padding: 7px 9px;
+        font-size: 11px;
+    }
+
+    .tool-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .tool-btn .material-icons {
+        font-size: 22px;
     }
 }
 

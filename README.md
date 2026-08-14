@@ -129,10 +129,16 @@ Browser (Student/Instructor)
 
 Both endpoints are at `https://api.eaglevision.dev`.
 
+**POST `/api/ai/verify-password`**
+```json
+{ "password": "<access code>" }
+```
+Returns `{ "success": true, "tier": "basic" | "pro" }` or 401. Used by the frontend to unlock the right UI without ever holding a real password client-side.
+
 **POST `/api/ai/analyze`**
 ```json
 {
-  "password": "EagleDemo2026",
+  "password": "<access code>",
   "image": "<base64 JPEG>",
   "mode": "quick | standard | detailed"
 }
@@ -141,7 +147,7 @@ Both endpoints are at `https://api.eaglevision.dev`.
 **POST `/api/ai/custom-question`** *(Pro only)*
 ```json
 {
-  "password": "EaglePro2026",
+  "password": "<access code>",
   "image": "<base64 JPEG>",
   "question": "What organelles are visible here?"
 }
@@ -221,12 +227,12 @@ All adjustments are non-destructive and reset without refreshing the page.
 
 ## Eagle AI Lab
 
-Eagle AI is a two-tier feature that lets users ask questions about whatever is on screen.
+Eagle AI is a two-tier feature that lets users ask questions about whatever is on screen. Access codes are set server-side via `AI_ACCESS_PASSWORD_BASIC` / `AI_ACCESS_PASSWORD_PRO` and are never committed to this repo or embedded in the frontend — ask an admin for the current codes.
 
-| Tier | Password | Modes available |
-|------|----------|-----------------|
-| Basic | `EagleDemo2026` | Quick ID, Standard analysis |
-| Pro | `EaglePro2026` | Quick ID, Standard, Detailed, Custom questions |
+| Tier | Modes available |
+|------|-----------------|
+| Basic | Quick ID, Standard analysis |
+| Pro | Quick ID, Standard, Detailed, Custom questions |
 
 **Session timeout**: Both tiers auto-lock after 30 minutes of inactivity.
 
@@ -285,10 +291,10 @@ All runtime constants are at the top of `script.js`:
 ```javascript
 const SIGNALING_SERVER_URL     = "https://api.eaglevision.dev";
 const EAGLE_API_BASE_URL       = "https://api.eaglevision.dev";
-const EAGLE_BASIC_PASSWORD     = "EagleDemo2026";
-const EAGLE_PRO_PASSWORD       = "EaglePro2026";
 const EAGLE_SESSION_TIMEOUT_MS = 30 * 60 * 1000;  // 30 minutes
 ```
+
+Access codes are **not** a frontend constant — `unlockEagleAI()` posts whatever the user types to `/api/ai/verify-password` and the backend decides the tier.
 
 ---
 

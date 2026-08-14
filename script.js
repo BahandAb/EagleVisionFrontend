@@ -1,12 +1,9 @@
 const SIGNALING_SERVER_URL = "https://api.eaglevision.dev";
 
 // --- EAGLE AI CONFIGURATION ---
-// NOTE: Passwords are defined client-side for demo purposes. The actual authentication
-// and validation happens server-side when API requests are made. These passwords are
-// sent to the backend which validates them before processing AI requests.
+// Access codes are never stored client-side. unlockEagleAI() sends whatever the
+// user typed to /api/ai/verify-password and the backend is the sole source of truth.
 const EAGLE_API_BASE_URL = "https://api.eaglevision.dev";
-const EAGLE_BASIC_PASSWORD = "EagleDemo2026";
-const EAGLE_PRO_PASSWORD = "EaglePro2026";
 const EAGLE_SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
 // --- STATE ---
@@ -486,37 +483,49 @@ function lockEagleAI() {
     setEaglePasswordPlaceholder(EAGLE_DEFAULT_PLACEHOLDER);
 }
 
-// Unlock Eagle AI with password
-function unlockEagleAI() {
+// Unlock Eagle AI with password — verified server-side, the frontend never holds real passwords
+async function unlockEagleAI() {
     const password = document.getElementById('eaglePasswordInput').value.trim();
     const errorDiv = document.getElementById('eagle-error');
+    if (!password) return;
 
     // Always start from locked state before validating
     lockEagleAI();
 
-    if (password === EAGLE_BASIC_PASSWORD) {
-        eagleAITier = 'basic';
-        eaglePassword = password;
-        document.getElementById('eagle-password-entry').style.display = 'none';
-        document.getElementById('eagle-basic-tier').style.display = 'block';
-        errorDiv.style.display = 'none';
-        resetEagleSession();
-    } else if (password === EAGLE_PRO_PASSWORD) {
-        eagleAITier = 'pro';
-        eaglePassword = password;
-        document.getElementById('eagle-password-entry').style.display = 'none';
-        document.getElementById('eagle-pro-tier').style.display = 'block';
-        errorDiv.style.display = 'none';
-        resetEagleSession();
+    try {
+        const response = await fetch(`${EAGLE_API_BASE_URL}/api/ai/verify-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password })
+        });
+        const result = await response.json();
 
-        // Add character counter for custom questions
-        const customQuestionInput = document.getElementById('customQuestionInput');
-        if (customQuestionInput && !customQuestionInput.dataset.listenerBound) {
-            customQuestionInput.addEventListener('input', updateCharCount);
-            customQuestionInput.dataset.listenerBound = 'true';
+        if (!response.ok || !result.success) {
+            errorDiv.textContent = '❌ Invalid access code';
+            errorDiv.style.display = 'block';
+            return;
         }
-    } else {
-        errorDiv.textContent = '❌ Invalid access code';
+
+        eagleAITier = result.tier;
+        eaglePassword = password;
+        errorDiv.style.display = 'none';
+        document.getElementById('eagle-password-entry').style.display = 'none';
+
+        if (result.tier === 'pro') {
+            document.getElementById('eagle-pro-tier').style.display = 'block';
+
+            // Add character counter for custom questions
+            const customQuestionInput = document.getElementById('customQuestionInput');
+            if (customQuestionInput && !customQuestionInput.dataset.listenerBound) {
+                customQuestionInput.addEventListener('input', updateCharCount);
+                customQuestionInput.dataset.listenerBound = 'true';
+            }
+        } else {
+            document.getElementById('eagle-basic-tier').style.display = 'block';
+        }
+        resetEagleSession();
+    } catch (error) {
+        errorDiv.textContent = 'Network error: ' + error.message;
         errorDiv.style.display = 'block';
     }
 }
