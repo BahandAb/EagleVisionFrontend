@@ -224,10 +224,21 @@
       #session-header .logo { display: none; }
       #badge-socket, #badge-lk { display: none; }
 
+      /* Stack workspace above the tab bar in normal flow instead of pinning
+         the bar with position:fixed — fixed elements anchor to the raw
+         browser viewport, which on Android Chrome can render underneath
+         the browser's own bottom toolbar / the OS nav bar, making the tab
+         bar visible but untappable. Normal flow stays inside the properly
+         dvh-sized container instead. */
+      #main-layout { flex-direction: column; }
+
+      #workspace { order: 1; flex: 1; min-height: 0; }
+
       /* Bottom tab bar */
       #activity-bar {
-        position: fixed; bottom: 0; left: 0; right: 0;
-        width: 100%; height: 58px;
+        order: 2;
+        position: static;
+        width: 100%; height: 58px; flex-shrink: 0;
         flex-direction: row; justify-content: space-around;
         padding: 0; gap: 0;
         border-right: none; border-top: 1px solid var(--border, #2a3050);
@@ -235,9 +246,6 @@
       }
       .ab-btn { width: auto; flex: 1; height: 58px; border-radius: 0; }
       .ab-label { display: block; }
-
-      /* Main layout above tab bar, no side panel taking width */
-      #main-layout { padding-bottom: 58px; }
 
       /* Side panel → bottom sheet that slides up above the tab bar */
       #side-panel {
