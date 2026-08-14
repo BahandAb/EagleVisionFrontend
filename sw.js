@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eaglevision-v4';
+const CACHE_NAME = 'eaglevision-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -42,7 +42,19 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Network-first: always serve what's actually deployed when online, and
+  // only fall back to the cache when the network fails. The previous
+  // cache-first strategy meant every future fix would need another manual
+  // CACHE_NAME bump to ever reach a device that had already visited the
+  // site — this keeps the cache as an offline fallback instead of a
+  // permanent trap.
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
