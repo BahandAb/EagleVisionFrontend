@@ -21,7 +21,6 @@ let animFrameId       = null;
 // frame to fit was the actual cause of the distorted feed.
 let cropRect           = { cx: 0.5, cy: 0.5, size: 1.0 };
 let cropOverlayVisible = false;
-let dragState          = null;
 let lastLetterbox      = null; // { dx, dy, scale, vw, vh } from the last draw, for overlay math
 
 // ── DOM refs (populated after DOMContentLoaded) ──
@@ -333,14 +332,16 @@ async function publishToLiveKit(token, url) {
   }
 }
 
-// ── Crop ──────────────────────────────────────
-// Note: the crop itself is ALWAYS applied (defaulting to the full centered
-// square) so the published feed is never stretched. "Toggle Crop" just
-// shows/hides the draggable adjustment handles over the host's own
-// letterboxed monitor view — it doesn't turn cropping on/off.
+// ── Framing: pan (drag) + zoom (pinch / wheel) ─
+// The crop is ALWAYS applied (defaulting to the full centered square) so
+// the published feed is never stretched. "Adjust Framing" just shows the
+// yellow outline and enables drag/pinch directly on the feed — like a
+// photos app, not a resize-handle box (which felt jumpy: it resized the
+// square symmetrically from its own center rather than tracking a finger).
 function toggleCrop() {
   cropOverlayVisible = !cropOverlayVisible;
   cropOverlay.style.display = cropOverlayVisible ? 'block' : 'none';
+  document.getElementById('workspace').classList.toggle('framing-mode', cropOverlayVisible);
   if (cropOverlayVisible) updateCropOverlay();
 }
 
@@ -373,82 +374,127 @@ function updateCropOverlay() {
   cropOverlay.style.height = size + 'px';
 }
 
-function initCropDrag() {
-  cropOverlay.addEventListener('mousedown',  onCropMouseDown);
-  document.addEventListener('mousemove',    onCropMouseMove);
-  document.addEventListener('mouseup',      onCropMouseUp);
-  cropOverlay.addEventListener('touchstart', onCropTouchStart, { passive: false });
-  document.addEventListener('touchmove',    onCropTouchMove,  { passive: false });
-  document.addEventListener('touchend',     onCropMouseUp);
-}
-
-function removeCropDrag() {
-  cropOverlay.removeEventListener('mousedown',  onCropMouseDown);
-  document.removeEventListener('mousemove',    onCropMouseMove);
-  document.removeEventListener('mouseup',      onCropMouseUp);
-  cropOverlay.removeEventListener('touchstart', onCropTouchStart);
-  document.removeEventListener('touchmove',    onCropTouchMove);
-  document.removeEventListener('touchend',     onCropMouseUp);
-}
-
-function startDrag(clientX, clientY, target) {
-  if (!lastLetterbox) return;
-  const corner = target.dataset.corner;
-  dragState = {
-    type:      corner ? 'corner' : 'move',
-    corner:    corner || null,
-    startX:    clientX,
-    startY:    clientY,
-    startCrop: { ...cropRect },
-  };
-}
-
-function moveDrag(clientX, clientY) {
-  if (!dragState || !lastLetterbox) return;
-  const { scale, vw, vh } = lastLetterbox;
+// srcPxPerScreenPx: converts an on-screen CSS-pixel delta into source-video
+// pixels, inverting the letterbox + on-screen scale used when drawing.
+function srcPxPerScreenPx() {
   const canvasRect = canvasEl.getBoundingClientRect();
   const screenScale = canvasRect.width / canvasEl.width;
-  // Convert an on-screen CSS-pixel delta back into source-video pixels,
-  // inverting the same letterbox + screen scale used to draw/position things.
-  const srcPxPerScreenPx = 1 / (scale * screenScale);
+  return 1 / (lastLetterbox.scale * screenScale);
+}
 
-  const dxPx = (clientX - dragState.startX) * srcPxPerScreenPx;
-  const dyPx = (clientY - dragState.startY) * srcPxPerScreenPx;
+// dxPx/dyPx is the finger/cursor's raw movement in source pixels. Content
+// follows the finger (like Photos/Maps), so the viewport center moves the
+// OPPOSITE way — dragging right reveals what was off-screen to the left.
+function panBy(dxPx, dyPx, fromCrop) {
+  const { vw, vh } = lastLetterbox;
   const minDim = Math.min(vw, vh);
-  const { type, corner, startCrop } = dragState;
-
-  if (type === 'move') {
-    const sizePx = startCrop.size * minDim;
-    const cxPx = Math.max(sizePx / 2, Math.min(vw - sizePx / 2, startCrop.cx * vw + dxPx));
-    const cyPx = Math.max(sizePx / 2, Math.min(vh - sizePx / 2, startCrop.cy * vh + dyPx));
-    cropRect.cx = cxPx / vw;
-    cropRect.cy = cyPx / vh;
-  } else {
-    // Resize stays square by construction: grow/shrink one size value based
-    // on outward drag distance, symmetrically from the crop's own center
-    // (simpler and more predictable on touch than a true corner-anchored
-    // resize, at the cost of the opposite edge moving too).
-    const outX = corner.includes('r') ? dxPx : -dxPx;
-    const outY = corner.includes('b') ? dyPx : -dyPx;
-    const startSizePx = startCrop.size * minDim;
-    const minSizePx = minDim * 0.15;
-    const newSizePx = Math.max(minSizePx, Math.min(minDim, startSizePx + outX + outY));
-
-    cropRect.size = newSizePx / minDim;
-    const cxPx = Math.max(newSizePx / 2, Math.min(vw - newSizePx / 2, startCrop.cx * vw));
-    const cyPx = Math.max(newSizePx / 2, Math.min(vh - newSizePx / 2, startCrop.cy * vh));
-    cropRect.cx = cxPx / vw;
-    cropRect.cy = cyPx / vh;
-  }
+  const sizePx = fromCrop.size * minDim;
+  const cxPx = Math.max(sizePx / 2, Math.min(vw - sizePx / 2, fromCrop.cx * vw - dxPx));
+  const cyPx = Math.max(sizePx / 2, Math.min(vh - sizePx / 2, fromCrop.cy * vh - dyPx));
+  cropRect.cx = cxPx / vw;
+  cropRect.cy = cyPx / vh;
   updateCropOverlay();
 }
 
-function onCropMouseDown(e)  { startDrag(e.clientX, e.clientY, e.target); e.preventDefault(); }
-function onCropMouseMove(e)  { moveDrag(e.clientX, e.clientY); }
-function onCropMouseUp()     { dragState = null; }
+function zoomTo(newSize) {
+  const { vw, vh } = lastLetterbox;
+  const minDim = Math.min(vw, vh);
+  // 1.0 = fully zoomed out (the full centered square — already the largest
+  // non-stretched square available). Floor keeps zoom-in from collapsing
+  // to an unusably tiny region.
+  cropRect.size = Math.max(0.08, Math.min(1.0, newSize));
+  const sizePx = cropRect.size * minDim;
+  const cxPx = Math.max(sizePx / 2, Math.min(vw - sizePx / 2, cropRect.cx * vw));
+  const cyPx = Math.max(sizePx / 2, Math.min(vh - sizePx / 2, cropRect.cy * vh));
+  cropRect.cx = cxPx / vw;
+  cropRect.cy = cyPx / vh;
+  updateCropOverlay();
+}
 
-function onCropTouchStart(e) { const t = e.touches[0]; startDrag(t.clientX, t.clientY, e.target); e.preventDefault(); }
-function onCropTouchMove(e)  { if (!dragState) return; const t = e.touches[0]; moveDrag(t.clientX, t.clientY); e.preventDefault(); }
+let panState   = null; // { startX, startY, startCrop }
+let pinchState = null; // { startDist, startSize }
+
+function touchDistance(touches) {
+  return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+}
+
+function initCropDrag() {
+  const ws = document.getElementById('workspace');
+  ws.addEventListener('mousedown', onFrameMouseDown);
+  document.addEventListener('mousemove', onFrameMouseMove);
+  document.addEventListener('mouseup', onFrameMouseUp);
+  ws.addEventListener('wheel', onFrameWheel, { passive: false });
+  ws.addEventListener('touchstart', onFrameTouchStart, { passive: false });
+  ws.addEventListener('touchmove', onFrameTouchMove, { passive: false });
+  ws.addEventListener('touchend', onFrameTouchEnd);
+  ws.addEventListener('touchcancel', onFrameTouchEnd);
+}
+
+function removeCropDrag() {
+  const ws = document.getElementById('workspace');
+  ws.removeEventListener('mousedown', onFrameMouseDown);
+  document.removeEventListener('mousemove', onFrameMouseMove);
+  document.removeEventListener('mouseup', onFrameMouseUp);
+  ws.removeEventListener('wheel', onFrameWheel);
+  ws.removeEventListener('touchstart', onFrameTouchStart);
+  ws.removeEventListener('touchmove', onFrameTouchMove);
+  ws.removeEventListener('touchend', onFrameTouchEnd);
+  ws.removeEventListener('touchcancel', onFrameTouchEnd);
+}
+
+function onFrameMouseDown(e) {
+  if (!cropOverlayVisible || !lastLetterbox) return;
+  panState = { startX: e.clientX, startY: e.clientY, startCrop: { ...cropRect } };
+  e.preventDefault();
+}
+function onFrameMouseMove(e) {
+  if (!panState) return;
+  const px = srcPxPerScreenPx();
+  panBy((e.clientX - panState.startX) * px, (e.clientY - panState.startY) * px, panState.startCrop);
+}
+function onFrameMouseUp() { panState = null; }
+
+function onFrameWheel(e) {
+  if (!cropOverlayVisible || !lastLetterbox) return;
+  e.preventDefault();
+  // Scroll/trackpad-pinch down = zoom out (larger crop); up = zoom in.
+  zoomTo(cropRect.size * (e.deltaY > 0 ? 1.08 : 0.92));
+}
+
+function onFrameTouchStart(e) {
+  if (!cropOverlayVisible || !lastLetterbox) return;
+  if (e.touches.length === 2) {
+    panState = null;
+    pinchState = { startDist: touchDistance(e.touches), startSize: cropRect.size };
+  } else if (e.touches.length === 1) {
+    pinchState = null;
+    const t = e.touches[0];
+    panState = { startX: t.clientX, startY: t.clientY, startCrop: { ...cropRect } };
+  }
+  e.preventDefault();
+}
+function onFrameTouchMove(e) {
+  if (!cropOverlayVisible || !lastLetterbox) return;
+  if (e.touches.length === 2 && pinchState) {
+    const dist = Math.max(touchDistance(e.touches), 1);
+    // Fingers moving apart (dist grows) -> zoom in (smaller crop size).
+    zoomTo(pinchState.startSize * (pinchState.startDist / dist));
+  } else if (e.touches.length === 1 && panState) {
+    const px = srcPxPerScreenPx();
+    const t = e.touches[0];
+    panBy((t.clientX - panState.startX) * px, (t.clientY - panState.startY) * px, panState.startCrop);
+  }
+  e.preventDefault();
+}
+function onFrameTouchEnd(e) {
+  pinchState = null;
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    panState = { startX: t.clientX, startY: t.clientY, startCrop: { ...cropRect } };
+  } else {
+    panState = null;
+  }
+}
 
 // ── Panel navigation ──────────────────────────
 function showHostPanel(name) {
