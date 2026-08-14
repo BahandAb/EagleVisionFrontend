@@ -12,13 +12,21 @@ let adminKey          = '';
 let roster            = [];          // [{id, name}]
 let animFrameId       = null;
 
-// Crop state
-let cropActive        = false;
-let cropRect          = { x: 0, y: 0, w: 1, h: 1 };  // normalised 0-1
-let dragState         = null;
+// Crop state — always represents a SQUARE region of the source video, in
+// normalized source-fraction terms: (cx,cy) is the center, size is the
+// square's side length as a fraction of min(sourceWidth, sourceHeight).
+// Defaults to the full centered square so students never see a stretched
+// feed even if the host never touches the crop tool — most microscope
+// cameras aren't natively square (or even 16:9), and stretching the raw
+// frame to fit was the actual cause of the distorted feed.
+let cropRect           = { cx: 0.5, cy: 0.5, size: 1.0 };
+let cropOverlayVisible = false;
+let dragState          = null;
+let lastLetterbox      = null; // { dx, dy, scale, vw, vh } from the last draw, for overlay math
 
 // ── DOM refs (populated after DOMContentLoaded) ──
 let videoEl, canvasEl, ctx, cropOverlay;
+let publishCanvas, pubCtx; // hidden canvas: the actual cropped feed sent to LiveKit
 
 const BACKEND = 'https://api.eaglevision.dev';
 
@@ -190,10 +198,19 @@ async function startSession() {
 
   if (!cameraStream) return showSetupError('No camera stream available.');
 
+  // Feed Quality options are square (e.g. 720x720) to match the square
+  // viewport students see it in — w and h are always equal here.
   const [w, h] = getResolution();
   canvasEl.width  = w;
   canvasEl.height = h;
   canvasEl.style.aspectRatio = `${w}/${h}`;
+
+  // Hidden canvas that actually gets published: crop-region-only, filled
+  // edge-to-edge, always square-in/square-out so it's never stretched.
+  publishCanvas = document.createElement('canvas');
+  publishCanvas.width  = w;
+  publishCanvas.height = h;
+  pubCtx = publishCanvas.getContext('2d');
 
   document.getElementById('setup-screen').style.display  = 'none';
   document.getElementById('session-screen').style.display = 'flex';
@@ -204,30 +221,45 @@ async function startSession() {
 }
 
 // ── Render loop ───────────────────────────────
+// Draws two things every frame:
+//  1. #host-canvas (visible): the FULL source frame, letterboxed ("contain")
+//     to fit the square canvas without ever stretching it — this is the
+//     host's own monitor view, always showing full context so the crop
+//     overlay can be positioned accurately against it.
+//  2. publishCanvas (hidden): just the current square crop region, filled
+//     edge-to-edge — this is what's actually captured and sent to LiveKit,
+//     so what students see is always a clean, undistorted square.
 function startRenderLoop() {
   const draw = () => {
     if (!videoEl.videoWidth) { animFrameId = requestAnimationFrame(draw); return; }
 
     const vw = videoEl.videoWidth;
     const vh = videoEl.videoHeight;
-    const cw = canvasEl.width;
-    const ch = canvasEl.height;
 
-    let sx = 0, sy = 0, sw = vw, sh = vh;
-    if (cropActive) {
-      sx = Math.round(cropRect.x * vw);
-      sy = Math.round(cropRect.y * vh);
-      sw = Math.round(cropRect.w * vw);
-      sh = Math.round(cropRect.h * vh);
-    }
-
+    // Host's own monitor view — contain/letterbox, never stretched.
+    const cw = canvasEl.width, ch = canvasEl.height;
+    const scale = Math.min(cw / vw, ch / vh);
+    const dw = vw * scale, dh = vh * scale;
+    const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
     ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(videoEl, sx, sy, sw, sh, 0, 0, cw, ch);
+    ctx.drawImage(videoEl, 0, 0, vw, vh, dx, dy, dw, dh);
+    lastLetterbox = { dx, dy, scale, vw, vh };
+
+    // Published feed — square crop region only, filled edge-to-edge.
+    const minDim = Math.min(vw, vh);
+    const sizePx = cropRect.size * minDim;
+    const sx = Math.max(0, Math.min(vw - sizePx, cropRect.cx * vw - sizePx / 2));
+    const sy = Math.max(0, Math.min(vh - sizePx, cropRect.cy * vh - sizePx / 2));
+    pubCtx.clearRect(0, 0, publishCanvas.width, publishCanvas.height);
+    pubCtx.drawImage(videoEl, sx, sy, sizePx, sizePx, 0, 0, publishCanvas.width, publishCanvas.height);
+
+    if (cropOverlayVisible) updateCropOverlay();
+
     animFrameId = requestAnimationFrame(draw);
   };
   animFrameId = requestAnimationFrame(draw);
 
-  canvasStream = canvasEl.captureStream(30);
+  canvasStream = publishCanvas.captureStream(30);
 }
 
 // ── Socket.IO ─────────────────────────────────
@@ -302,37 +334,43 @@ async function publishToLiveKit(token, url) {
 }
 
 // ── Crop ──────────────────────────────────────
+// Note: the crop itself is ALWAYS applied (defaulting to the full centered
+// square) so the published feed is never stretched. "Toggle Crop" just
+// shows/hides the draggable adjustment handles over the host's own
+// letterboxed monitor view — it doesn't turn cropping on/off.
 function toggleCrop() {
-  cropActive = !cropActive;
-  if (cropActive) {
-    cropRect = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
-    cropOverlay.style.display = 'block';
-    updateCropOverlay();
-  } else {
-    cropOverlay.style.display = 'none';
-    cropRect = { x: 0, y: 0, w: 1, h: 1 };
-  }
+  cropOverlayVisible = !cropOverlayVisible;
+  cropOverlay.style.display = cropOverlayVisible ? 'block' : 'none';
+  if (cropOverlayVisible) updateCropOverlay();
 }
 
 function resetCrop() {
-  cropRect = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
-  if (cropActive) updateCropOverlay();
+  cropRect = { cx: 0.5, cy: 0.5, size: 1.0 };
+  if (cropOverlayVisible) updateCropOverlay();
 }
 
 function updateCropOverlay() {
+  if (!lastLetterbox) return;
+  const { dx, dy, scale, vw, vh } = lastLetterbox;
+
   const ws = document.getElementById('workspace');
-  const rect = canvasEl.getBoundingClientRect();
+  const canvasRect = canvasEl.getBoundingClientRect();
   const wsRect = ws.getBoundingClientRect();
+  const screenScale = canvasRect.width / canvasEl.width;
 
-  const left   = rect.left - wsRect.left + cropRect.x * rect.width;
-  const top    = rect.top  - wsRect.top  + cropRect.y * rect.height;
-  const width  = cropRect.w * rect.width;
-  const height = cropRect.h * rect.height;
+  const minDim = Math.min(vw, vh);
+  const sizePx = cropRect.size * minDim;
+  const sx = Math.max(0, Math.min(vw - sizePx, cropRect.cx * vw - sizePx / 2));
+  const sy = Math.max(0, Math.min(vh - sizePx, cropRect.cy * vh - sizePx / 2));
 
-  cropOverlay.style.left   = left   + 'px';
-  cropOverlay.style.top    = top    + 'px';
-  cropOverlay.style.width  = width  + 'px';
-  cropOverlay.style.height = height + 'px';
+  const left = canvasRect.left - wsRect.left + (dx + sx * scale) * screenScale;
+  const top  = canvasRect.top  - wsRect.top  + (dy + sy * scale) * screenScale;
+  const size = sizePx * scale * screenScale;
+
+  cropOverlay.style.left   = left + 'px';
+  cropOverlay.style.top    = top  + 'px';
+  cropOverlay.style.width  = size + 'px';
+  cropOverlay.style.height = size + 'px';
 }
 
 function initCropDrag() {
@@ -354,33 +392,53 @@ function removeCropDrag() {
 }
 
 function startDrag(clientX, clientY, target) {
+  if (!lastLetterbox) return;
   const corner = target.dataset.corner;
   dragState = {
     type:      corner ? 'corner' : 'move',
     corner:    corner || null,
     startX:    clientX,
     startY:    clientY,
-    startRect: { ...cropRect },
-    canvasRect: canvasEl.getBoundingClientRect()
+    startCrop: { ...cropRect },
   };
 }
 
 function moveDrag(clientX, clientY) {
-  if (!dragState) return;
-  const { canvasRect, startX, startY, startRect, type, corner } = dragState;
-  const dx = (clientX - startX) / canvasRect.width;
-  const dy = (clientY - startY) / canvasRect.height;
+  if (!dragState || !lastLetterbox) return;
+  const { scale, vw, vh } = lastLetterbox;
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const screenScale = canvasRect.width / canvasEl.width;
+  // Convert an on-screen CSS-pixel delta back into source-video pixels,
+  // inverting the same letterbox + screen scale used to draw/position things.
+  const srcPxPerScreenPx = 1 / (scale * screenScale);
+
+  const dxPx = (clientX - dragState.startX) * srcPxPerScreenPx;
+  const dyPx = (clientY - dragState.startY) * srcPxPerScreenPx;
+  const minDim = Math.min(vw, vh);
+  const { type, corner, startCrop } = dragState;
 
   if (type === 'move') {
-    cropRect.x = Math.max(0, Math.min(1 - startRect.w, startRect.x + dx));
-    cropRect.y = Math.max(0, Math.min(1 - startRect.h, startRect.y + dy));
+    const sizePx = startCrop.size * minDim;
+    const cxPx = Math.max(sizePx / 2, Math.min(vw - sizePx / 2, startCrop.cx * vw + dxPx));
+    const cyPx = Math.max(sizePx / 2, Math.min(vh - sizePx / 2, startCrop.cy * vh + dyPx));
+    cropRect.cx = cxPx / vw;
+    cropRect.cy = cyPx / vh;
   } else {
-    let { x, y, w, h } = startRect;
-    if (corner.includes('r')) { w = Math.max(0.05, Math.min(1 - x, w + dx)); }
-    if (corner.includes('l')) { const nx = Math.max(0, Math.min(x + w - 0.05, x + dx)); w = x + w - nx; x = nx; }
-    if (corner.includes('b')) { h = Math.max(0.05, Math.min(1 - y, h + dy)); }
-    if (corner.includes('t')) { const ny = Math.max(0, Math.min(y + h - 0.05, y + dy)); h = y + h - ny; y = ny; }
-    cropRect = { x, y, w, h };
+    // Resize stays square by construction: grow/shrink one size value based
+    // on outward drag distance, symmetrically from the crop's own center
+    // (simpler and more predictable on touch than a true corner-anchored
+    // resize, at the cost of the opposite edge moving too).
+    const outX = corner.includes('r') ? dxPx : -dxPx;
+    const outY = corner.includes('b') ? dyPx : -dyPx;
+    const startSizePx = startCrop.size * minDim;
+    const minSizePx = minDim * 0.15;
+    const newSizePx = Math.max(minSizePx, Math.min(minDim, startSizePx + outX + outY));
+
+    cropRect.size = newSizePx / minDim;
+    const cxPx = Math.max(newSizePx / 2, Math.min(vw - newSizePx / 2, startCrop.cx * vw));
+    const cyPx = Math.max(newSizePx / 2, Math.min(vh - newSizePx / 2, startCrop.cy * vh));
+    cropRect.cx = cxPx / vw;
+    cropRect.cy = cyPx / vh;
   }
   updateCropOverlay();
 }
