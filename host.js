@@ -12,20 +12,25 @@ let adminKey          = '';
 let roster            = [];          // [{id, name}]
 let animFrameId       = null;
 
-// Crop state — always represents a SQUARE region of the source video, in
-// normalized source-fraction terms: (cx,cy) is the center, size is the
-// square's side length as a fraction of min(sourceWidth, sourceHeight).
-// Defaults to the full centered square so students never see a stretched
-// feed even if the host never touches the crop tool — most microscope
-// cameras aren't natively square (or even 16:9), and stretching the raw
-// frame to fit was the actual cause of the distorted feed.
-let cropRect           = { cx: 0.5, cy: 0.5, size: 1.0 };
-let cropOverlayVisible = false;
-let lastLetterbox      = null; // { dx, dy, scale, vw, vh } from the last draw, for overlay math
+// Crop/framing state — always represents a SQUARE region of the source
+// video, in normalized source-fraction terms: (cx,cy) is the center, size
+// is the square's side length as a fraction of min(sourceWidth,
+// sourceHeight). Defaults to the full centered square so students never
+// see a stretched feed even if the host never adjusts framing — most
+// microscope cameras aren't natively square (or even 16:9).
+//
+// #host-canvas is a direct-manipulation view: it always shows exactly this
+// crop region, filled edge to edge — the same thing students see. Panning
+// and pinch-zooming act straight on that view (content follows the finger,
+// like a photos app), not on a separate outline drawn over a fixed backdrop
+// — the earlier outline-over-static-view design read as "unresponsive"
+// because the visible image itself never moved.
+let cropRect      = { cx: 0.5, cy: 0.5, size: 1.0 };
+let framingMode   = false;
+let lastFrameSize = null; // { vw, vh } native source dimensions from the last drawn frame
 
 // ── DOM refs (populated after DOMContentLoaded) ──
-let videoEl, canvasEl, ctx, cropOverlay;
-let publishCanvas, pubCtx; // hidden canvas: the actual cropped feed sent to LiveKit
+let videoEl, canvasEl, ctx;
 
 const BACKEND = 'https://api.eaglevision.dev';
 
@@ -34,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
   videoEl     = document.getElementById('preview-video');
   canvasEl    = document.getElementById('host-canvas');
   ctx         = canvasEl.getContext('2d');
-  cropOverlay = document.getElementById('crop-overlay');
 
   // ── Access gate ──
   const gateSubmit = document.getElementById('btn-gate-submit');
@@ -204,13 +208,6 @@ async function startSession() {
   canvasEl.height = h;
   canvasEl.style.aspectRatio = `${w}/${h}`;
 
-  // Hidden canvas that actually gets published: crop-region-only, filled
-  // edge-to-edge, always square-in/square-out so it's never stretched.
-  publishCanvas = document.createElement('canvas');
-  publishCanvas.width  = w;
-  publishCanvas.height = h;
-  pubCtx = publishCanvas.getContext('2d');
-
   document.getElementById('setup-screen').style.display  = 'none';
   document.getElementById('session-screen').style.display = 'flex';
   document.getElementById('hdr-code').textContent = sessionCode;
@@ -220,45 +217,33 @@ async function startSession() {
 }
 
 // ── Render loop ───────────────────────────────
-// Draws two things every frame:
-//  1. #host-canvas (visible): the FULL source frame, letterboxed ("contain")
-//     to fit the square canvas without ever stretching it — this is the
-//     host's own monitor view, always showing full context so the crop
-//     overlay can be positioned accurately against it.
-//  2. publishCanvas (hidden): just the current square crop region, filled
-//     edge-to-edge — this is what's actually captured and sent to LiveKit,
-//     so what students see is always a clean, undistorted square.
+// #host-canvas always shows the current crop region (cropRect), filled
+// edge to edge — exactly what's captured and published. The host's own
+// view and what students see are the same image, so pan/pinch feels like
+// directly manipulating the feed instead of dragging an outline over an
+// unrelated backdrop.
 function startRenderLoop() {
   const draw = () => {
     if (!videoEl.videoWidth) { animFrameId = requestAnimationFrame(draw); return; }
 
     const vw = videoEl.videoWidth;
     const vh = videoEl.videoHeight;
+    lastFrameSize = { vw, vh };
 
-    // Host's own monitor view — contain/letterbox, never stretched.
-    const cw = canvasEl.width, ch = canvasEl.height;
-    const scale = Math.min(cw / vw, ch / vh);
-    const dw = vw * scale, dh = vh * scale;
-    const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
-    ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(videoEl, 0, 0, vw, vh, dx, dy, dw, dh);
-    lastLetterbox = { dx, dy, scale, vw, vh };
-
-    // Published feed — square crop region only, filled edge-to-edge.
     const minDim = Math.min(vw, vh);
     const sizePx = cropRect.size * minDim;
     const sx = Math.max(0, Math.min(vw - sizePx, cropRect.cx * vw - sizePx / 2));
     const sy = Math.max(0, Math.min(vh - sizePx, cropRect.cy * vh - sizePx / 2));
-    pubCtx.clearRect(0, 0, publishCanvas.width, publishCanvas.height);
-    pubCtx.drawImage(videoEl, sx, sy, sizePx, sizePx, 0, 0, publishCanvas.width, publishCanvas.height);
 
-    if (cropOverlayVisible) updateCropOverlay();
+    const cw = canvasEl.width, ch = canvasEl.height;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.drawImage(videoEl, sx, sy, sizePx, sizePx, 0, 0, cw, ch);
 
     animFrameId = requestAnimationFrame(draw);
   };
   animFrameId = requestAnimationFrame(draw);
 
-  canvasStream = publishCanvas.captureStream(30);
+  canvasStream = canvasEl.captureStream(30);
 }
 
 // ── Socket.IO ─────────────────────────────────
@@ -334,70 +319,48 @@ async function publishToLiveKit(token, url) {
 
 // ── Framing: pan (drag) + zoom (pinch / wheel) ─
 // The crop is ALWAYS applied (defaulting to the full centered square) so
-// the published feed is never stretched. "Adjust Framing" just shows the
-// yellow outline and enables drag/pinch directly on the feed — like a
-// photos app, not a resize-handle box (which felt jumpy: it resized the
-// square symmetrically from its own center rather than tracking a finger).
+// the published feed is never stretched. "Adjust Framing" enables drag and
+// pinch directly on #host-canvas — since the canvas always shows exactly
+// the current crop region, dragging/pinching visibly pans and zooms the
+// image itself in real time, like a photos app.
 function toggleCrop() {
-  cropOverlayVisible = !cropOverlayVisible;
-  cropOverlay.style.display = cropOverlayVisible ? 'block' : 'none';
-  document.getElementById('workspace').classList.toggle('framing-mode', cropOverlayVisible);
-  if (cropOverlayVisible) updateCropOverlay();
+  framingMode = !framingMode;
+  const ws = document.getElementById('workspace');
+  ws.classList.toggle('framing-mode', framingMode);
+  const btn = document.getElementById('btn-toggle-framing');
+  if (btn) btn.textContent = framingMode ? 'Done Adjusting' : 'Adjust Framing (Pan/Zoom)';
 }
 
 function resetCrop() {
   cropRect = { cx: 0.5, cy: 0.5, size: 1.0 };
-  if (cropOverlayVisible) updateCropOverlay();
-}
-
-function updateCropOverlay() {
-  if (!lastLetterbox) return;
-  const { dx, dy, scale, vw, vh } = lastLetterbox;
-
-  const ws = document.getElementById('workspace');
-  const canvasRect = canvasEl.getBoundingClientRect();
-  const wsRect = ws.getBoundingClientRect();
-  const screenScale = canvasRect.width / canvasEl.width;
-
-  const minDim = Math.min(vw, vh);
-  const sizePx = cropRect.size * minDim;
-  const sx = Math.max(0, Math.min(vw - sizePx, cropRect.cx * vw - sizePx / 2));
-  const sy = Math.max(0, Math.min(vh - sizePx, cropRect.cy * vh - sizePx / 2));
-
-  const left = canvasRect.left - wsRect.left + (dx + sx * scale) * screenScale;
-  const top  = canvasRect.top  - wsRect.top  + (dy + sy * scale) * screenScale;
-  const size = sizePx * scale * screenScale;
-
-  cropOverlay.style.left   = left + 'px';
-  cropOverlay.style.top    = top  + 'px';
-  cropOverlay.style.width  = size + 'px';
-  cropOverlay.style.height = size + 'px';
 }
 
 // srcPxPerScreenPx: converts an on-screen CSS-pixel delta into source-video
-// pixels, inverting the letterbox + on-screen scale used when drawing.
+// pixels. #host-canvas always shows a sizePx-wide square of the source
+// filling its on-screen width, so this ratio is exact and needs no
+// separate letterbox transform to invert.
 function srcPxPerScreenPx() {
+  const { vw, vh } = lastFrameSize;
+  const sizePx = cropRect.size * Math.min(vw, vh);
   const canvasRect = canvasEl.getBoundingClientRect();
-  const screenScale = canvasRect.width / canvasEl.width;
-  return 1 / (lastLetterbox.scale * screenScale);
+  return sizePx / canvasRect.width;
 }
 
 // dxPx/dyPx is the finger/cursor's raw movement in source pixels. Content
 // follows the finger (like Photos/Maps), so the viewport center moves the
 // OPPOSITE way — dragging right reveals what was off-screen to the left.
 function panBy(dxPx, dyPx, fromCrop) {
-  const { vw, vh } = lastLetterbox;
+  const { vw, vh } = lastFrameSize;
   const minDim = Math.min(vw, vh);
   const sizePx = fromCrop.size * minDim;
   const cxPx = Math.max(sizePx / 2, Math.min(vw - sizePx / 2, fromCrop.cx * vw - dxPx));
   const cyPx = Math.max(sizePx / 2, Math.min(vh - sizePx / 2, fromCrop.cy * vh - dyPx));
   cropRect.cx = cxPx / vw;
   cropRect.cy = cyPx / vh;
-  updateCropOverlay();
 }
 
 function zoomTo(newSize) {
-  const { vw, vh } = lastLetterbox;
+  const { vw, vh } = lastFrameSize;
   const minDim = Math.min(vw, vh);
   // 1.0 = fully zoomed out (the full centered square — already the largest
   // non-stretched square available). Floor keeps zoom-in from collapsing
@@ -408,7 +371,6 @@ function zoomTo(newSize) {
   const cyPx = Math.max(sizePx / 2, Math.min(vh - sizePx / 2, cropRect.cy * vh));
   cropRect.cx = cxPx / vw;
   cropRect.cy = cyPx / vh;
-  updateCropOverlay();
 }
 
 let panState   = null; // { startX, startY, startCrop }
@@ -419,31 +381,31 @@ function touchDistance(touches) {
 }
 
 function initCropDrag() {
-  const ws = document.getElementById('workspace');
-  ws.addEventListener('mousedown', onFrameMouseDown);
+  const c = canvasEl;
+  c.addEventListener('mousedown', onFrameMouseDown);
   document.addEventListener('mousemove', onFrameMouseMove);
   document.addEventListener('mouseup', onFrameMouseUp);
-  ws.addEventListener('wheel', onFrameWheel, { passive: false });
-  ws.addEventListener('touchstart', onFrameTouchStart, { passive: false });
-  ws.addEventListener('touchmove', onFrameTouchMove, { passive: false });
-  ws.addEventListener('touchend', onFrameTouchEnd);
-  ws.addEventListener('touchcancel', onFrameTouchEnd);
+  c.addEventListener('wheel', onFrameWheel, { passive: false });
+  c.addEventListener('touchstart', onFrameTouchStart, { passive: false });
+  c.addEventListener('touchmove', onFrameTouchMove, { passive: false });
+  c.addEventListener('touchend', onFrameTouchEnd);
+  c.addEventListener('touchcancel', onFrameTouchEnd);
 }
 
 function removeCropDrag() {
-  const ws = document.getElementById('workspace');
-  ws.removeEventListener('mousedown', onFrameMouseDown);
+  const c = canvasEl;
+  c.removeEventListener('mousedown', onFrameMouseDown);
   document.removeEventListener('mousemove', onFrameMouseMove);
   document.removeEventListener('mouseup', onFrameMouseUp);
-  ws.removeEventListener('wheel', onFrameWheel);
-  ws.removeEventListener('touchstart', onFrameTouchStart);
-  ws.removeEventListener('touchmove', onFrameTouchMove);
-  ws.removeEventListener('touchend', onFrameTouchEnd);
-  ws.removeEventListener('touchcancel', onFrameTouchEnd);
+  c.removeEventListener('wheel', onFrameWheel);
+  c.removeEventListener('touchstart', onFrameTouchStart);
+  c.removeEventListener('touchmove', onFrameTouchMove);
+  c.removeEventListener('touchend', onFrameTouchEnd);
+  c.removeEventListener('touchcancel', onFrameTouchEnd);
 }
 
 function onFrameMouseDown(e) {
-  if (!cropOverlayVisible || !lastLetterbox) return;
+  if (!framingMode || !lastFrameSize) return;
   panState = { startX: e.clientX, startY: e.clientY, startCrop: { ...cropRect } };
   e.preventDefault();
 }
@@ -455,14 +417,14 @@ function onFrameMouseMove(e) {
 function onFrameMouseUp() { panState = null; }
 
 function onFrameWheel(e) {
-  if (!cropOverlayVisible || !lastLetterbox) return;
+  if (!framingMode || !lastFrameSize) return;
   e.preventDefault();
   // Scroll/trackpad-pinch down = zoom out (larger crop); up = zoom in.
   zoomTo(cropRect.size * (e.deltaY > 0 ? 1.08 : 0.92));
 }
 
 function onFrameTouchStart(e) {
-  if (!cropOverlayVisible || !lastLetterbox) return;
+  if (!framingMode || !lastFrameSize) return;
   if (e.touches.length === 2) {
     panState = null;
     pinchState = { startDist: touchDistance(e.touches), startSize: cropRect.size };
@@ -474,7 +436,7 @@ function onFrameTouchStart(e) {
   e.preventDefault();
 }
 function onFrameTouchMove(e) {
-  if (!cropOverlayVisible || !lastLetterbox) return;
+  if (!framingMode || !lastFrameSize) return;
   if (e.touches.length === 2 && pinchState) {
     const dist = Math.max(touchDistance(e.touches), 1);
     // Fingers moving apart (dist grows) -> zoom in (smaller crop size).
