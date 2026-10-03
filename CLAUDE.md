@@ -142,6 +142,10 @@ computed-style diff over all elements, not just screenshots.
 
 `script.js` (`applyTheme/setTheme/setThemesLocked`) + `themes.css`. The host can lock themes for students over the socket (`admin_set_themes_locked`; backend must be deployed for this to work — without it students simply stay unlocked). `.btn-leave` etc. use `transition: all .3s`, so measure computed colors only after transitions finish or contrast audits will report false failures.
 
+## ⚠ Backend deploy pending
+
+"Lock Themes" depends on the backend event `admin_set_themes_locked`, which is merged but **not yet deployed** (the Oracle VM was down). Until then the host checkbox does nothing and students can always change theme; nothing else breaks. Tracking: https://github.com/BahandAb/EagleVisionBackend/issues/6. Delete this note once the VM is redeployed and the lock is verified.
+
 ## Deferred / discussed but not built
 
 - Real per-user auth for Eagle AI (currently shared tier passwords, chosen
