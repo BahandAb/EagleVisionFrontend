@@ -51,7 +51,7 @@ body { background: var(--host-bg); color: var(--text); font-family: var(--font-u
   cursor: pointer; transition: opacity .2s;
 }
 #btn-start:active { opacity: .75; }
-#setup-error { color: var(--legacy-f87171); font-size: .9rem; display: none; margin: 0; }
+#setup-error { color: var(--host-err-text); font-size: .9rem; display: none; margin: 0; }
 
 /* ── Access gate ── */
 #gate-screen {
@@ -61,7 +61,7 @@ body { background: var(--host-bg); color: var(--text); font-family: var(--font-u
 }
 #gate-screen h1 { font-size: 1.6rem; margin: 0; text-align: center; }
 #gate-screen p { font-size: .9rem; color: var(--host-muted); margin: 0; text-align: center; }
-#gate-error { color: var(--legacy-f87171); font-size: .9rem; display: none; margin: 0; text-align: center; }
+#gate-error { color: var(--host-err-text); font-size: .9rem; display: none; margin: 0; text-align: center; }
 @media (max-width: 640px) {
   #gate-screen { padding: 1rem .75rem; justify-content: flex-start; padding-top: 2.5rem; }
   #gate-screen h1 { font-size: 1.35rem; }
@@ -90,17 +90,17 @@ body { background: var(--host-bg); color: var(--text); font-family: var(--font-u
   padding: .2rem .5rem; border-radius: 999px;
   font-size: .7rem; font-weight: 600; white-space: nowrap;
 }
-.badge-socket { background: var(--legacy-1e3a2f); color: var(--legacy-4ade80); }
-.badge-socket.err { background: var(--legacy-3b1a1a); color: var(--legacy-f87171); }
-.badge-lk { background: var(--legacy-1a2a3b); color: var(--legacy-60a5fa); }
-.badge-lk.err { background: var(--legacy-3b1a1a); color: var(--legacy-f87171); }
+.badge-socket { background: var(--host-ok-bg); color: var(--host-ok-text); }
+.badge-socket.err { background: var(--host-err-bg); color: var(--host-err-text); }
+.badge-lk { background: var(--host-info-bg); color: var(--host-info-text); }
+.badge-lk.err { background: var(--host-err-bg); color: var(--host-err-text); }
 #hdr-viewers {
   margin-left: auto; font-size: .8rem; color: var(--host-muted);
   white-space: nowrap; flex-shrink: 0;
 }
 #btn-end {
   padding: .35rem .75rem; border-radius: 8px;
-  background: var(--legacy-7f1d1d); color: var(--legacy-fca5a5);
+  background: var(--host-danger-bg); color: var(--host-danger-text);
   border: none; cursor: pointer; font-size: .8rem; white-space: nowrap;
   min-height: 34px; flex-shrink: 0;
 }
@@ -159,7 +159,7 @@ body { background: var(--host-bg); color: var(--text); font-family: var(--font-u
 .roster-name { flex: 1; font-size: .85rem; }
 .roster-kick {
   padding: .25rem .5rem; border-radius: 4px;
-  background: var(--legacy-3b1a1a); color: var(--legacy-f87171);
+  background: var(--host-err-bg); color: var(--host-err-text);
   border: none; cursor: pointer; font-size: .8rem; min-height: 30px;
 }
 
@@ -174,8 +174,8 @@ body { background: var(--host-bg); color: var(--text); font-family: var(--font-u
   min-height: 40px;
 }
 .ctrl-btn:active { background: var(--host-border); }
-.ctrl-btn.danger { border-color: var(--legacy-7f1d1d); color: var(--legacy-f87171); }
-.ctrl-btn.danger:active { background: var(--legacy-7f1d1d); }
+.ctrl-btn.danger { border-color: var(--host-danger-bg); color: var(--host-err-text); }
+.ctrl-btn.danger:active { background: var(--host-danger-bg); }
 #instruction-input {
   width: 100%; padding: .55rem .6rem;
   background: var(--host-bg); color: var(--text);
@@ -274,7 +274,7 @@ body { background: var(--host-bg); color: var(--text); font-family: var(--font-u
 
 @media (hover: hover) {
   .ctrl-btn:hover { background: var(--host-border); }
-  .ctrl-btn.danger:hover { background: var(--legacy-7f1d1d); }
+  .ctrl-btn.danger:hover { background: var(--host-danger-bg); }
   #btn-start:hover { opacity: .85; }
   #btn-regen:hover { color: var(--text); }
 }

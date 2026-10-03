@@ -806,11 +806,11 @@
 .form-group select:focus,
 .form-group textarea:focus {
     border-color: var(--accent);
-    background: var(--mk-bg-alt);
+    background: var(--mk-card);
 }
 
 .form-group select option {
-    background: var(--mk-bg-alt);
+    background: var(--mk-card);
 }
 
 .form-group textarea {
@@ -859,7 +859,7 @@
 
 .radio-option:hover {
     border-color: rgba(var(--accent-rgb), 0.3);
-    background: var(--mk-bg-alt);
+    background: var(--mk-card);
 }
 
 .radio-option input[type="radio"] {
@@ -1121,7 +1121,7 @@
     display: none;
     width: 100%;
     height: 100%;
-    background: var(--mk-bg-alt);
+    background: var(--mk-card);
     align-items: center;
     justify-content: center;
     color: var(--mk-text-soft);
@@ -1171,8 +1171,8 @@
 }
 
 .team-linkedin:hover {
-    border-color: var(--legacy-0077b5);
-    color: var(--legacy-0077b5);
+    border-color: var(--brand-linkedin);
+    color: var(--brand-linkedin);
 }
 
 /* CONTRIBUTORS */
@@ -1248,7 +1248,7 @@
 }
 
 .contributor-linkedin:hover {
-    color: var(--legacy-0077b5);
+    color: var(--brand-linkedin);
 }
 
 @media (max-width: 960px) {

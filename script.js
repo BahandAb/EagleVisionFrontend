@@ -820,11 +820,11 @@ function getAdjustedCanvas({ cropToSquare } = {}) {
 
 
 /* ---- Color themes (themes.css). Choice is per device; the host can lock it for the room. ---- */
-const THEME_IDS = ['ocean', 'sakura', 'starry'];
+const THEME_IDS = ['objective-blue', 'micro-pink', 'chlorophyll-green'];
 let themesLocked = false;
 function applyTheme(id) {
-    if (!THEME_IDS.includes(id)) id = 'ocean';
-    if (id === 'ocean') document.documentElement.removeAttribute('data-theme');
+    if (!THEME_IDS.includes(id)) id = 'objective-blue';
+    if (id === 'objective-blue') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', id);
     document.querySelectorAll('.theme-dot').forEach(d => d.setAttribute('aria-checked', String(d.dataset.themeId === id)));
 }
@@ -841,7 +841,7 @@ function setThemesLocked(locked) {
     const msg = document.getElementById('themeLockedMsg'); if (msg) msg.style.display = lockedForMe ? 'block' : 'none';
     // A locked student sees the default theme; their saved choice is kept and comes back on unlock.
     let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
-    applyTheme(lockedForMe ? 'ocean' : (saved || 'ocean'));
+    applyTheme(lockedForMe ? 'objective-blue' : (saved || 'objective-blue'));
     document.querySelectorAll('.theme-dot').forEach(d => { d.disabled = lockedForMe; });
 }
 function toggleThemesLock() {
@@ -851,5 +851,5 @@ function toggleThemesLock() {
 }
 (function initThemes() {
     let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
-    applyTheme(saved || 'ocean');
+    applyTheme(saved || 'objective-blue');
 })();

@@ -1,14 +1,14 @@
 /* ============================================================
    WORKSPACE COLOR THEMES (SPEC 2a-2c). Loaded by workspace.html only.
-   Selected with <html data-theme="ocean|sakura|starry">; "ocean" is the
+   Selected with <html data-theme="objective-blue|micro-pink|chlorophyll-green">; "objective-blue" is the
    default and needs no overrides (it is the :root palette in tokens.css).
-   Theme ids are placeholders until the team names them (D14).
+   Names: Objective Blue (default), Micro Pink, Chlorophyll Green (D14).
 
-   Light themes (sakura, starry) use DARK text on the panel and tool column,
+   Light themes (micro-pink, chlorophyll-green) use DARK text on the panel and tool column,
    because the mockups' white-on-pink/teal measure 2.2-2.6:1 (D12 A).
    ============================================================ */
 
-html[data-theme="sakura"] {
+html[data-theme="micro-pink"] {
     --bg-topbar: #82295b;
     --bg-code: #a44d76;
     --bg-topbar-btn: #7c2b57;
@@ -43,7 +43,7 @@ html[data-theme="sakura"] {
         url("assets/ui/decor-flower-pink.png") 20% 74% / 52px no-repeat;
 }
 
-html[data-theme="starry"] {
+html[data-theme="chlorophyll-green"] {
     --bg-topbar: #4468ad;
     --bg-code: #3c72b0;
     --bg-topbar-btn: #4468a1;
@@ -78,25 +78,25 @@ html[data-theme="starry"] {
 }
 
 /* Light themes: panel text/border adjustments (hint + danger text come from the tokens above) */
-html[data-theme="sakura"] .side-panel,
-html[data-theme="starry"] .side-panel {
+html[data-theme="micro-pink"] .side-panel,
+html[data-theme="chlorophyll-green"] .side-panel {
     border-right-color: var(--border-control);
 }
 
-html[data-theme="sakura"] .color-picker-row,
-html[data-theme="starry"] .color-picker-row {
+html[data-theme="micro-pink"] .color-picker-row,
+html[data-theme="chlorophyll-green"] .color-picker-row {
     background: var(--bg-swatch-row);
     margin-left: -20px;
     margin-right: -20px;
     padding: 6px 20px;
 }
 
-html[data-theme="sakura"] .workspace-area,
-html[data-theme="starry"] .workspace-area {
+html[data-theme="micro-pink"] .workspace-area,
+html[data-theme="chlorophyll-green"] .workspace-area {
     background: var(--theme-decor-workspace), var(--bg-dark);
 }
 
-html[data-theme="sakura"] .btn-leave.top-exit,
-html[data-theme="starry"] .btn-leave.top-exit {
+html[data-theme="micro-pink"] .btn-leave.top-exit,
+html[data-theme="chlorophyll-green"] .btn-leave.top-exit {
     background: var(--bg-topbar-btn);
 }

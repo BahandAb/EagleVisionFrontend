@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="themes.css">
     <script>
         /* Apply the saved theme before first paint (no flash). Failures fall back to the default theme. */
-        try { var t = localStorage.getItem('eagleTheme'); if (t === 'sakura' || t === 'starry') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+        try { var t = localStorage.getItem('eagleTheme'); if (t === 'micro-pink' || t === 'chlorophyll-green') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
     </script>
 
     <!-- Socket.IO for signaling -->
@@ -112,9 +112,9 @@
                 <div class="theme-picker" id="themePicker">
                     <p class="theme-locked-msg" id="themeLockedMsg" style="display:none;">Your teacher has disabled this feature.</p>
                     <div class="theme-bubble" role="radiogroup" aria-label="Color theme">
-                        <button class="theme-dot theme-dot-ocean" role="radio" aria-checked="true" data-theme-id="ocean" aria-label="Ocean theme" onclick="setTheme('ocean')"></button>
-                        <button class="theme-dot theme-dot-sakura" role="radio" aria-checked="false" data-theme-id="sakura" aria-label="Sakura theme" onclick="setTheme('sakura')"></button>
-                        <button class="theme-dot theme-dot-starry" role="radio" aria-checked="false" data-theme-id="starry" aria-label="Starry theme" onclick="setTheme('starry')"></button>
+                        <button class="theme-dot theme-dot-objective-blue" role="radio" aria-checked="true" data-theme-id="objective-blue" aria-label="Objective Blue theme" title="Objective Blue" onclick="setTheme('objective-blue')"></button>
+                        <button class="theme-dot theme-dot-micro-pink" role="radio" aria-checked="false" data-theme-id="micro-pink" aria-label="Micro Pink theme" title="Micro Pink" onclick="setTheme('micro-pink')"></button>
+                        <button class="theme-dot theme-dot-chlorophyll-green" role="radio" aria-checked="false" data-theme-id="chlorophyll-green" aria-label="Chlorophyll Green theme" title="Chlorophyll Green" onclick="setTheme('chlorophyll-green')"></button>
                     </div>
                     <img class="theme-mascot" src="assets/ui/mascot-eagle-happier.png" alt="" aria-hidden="true">
                 </div>

@@ -282,7 +282,7 @@ function connectSocket() {
     const statusBody = document.getElementById('status-body');
     if (statusBody) {
       const p = document.createElement('p');
-      p.style.cssText = 'font-size:.85rem;color:var(--legacy-f87171);margin:0';
+      p.style.cssText = 'font-size:.85rem;color:var(--host-err-text);margin:0';
       p.textContent = msg;
       statusBody.prepend(p);
     }

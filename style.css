@@ -535,7 +535,7 @@ input[type=range] {
 .color-swatch.active {
     border: 3px solid var(--white);
     transform: scale(1.2);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 20px var(--glow-selected);
     position: relative;
 }
 
@@ -602,8 +602,8 @@ input[type=range] {
 }
 
 .btn-kick {
-    background: var(--legacy-2a0f0f);
-    color: var(--legacy-ffaaaa);
+    background: var(--kick-bg);
+    color: var(--kick-text);
     border: 1px solid var(--danger);
     padding: 4px 8px;
     font-size: 10px;
@@ -700,7 +700,7 @@ input[type=range] {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.3);
-    background: var(--legacy-1a1a1a);
+    background: var(--bg-input-focus);
 }
 
 .text-modal-input::placeholder {
@@ -969,7 +969,7 @@ input[type=range] {
 .tier-badge {
     display: inline-block;
     padding: 4px 12px;
-    background: linear-gradient(135deg, var(--legacy-667eea) 0%, var(--legacy-764ba2) 100%);
+    background: linear-gradient(135deg, var(--tier-basic-from) 0%, var(--tier-basic-to) 100%);
     color: white;
     border-radius: 12px;
     font-size: 12px;
@@ -980,7 +980,7 @@ input[type=range] {
 }
 
 .tier-badge.pro {
-    background: linear-gradient(135deg, var(--legacy-f093fb) 0%, var(--legacy-f5576c) 100%);
+    background: linear-gradient(135deg, var(--tier-pro-from) 0%, var(--tier-pro-to) 100%);
 }
 
 /* Eagle AI Results */
@@ -1362,9 +1362,9 @@ input[type=range] {
     font-weight: 900;
     line-height: 1;
 }
-.theme-dot-ocean { background: var(--select-toolcol-base, #2f84b6); }
-.theme-dot-sakura { background: #e085a8; }
-.theme-dot-starry { background: #85b8b0; }
+.theme-dot-objective-blue { background: var(--theme-dot-objective-blue); }
+.theme-dot-micro-pink { background: var(--theme-dot-micro-pink); }
+.theme-dot-chlorophyll-green { background: var(--theme-dot-chlorophyll-green); }
 .theme-dot[aria-checked="true"]::after { content: "\2713"; }
 .theme-mascot { position: absolute; left: 50px; bottom: -48px; width: 130px; height: auto; }  /* lower part is clipped by the picker, like the mockup */
 .theme-picker.is-locked .theme-bubble { background: var(--theme-disabled-fill); }
@@ -1387,3 +1387,14 @@ input[type=range] {
 .top-header .btn-leave.top-exit { color: var(--white); }
 .side-panel .btn-leave.btn-danger { color: var(--danger-on-panel); }
 .activity-icon-label { color: var(--text-muted); }
+
+/* Phone fix: the tool dock was 10px wider than the screen (width:100% + padding + border without border-box),
+   which clipped the snapshot button. */
+@media (max-width: 768px) {
+    .toolbar-dock { box-sizing: border-box; }
+    .workspace-area { padding: 12px; gap: 14px; }
+}
+@media (max-width: 400px) {
+    .tool-btn { width: 40px; height: 40px; }
+    .toolbar-dock { padding: 8px 8px; }
+}

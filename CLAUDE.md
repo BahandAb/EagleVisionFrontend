@@ -107,7 +107,7 @@ this repo is public and it happened once already (passwords were live in
 A team-researched color/typography overhaul is being specified in
 `docs/design/`. Until a spec item is marked `Approved`, don't restyle on
 your own. When implementing: `tokens.css` exists (Phase 1 done); no new hardcoded
-hexes (`--gray-*`/`--legacy-*` are exact old values pending Phase 4 cleanup; JS reads colors via `cssVar('--token')`), and move inline `style="..."`
+hexes (`--gray-*` is the neutral ramp, one-off component colors are named by role in `tokens.css`; JS reads colors via `cssVar('--token')`), and move inline `style="..."`
 into classes (done for static HTML; only JS-toggled `display:none` stays inline,
 and a few JS-generated style strings in script.js/host.js remain). Inline styles
 beat class rules, so new variant classes use compound selectors
