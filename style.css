@@ -1,7 +1,7 @@
 /* Tokens live in tokens.css (loaded first by every page). */
 
 body {
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-ui);
     background-color: var(--bg-dark);
     color: var(--text);
     margin: 0;
@@ -17,8 +17,9 @@ body.resizing-sidebar .side-panel {
     transition: none;
 }
 
-/* --- LANDING PAGE --- */
+/* --- ENTER-CODE PAGE (session.html) --- */
 .landing-body {
+    font-family: var(--font-body);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -39,6 +40,8 @@ body.resizing-sidebar .side-panel {
 }
 
 .logo-text {
+    font-family: var(--font-display);
+    font-weight: 700;
     color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 4px;
@@ -49,14 +52,14 @@ body.resizing-sidebar .side-panel {
 .input-group input {
     width: 100%;
     padding: 15px;
-    font-size: 24px;
+    font-size: 20px;
     text-align: center;
     border-radius: 8px;
     border: 2px solid var(--gray-33);
     background: var(--black);
     color: white;
-    font-family: monospace;
-    letter-spacing: 3px;
+    font-family: var(--font-mono);
+    letter-spacing: 2px;
     box-sizing: border-box;
     outline: none;
     margin-bottom: 10px;
@@ -120,7 +123,7 @@ body.resizing-sidebar .side-panel {
     letter-spacing: 4px;
     color: var(--white);
     background: var(--bg-code);
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-mono);
     padding: 4px 12px;
     border-radius: 6px;
 }
@@ -658,7 +661,7 @@ input[type=range] {
     margin-bottom: 24px;
     box-sizing: border-box;
     transition: all 0.3s ease;
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-ui);
 }
 
 .text-modal-input:focus {
@@ -1234,3 +1237,7 @@ input[type=range] {
     color: var(--white);
 }
 .landing-error { color: var(--danger); margin-top: 15px; font-size: 14px; }
+
+/* Phase 3: enter-code controls inherit the page font */
+.landing-body button,
+.landing-body input { font-family: inherit; }

@@ -6,7 +6,8 @@
 .home-body {
     background: var(--mk-bg);
     color: var(--text);
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-body);
+    line-height: var(--lh-body);
     margin: 0;
     overflow-x: hidden;
     overflow-y: auto;
@@ -171,9 +172,10 @@
 }
 
 .about-hero h1 {
-    font-size: 48px;
-    font-weight: 900;
-    letter-spacing: -1px;
+    font-family: var(--font-display);
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    letter-spacing: 0;
     color: var(--white);
     margin: 16px 0 20px;
     line-height: 1.1;
@@ -198,11 +200,12 @@
 }
 
 .about-section h2 {
+    font-family: var(--font-display);
     font-size: 28px;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--white);
     margin: 0 0 16px;
-    letter-spacing: -0.5px;
+    letter-spacing: 0;
 }
 
 .about-section p {
@@ -357,17 +360,18 @@
 }
 
 .hero-heading {
-    font-size: clamp(36px, 5vw, 58px);
-    font-weight: 900;
-    line-height: 1.1;
+    font-family: var(--font-display);
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    line-height: var(--lh-tight);
     margin: 0 0 24px;
-    letter-spacing: -1px;
+    letter-spacing: 0;
 }
 
 .hero-sub {
     color: var(--gray-aa);
-    font-size: 17px;
-    line-height: 1.7;
+    font-size: var(--fs-base);
+    line-height: var(--lh-body);
     margin: 0 0 40px;
     max-width: 480px;
 }
@@ -454,10 +458,12 @@
 }
 
 .section-heading {
-    font-size: clamp(28px, 4vw, 42px);
-    font-weight: 900;
+    font-family: var(--font-display);
+    font-size: var(--fs-h2);
+    font-weight: 700;
+    line-height: var(--lh-tight);
     margin: 0 0 60px;
-    letter-spacing: -0.5px;
+    letter-spacing: 0;
 }
 
 /* ---- USE CASES ---- */
@@ -502,8 +508,9 @@
 }
 
 .use-card h3 {
-    font-size: 19px;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
     margin: 0 0 12px;
 }
 
@@ -789,7 +796,7 @@
     padding: 12px 14px;
     color: white;
     font-size: 14px;
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-body);
     transition: border-color 0.2s;
     outline: none;
 }
@@ -1124,8 +1131,9 @@
 }
 
 .team-name {
-    font-size: 18px;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
     margin: 0;
 }
 
@@ -1486,3 +1494,9 @@
 .footer-note { color: var(--gray-55); font-size: 13px; margin: 8px 0 0; }
 .footer-fine { color: var(--gray-44); font-size: 11px; margin: 6px 0 0; letter-spacing: 0.5px; }
 .footer-link { color: var(--gray-66); font-size: 13px; margin-top: 8px; display: inline-block; }
+
+/* Phase 3: form controls don't inherit font-family by default */
+.home-body button,
+.home-body input,
+.home-body textarea,
+.home-body select { font-family: inherit; }

@@ -45,6 +45,22 @@
     --filter-label-g: #adf66d;
     --filter-label-b: #5dd8ff;
 
+    /* ---- Typography (Phase 3; fonts.css loads Fredoka + Poppins) ---- */
+    --font-display: 'Fredoka', 'Segoe UI', Roboto, sans-serif;   /* marketing headings, mascot-friendly */
+    --font-body: 'Poppins', 'Segoe UI', Roboto, sans-serif;      /* marketing + enter-code body/UI */
+    --font-ui: 'Segoe UI', Roboto, sans-serif;                   /* workspace + host (unchanged, D19 C) */
+    --font-mono: 'Courier New', monospace;
+
+    --fs-xs: 11px;
+    --fs-sm: 13px;
+    --fs-base: 16px;
+    --fs-lg: 18px;
+    --fs-h3: 24px;
+    --fs-h2: clamp(28px, 4vw, 40px);
+    --fs-h1: clamp(36px, 5vw, 56px);
+    --lh-tight: 1.1;
+    --lh-body: 1.65;
+
     /* ---- Layout ---- */
     --sidebar-width: 320px;
     --activity-bar-width: 60px;

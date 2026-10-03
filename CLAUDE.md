@@ -13,6 +13,7 @@ here (see "Security" below).
 | `host.html` + `host.js` | Instructor flow: camera setup, live framing, admin controls |
 | `tokens.css` | **All design tokens** (colors, layout vars). Loaded FIRST by every page. Never hardcode hex elsewhere; add a token |
 | `style.css` | Loaded by every page (incl. homepage). Workspace/host/session styles; uses tokens only |
+| `fonts.css` + `assets/fonts/` | Self-hosted Fredoka/Poppins (OFL). Only index/about/session load them; don't swap to Google Fonts |
 | `host.css` | Host page styles (was an inline `<style>` in host.html) |
 | `landing.css` | Homepage/about-only styles, layered on top of `style.css`; also hardcodes many hexes |
 | `sw.js` | Service worker (see gotcha below); only registered from `index.html` |

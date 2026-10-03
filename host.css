@@ -1,7 +1,7 @@
 /* Host page styles (moved out of host.html in Phase 2). Colors come from tokens.css. */
 
 /* ── Base ── */
-body { background: var(--mk-bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow-y: auto; }
+body { background: var(--mk-bg); color: var(--text); font-family: var(--font-ui); margin: 0; overflow-y: auto; }
 
 /* ── Setup screen ── */
 #setup-screen {
