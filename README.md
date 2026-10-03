@@ -51,7 +51,7 @@ No special hardware is required on the student side — any modern browser on a 
 
 ### Instructor Flow
 
-> **Note:** The browser-based host page (`host.html`) is now the primary way to host a session. The Android app is a secondary option for mobile-first setups.
+> **Note:** The browser-based host page (`host.html`) is now the primary way to host a session. (The older Android app still works but is deprecated and no longer maintained.)
 
 1. Connect the microscope camera (USB, HDMI capture card, or webcam) to your computer
 2. Go to [eaglevision.dev/host.html](https://eaglevision.dev/host.html)
@@ -70,7 +70,7 @@ No special hardware is required on the student side — any modern browser on a 
 
 - Enter the **session code** (6 digits)
 - Enter your **name**
-- Optionally click the key icon and enter an **admin key** to join as instructor
+- Optionally click **I am the instructor.** and enter an **admin key** to join as instructor
 - Press Enter to move between fields, or click **Join Session**
 
 The page stores session details in `sessionStorage` and redirects to the workspace. If you navigate to the workspace directly without a code, you'll be sent back to the join page.
@@ -122,6 +122,8 @@ Browser (Student/Instructor)
 | ← server | `receive_broadcast_stroke` | stroke object |
 | → server | `admin_sync_view` | `{ room, panX, panY, scale }` |
 | ← server | `sync_view_command` | `{ panX, panY, scale }` |
+| → server | `admin_set_themes_locked` | `{ room, key, locked }` |
+| ← server | `themes_locked_update` | `{ locked }` |
 | ← server | `kicked` | — |
 | ← server | `session_ended` | — |
 
@@ -169,13 +171,20 @@ Returns `{ "success": true, "tier": "basic" | "pro" }` or 401. Used by the front
 ├── sw.js               Service worker (offline static asset caching)
 ├── script.js           Core workspace logic
 ├── img_processor.js    Image filter and adjustment module
-├── style.css           Workspace styles (dark theme)
-├── landing.css         Landing and about page styles
+├── tokens.css          All design tokens (colors, type, layout). Loaded first by every page
+├── style.css           Workspace, host-shared and enter-code styles
+├── themes.css          Workspace color themes (Objective Blue, Micro Pink, Chlorophyll Green)
+├── landing.css         Homepage and about page styles
+├── host.css            Host page styles
+├── fonts.css           Self-hosted Fredoka + Poppins (homepage, about, enter-code)
 ├── js/
 │   └── socket.io.min.js
+├── docs/design/        Design spec: SPEC.md, DECISIONS.md, SOURCES.md, reference mockups
 └── assets/
     ├── EagleVisionLogo.png
     ├── EagleAILogo.png
+    ├── fonts/              Fredoka / Poppins woff2 + OFL licenses
+    ├── ui/                 Flat-color icons, eagle mascot, decor art
     ├── Madeira Photos/     Classroom pilot photos
     ├── V2 Assets/          Sample microscopy images, in-session screenshots
     ├── ITExpo/             Award ceremony photos
@@ -184,20 +193,22 @@ Returns `{ "success": true, "tier": "basic" | "pro" }` or 401. Used by the front
 
 ### Workspace Layout
 
-The workspace has a **viewport** (video + annotation canvas) on the left and a **resizable sidebar** on the right with seven panels:
+The workspace has a left **activity bar** (panel tabs), a **resizable side panel**, and a centered **viewport** (video + annotation canvas) with a floating tool column on its right. The activity bar opens seven panels:
 
 | Panel | Icon | Contents |
 |-------|------|----------|
-| Tools | Brush | Color picker, stroke thickness, eraser mode |
+| Tools | Brush | Color picker, stroke thickness, clear/hide actions, theme picker |
 | Adjustments | Tune | RGB channels, brightness, contrast, saturation, rotation, flip |
 | Gallery | Photo | Saved snapshots with lightbox preview |
 | Eagle AI | Eagle logo | Specimen analysis (Basic / Pro) |
 | People | Group | Live participant roster |
-| Settings | Gear | Admin controls (follow mode, broadcast, kick) |
+| Settings | Gear | Admin controls (follow mode, broadcast drawings, lock themes, clear all) |
 | Dev | Code | Developer mode (placeholder) |
 
-**Toolbar** (floating, bottom-right of viewport):
+**Tool column** (floating, right of the viewport; below it on phones):
 Move · Draw · Eraser · Text · Count · Freeze · Snapshot
+
+**Themes:** students pick Objective Blue, Micro Pink or Chlorophyll Green with the eagle's speech bubble (saved per device). The host can lock the theme for the room with **Lock Themes**.
 
 ### Annotation System
 
