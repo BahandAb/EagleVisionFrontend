@@ -43,3 +43,6 @@ Author and date were not provided for any message.
 | 11 | not given | not given | Change font color on filter slides to red #e84e53, green #adf66d, blue #5dd8ff | color, component | SPEC --filter-label-*; DECISIONS D9, D10 |
 | 12 | not given | not given | Change yellow selection color to #fdd257 | color | SPEC --accent; DECISIONS D5, D7 |
 | 13 | not given | not given | Change glow from yellow to white | color, component | SPEC --glow-selected; DECISIONS D8 |
+
+## Assets added to the repo
+Images 01-05 (color-controls icon, counter icon, gallery icon, two eagle mascots) are in `docs/design/reference/` at full size and in `assets/ui/` (icons resized to 128px tall). Used in: workspace rail (color controls, gallery), counter tool, enter-code mascot (happier eagle, D32 default). Still missing: images 06-17 (page mockups, remaining icons, theme art), `09-icon-pan`, `10-icon-pen`, `11-icon-roster`, `12-icon-snapshot`, `13-icon-theme2-flower`.

@@ -33,8 +33,10 @@ body.resizing-sidebar .side-panel {
 }
 
 .landing-card {
+    position: relative;
+    margin-top: 60px;
     background: var(--join-card);
-    padding: 44px 40px;
+    padding: 70px 40px 44px;
     border-radius: 30px;
     text-align: center;
     border: 1px solid var(--join-card-border);
@@ -1271,3 +1273,18 @@ input[type=range] {
 /* Phase 3: enter-code controls inherit the page font */
 .landing-body button,
 .landing-body input { font-family: inherit; }
+
+/* Phase 4b: flat-color icons + mascot (replace Material icons where art exists) */
+.img-h-36 { height: 36px; width: auto; }
+.rail-img { height: 28px; width: auto; opacity: 0.8; transition: opacity 0.2s; }
+.activity-icon:hover .rail-img,
+.activity-icon.active .rail-img { opacity: 1; }
+.join-mascot {
+    position: absolute;
+    top: -62px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: auto;
+    pointer-events: none;
+}
