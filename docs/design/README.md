@@ -11,6 +11,7 @@ in `SPEC.md`.**
 |------|---------|
 | `SPEC.md` | The organized spec. Tokens, type, spacing, components, per-page changes. |
 | `DECISIONS.md` | Resolved/open questions and conflicts between Discord messages. |
+| `SUMMARY.md` | One-paragraph status from the extraction pass: what is solid vs. needs team input. |
 | `SOURCES.md` | Raw-ish extraction log: every Discord claim -> who/when (if known) -> where it landed in the spec. |
 | `reference/` | Reference images. Name them `NN-page-or-topic.png` (e.g. `01-palette.png`, `02-workspace-dark.png`) and list each in `SOURCES.md`. |
 
