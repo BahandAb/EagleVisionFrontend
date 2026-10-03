@@ -19,6 +19,8 @@ here (see "Security" below).
 | `sw.js` | Service worker (see gotcha below); only registered from `index.html` |
 | `docs/design/` | Design-overhaul spec (`SPEC.md`, `DECISIONS.md`, `SOURCES.md`, `reference/` images). Read before any visual change |
 
+Marketing pages (index/about) use the light-blue `--mk-*` palette; the host page keeps its own dark `--host-*` tokens; the workspace uses the app tokens. Don't mix them. Contrast was audited with a script (WCAG AA) — re-run an equivalent check after color changes.
+
 Body classes: `home-body` = index/about, `landing-body` = `session.html` (the
 code-entry page, despite the name), none = host/workspace.
 

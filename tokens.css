@@ -61,16 +61,40 @@
     --lh-tight: 1.1;
     --lh-body: 1.65;
 
+    /* ---- Enter-code page (SPEC 2e) ---- */
+    --bg-decor-wedge: #252525;
+    --join-card: var(--bg-code);   /* D3/D4: shares the code-chip navy */
+    --join-card-border: #6b7075;   /* 3.33:1 on --bg-dark */
+    --join-input: #487099;
+    --join-placeholder: #eaf1f7;   /* D29 A: distinct from typed text by weight; 4.5+:1 on --join-input */
+    --join-text-muted: #c7d3df;    /* 6.22:1 on --join-card (D26) */
+    --danger-on-dark: #ffb0b3;     /* 5.45:1 on --join-card (D23) */
+    --focus-ring: #fdd257;         /* D22: 3px outline, offset 2px; 6+:1 on every app surface */
+
     /* ---- Layout ---- */
     --sidebar-width: 320px;
     --activity-bar-width: 60px;
 
-    /* ---- 2. Marketing + enter-code (pre-overhaul navy; replaced in Phase 4, D16) ---- */
-    --mk-bg: #0a0f1c;
-    --mk-bg-raised: #1a2236;
-    --mk-panel: #161b2e;
+    /* ---- 2. Marketing / homepage (SPEC 2d, mockups 7-8) ---- */
+    --mk-nav-bg: #1e253f;          /* D1: same navy as the workspace top bar */
+    --mk-nav-rgb: 30, 37, 63;
+    --mk-bg: #577092;              /* D16 A: light mid-blue for marketing pages */
+    --mk-bg-band: #4f6685;         /* alternating section band (no mockup; between --mk-bg and --mk-card) */
+    --mk-card: #4b6280;            /* white 6.25:1 */
+    --mk-bg-alt: #4b6280;
+    --mk-panel: #161b2e;           /* enter-code legacy only; unused after Phase 4 */
+    --mk-bg-raised: #1a2236;       /* enter-code legacy only; unused after Phase 4 */
+    --mk-border: rgba(255, 255, 255, 0.22);
+    --mk-text: #ffffff;            /* 5.07:1 on --mk-bg */
+    --mk-text-soft: #f1f4f8;       /* 4.6:1 on --mk-bg; replaces the failing #c6c6c6 body (D17) */
+    --mk-accent-text: #fff5c8;     /* yellow-tinted text that passes 4.5:1 (yellow #fdd257 is 3.51 on --mk-bg) */
+    --mk-btn-text: #1e253f;        /* 10.4:1 on --accent (spec's #577092 was 3.51) */
+    --mk-hl-green: #d8ecb4;        /* D17: lightened from #b7cd92 (2.94) to 4.0:1; large text only */
+    --mk-hl-teal: #bfe3ea;         /* lightened from #94bfc8 (2.55) to 3.72:1 */
+    --mk-hl-pink: #ffc2d6;         /* lightened from #ff8cb2; 4.15:1 on --mk-card */
 
     /* ---- 3. Host page (no mockups yet, D31; pre-overhaul values) ---- */
+    --host-bg: #0a0f1c;
     --host-surface: #141929;
     --host-border: #2a3050;
     --host-muted: #7c83a8;
