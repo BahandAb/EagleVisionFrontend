@@ -17,7 +17,7 @@ here (see "Security" below).
 | `fonts.css` + `assets/fonts/` | Self-hosted Fredoka/Poppins (OFL). Only index/about/session load them; don't swap to Google Fonts |
 | `host.css` | Host page styles (was an inline `<style>` in host.html) |
 | `landing.css` | Homepage/about-only styles, layered on top of `style.css`; also hardcodes many hexes |
-| `sw.js` | Service worker (see gotcha below); only registered from `index.html` |
+| `sw.js` | Service worker (see gotcha below); registered on every page via `sw-register.js` |
 | `docs/design/` | Design-overhaul spec (`SPEC.md`, `DECISIONS.md`, `SOURCES.md`, `reference/` images). Read before any visual change |
 
 Marketing pages (index/about) use the light-blue `--mk-*` palette; the host page keeps its own dark `--host-*` tokens; the workspace uses the app tokens. Don't mix them. Contrast was audited with a script (WCAG AA) — re-run an equivalent check after color changes.
