@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision — Live Microscopy Streaming</title>
+    <link rel="stylesheet" href="tokens.css">
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="preload" href="assets/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/fredoka-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="landing.css?v=8">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -12,7 +16,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EagleVision">
     <link rel="apple-touch-icon" href="assets/EagleVisionLogo.png">
-    <meta name="theme-color" content="#0a0f1c">
+    <meta name="theme-color" content="#1e253f">
 </head>
 <body class="home-body">
 
@@ -43,24 +47,28 @@
     </div>
 
     <!-- HERO -->
+    <div class="hero-stage">
+    <img class="decor decor-cloud decor-cloud-1" src="assets/ui/cloud.svg" alt="" aria-hidden="true">
+    <img class="decor decor-cloud decor-cloud-2" src="assets/ui/cloud.svg" alt="" aria-hidden="true">
+    <img class="decor decor-cloud decor-cloud-3" src="assets/ui/cloud.svg" alt="" aria-hidden="true">
+    <img class="decor decor-star decor-star-1" src="assets/ui/star-pink.svg" alt="" aria-hidden="true">
+    <img class="decor decor-star decor-star-2" src="assets/ui/star-teal.svg" alt="" aria-hidden="true">
     <section class="hero">
         <div class="hero-inner">
-            <p class="hero-eyebrow">
-                <span class="material-icons" style="font-size:16px;vertical-align:middle;">biotech</span>
-                Live Microscopy Streaming
-            </p>
-            <h1 class="hero-heading">A Bird's Eye View<br>of the Microworld</h1>
+            <p class="hero-eyebrow">Live Microscopy Streaming</p>
+            <h1 class="hero-heading">A Bird's Eye View<br>of the <span class="hl-green">Microworld!</span></h1>
             <p class="hero-sub">
                 Stream a live microscope feed to every device in the room — with shared annotations, AI analysis, and real-time collaboration. Free for educators. No hardware upgrades required.
             </p>
-            <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;letter-spacing:0.5px;">Patent Pending</p>
+            <p class="hero-fine">Patent Pending</p>
             <div class="hero-actions">
                 <a href="session.html" class="btn-hero-primary">Join a Session</a>
-                <a href="host.html" class="btn-hero-outline" style="border-color:#FFD700;color:#FFD700;">Host a Session</a>
+                <a href="host.html" class="btn-hero-outline btn-hero-accent">Host a Session</a>
                 <a href="#contact" class="btn-hero-outline">Get Access for Your School</a>
             </div>
         </div>
         <div class="hero-visual">
+            <img class="hero-peek" src="assets/ui/mascot-eagle-happy.png" alt="" aria-hidden="true">
             <div class="hero-photo-wrap">
                 <img src="assets/V2 Assets/Photoshoot/PhoneClampedToMicroscope.jpg"
                      alt="Phone clamped to microscope running EagleVision"
@@ -68,12 +76,13 @@
             </div>
         </div>
     </section>
+    </div>
 
     <!-- USE CASES -->
     <section class="section use-cases" id="use-cases">
         <div class="section-inner">
             <p class="section-label">Who It's For</p>
-            <h2 class="section-heading">Built for Every Learning Environment</h2>
+            <h2 class="section-heading">Built for <span class="hl-teal">Every</span> Learning Environment</h2>
             <div class="cards-grid">
 
                 <div class="use-card">
@@ -88,7 +97,7 @@
                     <div class="use-card-icon">
                         <span class="material-icons">science</span>
                     </div>
-                    <h3>College &amp; University Labs</h3>
+                    <h3 class="hl-yellow">College &amp; University Labs</h3>
                     <p>Run interactive lab sessions for large lecture groups or hybrid cohorts. Instructors guide the view while students collaborate on annotations in real time — from the front row or remotely.</p>
                 </div>
 
@@ -96,7 +105,7 @@
                     <div class="use-card-icon">
                         <span class="material-icons">local_hospital</span>
                     </div>
-                    <h3>Medical &amp; Clinical Education</h3>
+                    <h3 class="hl-pink">Medical &amp; Clinical Education</h3>
                     <p>Teaching pathology, histology, or clinical microscopy? Stream live slides to residents and students simultaneously, with AI-assisted identification to support learning and discussion.</p>
                 </div>
 
@@ -316,7 +325,7 @@
                     </div>
 
                     <button type="submit" class="btn-form-submit">Send Inquiry</button>
-                    <p id="form-success" style="display:none;color:#44FF44;margin-top:12px;font-size:14px;">Message sent! We'll be in touch soon.</p>
+                    <p id="form-success" class="form-success" style="display:none;">Message sent! We'll be in touch soon.</p>
                 </form>
             </div>
         </div>
@@ -419,9 +428,9 @@
     <!-- FOOTER -->
     <footer class="home-footer">
         <img src="assets/EagleVisionLogo.png" alt="EagleVision" class="footer-logo">
-        <p style="color:#555;font-size:13px;margin:8px 0 0;">© 2025 Bahand Abdulrahman. Built for educators.</p>
-        <p style="color:#444;font-size:11px;margin:6px 0 0;letter-spacing:0.5px;">Patent Pending</p>
-        <a href="session.html" style="color:#666;font-size:13px;margin-top:8px;display:inline-block;">Join a Session →</a>
+        <p class="footer-note">© 2025 Bahand Abdulrahman. Built for educators.</p>
+        <p class="footer-fine">Patent Pending</p>
+        <a class="footer-link" href="session.html">Join a Session →</a>
     </footer>
 
     <script>

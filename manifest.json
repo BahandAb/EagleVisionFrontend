@@ -4,8 +4,8 @@
   "description": "Live microscopy streaming for educators",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0f1c",
-  "theme_color": "#0a0f1c",
+  "background_color": "#1e253f",
+  "theme_color": "#1e253f",
   "icons": [
     {
       "src": "assets/EagleVisionLogo.png",

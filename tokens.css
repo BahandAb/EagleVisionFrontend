@@ -1,0 +1,143 @@
+/* ============================================================
+   EAGLEVISION DESIGN TOKENS
+   Loaded FIRST by every page. Source of truth: docs/design/SPEC.md.
+   Do not hardcode hex values elsewhere; add a token here instead.
+   Layers: 1) workspace/app  2) marketing + enter-code  3) host (own dark
+   palette)  4) neutral ramp  5) one-off component colors.
+   ============================================================ */
+
+:root {
+    /* ---- 1. App / workspace, theme 1 (SPEC 2a) ---- */
+    --bg-dark: #1e1e1e;            /* msg 5 */
+    --bg-topbar: #1e253f;          /* D1: mockup value, shared with homepage nav */
+    --bg-rail: #171717;            /* msg 2 */
+    --bg-panel: #1b4a71;           /* msg 3 */
+    --bg-toolcol: #003e62;         /* msg 4 */
+    --bg-code: #25486c;            /* D2: mockup value; D4: also enter-code card */
+    --border-divider: #435562;     /* sampled from image 14; ambiguous (antialiased 1px line) */
+    --bg-scope-empty: #3d3d3d;     /* msg 6 */
+    --border-scope: #697076;       /* 2px frame around the microscope square */
+    --bg-rail-active: #252019;     /* active rail tab */
+    --bg-stroke-btn: #3d3d3d;
+    --bg-stroke-btn-selected: #787878;
+    --border-control: #7f97a8;     /* lightened from sampled #586875 to reach 3:1 on --bg-panel (D25 A) */
+    --text-secondary: #d8d6d5;
+    --hint-on-panel: #c7d3df;      /* secondary/hint text inside the side panel */
+    --success-on-panel: #44ff44;
+    --accent-on-panel: #fdd257;
+    --danger-on-panel: #ffb0b3;    /* danger text on the side panel (5.4:1 on --bg-panel) */
+    --panel-label: #ffffff;        /* themes.css overrides these four on the light themes */
+    --panel-text-secondary: var(--text-secondary);
+    --tool-icon: #ffffff;
+    --tool-icon-active: #ffffff;
+    --tool-img-filter: none;
+    --tool-img-filter-active: none;
+    --bg-topbar-btn: transparent;
+    --theme-decor-workspace: none;
+    --theme-decor-panel: none;
+    --theme-disabled-fill: #cecece;
+    --theme-dot-objective-blue: #2f84b6;
+    --theme-dot-micro-pink: #e085a8;
+    --theme-dot-chlorophyll-green: #85b8b0;
+    --text-muted: #a0a0a0;         /* D26 A: passes 4.5:1 on --bg-topbar and --bg-dark */
+    --select-toolcol: #2f84b6;     /* msg 7; D7: blue stays on the right tool column */
+
+    --accent: #fdd257;             /* D5/D6: global yellow (was #FFD700) */
+    --accent-rgb: 253, 210, 87;    /* for rgba(var(--accent-rgb), a) */
+    --accent-hover: #ffe38a;       /* derived: lighter --accent; not in the mockups */
+    --glow-selected: rgba(255, 255, 255, 0.6);   /* D8: white glow; the ✓ marker covers the white swatch */
+
+    --text: #ffffff;
+    --danger: #ff4444;             /* D23 open: contrast on --bg-panel fails */
+    --success: #44ff44;
+
+    --draw-red: #e84e53;
+    --draw-yellow: #fdd257;
+    --draw-green: #adf66d;
+    --draw-blue: #5dd8ff;
+    --draw-white: #ffffff;
+    --filter-label-r-text: #ff9a9d; /* D9 A: lighter red for label TEXT, 4.58:1 on --bg-panel */
+    --filter-label-g: #adf66d;
+    --filter-label-b: #5dd8ff;
+
+    /* ---- Typography (Phase 3; fonts.css loads Fredoka + Poppins) ---- */
+    --font-display: 'Fredoka', 'Segoe UI', Roboto, sans-serif;   /* marketing headings, mascot-friendly */
+    --font-body: 'Poppins', 'Segoe UI', Roboto, sans-serif;      /* marketing + enter-code body/UI */
+    --font-ui: 'Segoe UI', Roboto, sans-serif;                   /* workspace + host (unchanged, D19 C) */
+    --font-mono: 'Courier New', monospace;
+    --fs-base: 16px;
+    --fs-h2: clamp(28px, 4vw, 40px);
+    --fs-h1: clamp(36px, 5vw, 56px);
+    --lh-tight: 1.1;
+    --lh-body: 1.65;
+
+    /* ---- Enter-code page (SPEC 2e) ---- */
+    --bg-decor-wedge: #252525;
+    --join-card: var(--bg-code);   /* D3/D4: shares the code-chip navy */
+    --join-card-border: #6b7075;   /* 3.33:1 on --bg-dark */
+    --join-input: #487099;
+    --join-placeholder: #eaf1f7;   /* D29 A: distinct from typed text by weight; 4.5+:1 on --join-input */
+    --join-text-muted: #c7d3df;    /* 6.22:1 on --join-card (D26) */
+    --danger-on-dark: #ffb0b3;     /* 5.45:1 on --join-card (D23) */
+    --focus-ring: #fdd257;         /* D22: 3px outline, offset 2px; 6+:1 on every app surface */
+
+    /* ---- Layout ---- */
+    --sidebar-width: 320px;
+    --activity-bar-width: 60px;
+
+    /* ---- 2. Marketing / homepage (SPEC 2d, mockups 7-8) ---- */
+    --mk-nav-bg: #1e253f;          /* D1: same navy as the workspace top bar */
+    --mk-nav-rgb: 30, 37, 63;
+    --mk-bg: #577092;              /* D16 A: light mid-blue for marketing pages */
+    --mk-bg-band: #4f6685;         /* alternating section band (no mockup; between --mk-bg and --mk-card) */
+    --mk-card: #4b6280;            /* white 6.25:1 */
+    --mk-border: rgba(255, 255, 255, 0.22);
+    --mk-text: #ffffff;            /* 5.07:1 on --mk-bg */
+    --mk-text-soft: #f1f4f8;       /* 4.6:1 on --mk-bg; replaces the failing #c6c6c6 body (D17) */
+    --mk-accent-text: #fff5c8;     /* yellow-tinted text that passes 4.5:1 (yellow #fdd257 is 3.51 on --mk-bg) */
+    --mk-btn-text: #1e253f;        /* 10.4:1 on --accent (spec's #577092 was 3.51) */
+    --mk-hl-green: #d8ecb4;        /* D17: lightened from #b7cd92 (2.94) to 4.0:1; large text only */
+    --mk-hl-teal: #bfe3ea;         /* lightened from #94bfc8 (2.55) to 3.72:1 */
+    --mk-hl-pink: #ffc2d6;         /* lightened from #ff8cb2; 4.15:1 on --mk-card */
+
+    /* ---- 3. Host page (no mockups yet, D31; pre-overhaul values) ---- */
+    --host-bg: #0a0f1c;
+    --host-surface: #141929;
+    --host-border: #2a3050;
+    --host-muted: #7c83a8;
+
+    /* ---- 4. Neutral ramp (hex in the name = value; use for structure, not text on colored panels) ---- */
+    --black: #000000;
+    --white: #ffffff;
+    --gray-11: #111111;
+    --gray-22: #222222;
+    --gray-33: #333333;
+    --gray-44: #444444;
+    --gray-55: #555555;
+    --gray-66: #666666;
+    --gray-88: #888888;
+    --gray-99: #999999;
+    --gray-aa: #aaaaaa;
+    --gray-cc: #cccccc;
+    --gray-dd: #dddddd;
+
+    /* ---- 5. Component colors (one-off values kept from before the overhaul) ---- */
+    --brand-linkedin: #0077b5;
+    --bg-input-focus: #1a1a1a;
+    --kick-bg: #2a0f0f;
+    --kick-text: #ffaaaa;
+    --tier-basic-from: #667eea;
+    --tier-basic-to: #764ba2;
+    --tier-pro-from: #f093fb;
+    --tier-pro-to: #f5576c;
+
+    /* ---- Host status badges ---- */
+    --host-ok-bg: #1e3a2f;
+    --host-ok-text: #4ade80;
+    --host-info-bg: #1a2a3b;
+    --host-info-text: #60a5fa;
+    --host-err-bg: #3b1a1a;
+    --host-err-text: #f87171;
+    --host-danger-bg: #7f1d1d;
+    --host-danger-text: #fca5a5;
+}

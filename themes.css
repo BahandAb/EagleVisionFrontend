@@ -1,0 +1,102 @@
+/* ============================================================
+   WORKSPACE COLOR THEMES (SPEC 2a-2c). Loaded by workspace.html only.
+   Selected with <html data-theme="objective-blue|micro-pink|chlorophyll-green">; "objective-blue" is the
+   default and needs no overrides (it is the :root palette in tokens.css).
+   Names: Objective Blue (default), Micro Pink, Chlorophyll Green (D14).
+
+   Light themes (micro-pink, chlorophyll-green) use DARK text on the panel and tool column,
+   because the mockups' white-on-pink/teal measure 2.2-2.6:1 (D12 A).
+   ============================================================ */
+
+html[data-theme="micro-pink"] {
+    --bg-topbar: #82295b;
+    --bg-code: #a44d76;
+    --bg-topbar-btn: #7c2b57;
+    --bg-panel: #d889a9;
+    --bg-swatch-row: #de87a9;
+    --bg-toolcol: #e18ca6;
+    --select-toolcol: #bb6c84;
+    --bg-stroke-btn: #9f9f9f;
+    --bg-stroke-btn-selected: #c2c2c2;
+    --border-control: rgba(30, 30, 30, 0.6);
+    --panel-label: #1e1e1e;
+    --panel-text-secondary: #2b2b2b;
+    --tool-icon: #1e1e1e;
+    --tool-icon-active: #ffffff;
+    --tool-img-filter: brightness(0);
+    --tool-img-filter-active: none;
+    --filter-label-r-text: #5c0c10;
+    --filter-label-g: #123000;
+    --filter-label-b: #00314a;
+    --hint-on-panel: #3a2430;
+    --danger-on-panel: #5c0c10;
+    --success-on-panel: #053305;
+    --accent-on-panel: #3a2300;
+    --theme-decor-workspace:
+        url("assets/ui/decor-flower-dark.png") 4% 22% / 190px no-repeat,
+        url("assets/ui/decor-flower-dark.png") 9% 96% / 150px no-repeat,
+        url("assets/ui/decor-flower-dark.png") 99% 34% / 210px no-repeat,
+        url("assets/ui/decor-flower-dark.png") 94% 98% / 150px no-repeat;
+    --theme-decor-panel:
+        url("assets/ui/decor-flower-pink.png") 64% 58% / 110px no-repeat,
+        url("assets/ui/decor-flower-pink.png") 12% 30% / 42px no-repeat,
+        url("assets/ui/decor-flower-pink.png") 20% 74% / 52px no-repeat;
+}
+
+html[data-theme="chlorophyll-green"] {
+    --bg-topbar: #4468ad;
+    --bg-code: #3c72b0;
+    --bg-topbar-btn: #4468a1;
+    --bg-panel: #82b8b0;
+    --bg-swatch-row: #80bbb4;
+    --bg-toolcol: #9caf7a;
+    --select-toolcol: #efae6a;
+    --bg-stroke-btn: #a6a6a6;
+    --bg-stroke-btn-selected: #c6c6c6;
+    --border-control: rgba(30, 30, 30, 0.6);
+    --panel-label: #1e1e1e;
+    --panel-text-secondary: #2b2b2b;
+    --tool-icon: #1e1e1e;
+    --tool-icon-active: #1e1e1e;
+    --tool-img-filter: brightness(0);
+    --tool-img-filter-active: brightness(0);
+    --filter-label-r-text: #5c0c10;
+    --filter-label-g: #123000;
+    --filter-label-b: #00314a;
+    --hint-on-panel: #1f3a36;
+    --danger-on-panel: #5c0c10;
+    --success-on-panel: #053305;
+    --accent-on-panel: #3a2300;
+    --theme-decor-workspace:
+        url("assets/ui/decor-star-dark.svg") 3% 20% / 210px no-repeat,
+        url("assets/ui/decor-star-dark.svg") 6% 98% / 150px no-repeat,
+        url("assets/ui/decor-star-dark.svg") 100% 62% / 230px no-repeat;
+    --theme-decor-panel:
+        url("assets/ui/star-yellow.svg") 92% 64% / 100px no-repeat,
+        url("assets/ui/star-pink.svg") 6% 70% / 62px no-repeat,
+        url("assets/ui/star-skyblue.svg") 26% 38% / 38px no-repeat;
+}
+
+/* Light themes: panel text/border adjustments (hint + danger text come from the tokens above) */
+html[data-theme="micro-pink"] .side-panel,
+html[data-theme="chlorophyll-green"] .side-panel {
+    border-right-color: var(--border-control);
+}
+
+html[data-theme="micro-pink"] .color-picker-row,
+html[data-theme="chlorophyll-green"] .color-picker-row {
+    background: var(--bg-swatch-row);
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 6px 20px;
+}
+
+html[data-theme="micro-pink"] .workspace-area,
+html[data-theme="chlorophyll-green"] .workspace-area {
+    background: var(--theme-decor-workspace), var(--bg-dark);
+}
+
+html[data-theme="micro-pink"] .btn-leave.top-exit,
+html[data-theme="chlorophyll-green"] .btn-leave.top-exit {
+    background: var(--bg-topbar-btn);
+}

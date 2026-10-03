@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fullscreen listener
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
-      document.getElementById('workspace').style.background = '#000';
+      document.getElementById('workspace').style.background = 'var(--black)';
     }
   });
 
@@ -282,7 +282,7 @@ function connectSocket() {
     const statusBody = document.getElementById('status-body');
     if (statusBody) {
       const p = document.createElement('p');
-      p.style.cssText = 'font-size:.85rem;color:#f87171;margin:0';
+      p.style.cssText = 'font-size:.85rem;color:var(--host-err-text);margin:0';
       p.textContent = msg;
       statusBody.prepend(p);
     }
@@ -494,7 +494,7 @@ function closeMobilePanel() {
 function renderRoster() {
   const body = document.getElementById('roster-body');
   if (!roster.length) {
-    body.innerHTML = '<p style="font-size:.85rem;color:var(--muted,#7c83a8)">No students yet.</p>';
+    body.innerHTML = '<p style="font-size:.85rem;color:var(--host-muted)">No students yet.</p>';
     return;
   }
   body.innerHTML = '';

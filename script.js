@@ -12,7 +12,9 @@ let livekitRoom = null; // NEW: LiveKit Room Instance
 let currentRoomID = "", currentUserName = "Anonymous";
 let isFrozen = false;
 let currentTool = 'move';
-let drawColor = '#FFD700';
+// Draw colors live in tokens.css (--draw-*); swatches pass the token name.
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+let drawColor = cssVar('--draw-red');
 let drawThickness = 6;
 let annotationsHidden = false;
 
@@ -212,7 +214,7 @@ function enterPhotoMode(imageUrl) {
     videoEl.style.display = 'none';
     photoEl.style.display = 'block';
     photoEl.src = imageUrl;
-    statusTag.innerText = "● PHOTO MODE"; statusTag.style.display = "block"; statusTag.style.background = "#44FF44";
+    statusTag.innerText = "● PHOTO MODE"; statusTag.style.display = "block"; statusTag.style.background = "var(--success)";
     if (isAdmin) { document.getElementById('btnModeLive').classList.remove('active'); document.getElementById('btnModePhoto').classList.add('active'); }
     scale = 1.0; panX = 0; panY = 0; updateTransform(); resizeCanvas();
 }
@@ -220,7 +222,7 @@ function enterLiveMode() {
     isPhotoMode = false;
     photoEl.style.display = 'none';
     videoEl.style.display = 'block';
-    statusTag.innerText = "● LIVE (HC)"; statusTag.style.display = "block"; statusTag.style.background = "#ff4444";
+    statusTag.innerText = "● LIVE (HC)"; statusTag.style.display = "block"; statusTag.style.background = "var(--danger)";
     if (isAdmin) { document.getElementById('btnModePhoto').classList.remove('active'); document.getElementById('btnModeLive').classList.add('active'); }
 }
 
@@ -229,8 +231,8 @@ function renderRoster() {
     list.innerHTML = ""; let c = 0;
     for (const [sid, user] of Object.entries(latestRoster)) {
         c++; const isMe = (sid === socket.id);
-        let html = `<span style="color:${isMe ? '#FFD700' : '#ddd'}">${user.name}</span>`;
-        if (user.role === 'admin') html += ` <span class="material-icons" style="font-size:14px;color:#FFD700">verified</span>`;
+        let html = `<span style="color:${isMe ? 'var(--accent)' : 'var(--gray-dd)'}">${user.name}</span>`;
+        if (user.role === 'admin') html += ` <span class="material-icons" style="font-size:14px;color:var(--accent)">verified</span>`;
         let btn = ""; if (isAdmin && !isMe) btn = `<button class="btn-kick" onclick="kickUser('${sid}')">KICK</button>`;
         const item = document.createElement("div"); item.className = "roster-item"; item.innerHTML = `<div>${html}</div>${btn}`; list.appendChild(item);
     }
@@ -253,7 +255,7 @@ function setTool(tool) {
     else { canvas.style.cursor = (tool === 'move') ? 'grab' : (tool === 'text') ? 'text' : 'crosshair'; }
 }
 function updateEraserIcon() { const icon = document.querySelector('#btnToolEraser span'); if (icon) icon.innerText = (eraserMode === 'normal') ? 'cleaning_services' : 'delete_sweep'; }
-function setColor(c, el) { drawColor = c; document.querySelectorAll('.color-swatch').forEach(e => e.classList.remove('active')); el.classList.add('active'); }
+function setColor(token, el) { drawColor = cssVar(token); document.querySelectorAll('.color-swatch').forEach(e => e.classList.remove('active')); el.classList.add('active'); }
 function setThickness(t, el) { drawThickness = t; document.querySelectorAll('.thickness-btn').forEach(e => e.classList.remove('active')); el.classList.add('active'); }
 
 // --- MATH ---
@@ -305,7 +307,7 @@ function redrawCanvas() {
 function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = viewport.offsetHeight; redrawCanvas(); }
 function clearAnnotations() { history = []; redrawCanvas(); }
 function toggleAnnotationVisibility() { annotationsHidden = !annotationsHidden; canvas.style.opacity = annotationsHidden ? '0' : '1'; canvas.style.pointerEvents = annotationsHidden ? 'none' : 'auto'; }
-function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid #444; cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); }
+function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid var(--gray-44); cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); }
 
 // --- CONNECTION LOGIC ---
 function startConnection() {
@@ -323,8 +325,9 @@ function startConnection() {
     socket.on("connect", () => { socket.emit("join_room", { room: currentRoomID, username: currentUserName }); });
     socket.on("session_ended", () => { alert("Session Ended"); leaveSession(); });
     socket.on("kicked", () => { alert("You were kicked."); leaveSession(); });
-    socket.on("admin_access_granted", () => { isAdmin = true; alert("Host Access Granted!"); document.getElementById("adminLoginForm").style.display = 'none'; document.getElementById("adminControlsArea").style.display = 'block'; renderRoster(); });
+    socket.on("admin_access_granted", () => { isAdmin = true; alert("Host Access Granted!"); document.getElementById("adminLoginForm").style.display = 'none'; document.getElementById("adminControlsArea").style.display = 'block'; renderRoster(); setThemesLocked(themesLocked); document.getElementById('checkLockThemes').checked = themesLocked; });
     socket.on("admin_access_denied", () => alert("Invalid Key"));
+    socket.on("themes_locked_update", (d) => { setThemesLocked(d && d.locked); });
     socket.on("roster_update", (r) => { latestRoster = r; renderRoster(); });
     socket.on("sync_view_command", (data) => { panX = data.panX; panY = data.panY; scale = data.scale; updateTransform(); });
     socket.on("receive_broadcast_stroke", (stroke) => { history.push(stroke); redrawCanvas(); });
@@ -363,7 +366,7 @@ function startConnection() {
                 if (!isPhotoMode) {
                     statusTag.style.display = "block";
                     statusTag.innerText = "● LIVE (HC)";
-                    statusTag.style.background = "#ff4444";
+                    statusTag.style.background = "var(--danger)";
                 }
                 setTimeout(resizeCanvas, 500);
             }
@@ -814,3 +817,39 @@ function getAdjustedCanvas({ cropToSquare } = {}) {
     );
     return cropped;
 }
+
+
+/* ---- Color themes (themes.css). Choice is per device; the host can lock it for the room. ---- */
+const THEME_IDS = ['objective-blue', 'micro-pink', 'chlorophyll-green'];
+let themesLocked = false;
+function applyTheme(id) {
+    if (!THEME_IDS.includes(id)) id = 'objective-blue';
+    if (id === 'objective-blue') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', id);
+    document.querySelectorAll('.theme-dot').forEach(d => d.setAttribute('aria-checked', String(d.dataset.themeId === id)));
+}
+function setTheme(id) {
+    if (themesLocked && !isAdmin) return;
+    applyTheme(id);
+    try { localStorage.setItem('eagleTheme', id); } catch (e) { /* private mode: keep for this visit only */ }
+}
+function setThemesLocked(locked) {
+    themesLocked = !!locked;
+    const lockedForMe = themesLocked && !isAdmin;
+    const picker = document.getElementById('themePicker');
+    if (picker) picker.classList.toggle('is-locked', lockedForMe);
+    const msg = document.getElementById('themeLockedMsg'); if (msg) msg.style.display = lockedForMe ? 'block' : 'none';
+    // A locked student sees the default theme; their saved choice is kept and comes back on unlock.
+    let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
+    applyTheme(lockedForMe ? 'objective-blue' : (saved || 'objective-blue'));
+    document.querySelectorAll('.theme-dot').forEach(d => { d.disabled = lockedForMe; });
+}
+function toggleThemesLock() {
+    if (!isAdmin) return;
+    const locked = document.getElementById('checkLockThemes').checked;
+    socket.emit('admin_set_themes_locked', { room: currentRoomID, key: currentAdminKey, locked: locked });
+}
+(function initThemes() {
+    let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
+    applyTheme(saved || 'objective-blue');
+})();
