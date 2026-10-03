@@ -79,6 +79,11 @@ this repo is public and it happened once already (passwords were live in
    offline-only fallback (`sw.js`). Don't revert to cache-first. It also
    only handles same-origin GETs and only caches `response.ok` — don't
    widen that (it used to cache 404s/opaque CDN responses).
+   **Its `fetch()` must use `{cache: 'no-cache'}`**: GitHub Pages sends
+   `Cache-Control: max-age=600`, and a plain `fetch()` inside the SW reads the HTTP
+   cache, so visitors got new HTML with up-to-10-minute-old CSS/JS (broken layout until
+   a hard refresh). Verified by test: old SW = stale CSS, `no-cache` SW = fresh.
+   The SW is registered on every page via `sw-register.js`.
 2. **Never use `position: fixed` for bottom-anchored mobile UI.** Android
    Chrome's own bottom toolbar (and the OS nav bar) can render on top of a
    fixed-bottom element, making it visible but untappable. Use normal flex
@@ -119,14 +124,11 @@ computed-style diff over all elements, not just screenshots.
 
 - `style.css` is shared by every page and its `body { overflow: hidden }`
   has to be overridden by `.home-body`. (Tokens are now split out into `tokens.css`.)
-- `landing.css?v=8` is hand-bumped cache busting — the same trap as the old
-  `CACHE_NAME` problem. Prefer relying on the network-first SW, or make
-  version strings part of a deploy step.
+- Cache busting: asset URLs carry `?v=<content hash>`. **After changing any .css/.js file
+  run `python3 scripts/stamp-assets.py` and commit the HTML it rewrites** (idempotent). It
+  protects visitors without the service worker; with it the hash lives only in the HTML.
 - `_headers` (Netlify/Cloudflare syntax) has **no effect on GitHub Pages**;
   Pages serves `max-age=600`. Don't rely on it for no-cache guarantees.
-- The SW is only registered on `index.html`, so a user landing directly on
-  `workspace.html`/`host.html` never gets it (no offline fallback, and the
-  SW only starts controlling those pages after a visit to the homepage).
 - `workspace.html` loads `opencv.js` (~10 MB) from docs.opencv.org on every
   visit and `livekit-client` from jsDelivr with no SRI hash. Consider
   lazy-loading opencv only when the feature is used, and self-hosting/SRI.

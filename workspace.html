@@ -6,16 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision Workspace</title>
-    <link rel="stylesheet" href="tokens.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="themes.css">
+    <link rel="stylesheet" href="tokens.css?v=7e70ef48">
+    <link rel="stylesheet" href="style.css?v=d353ba19">
+    <link rel="stylesheet" href="themes.css?v=b1599ccb">
     <script>
         /* Apply the saved theme before first paint (no flash). Failures fall back to the default theme. */
         try { var t = localStorage.getItem('eagleTheme'); if (t === 'micro-pink' || t === 'chlorophyll-green') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
     </script>
 
     <!-- Socket.IO for signaling -->
-    <script src="js/socket.io.min.js"></script>
+    <script src="js/socket.io.min.js?v=6bac03d1"></script>
 
     <!-- LiveKit Client (v1.15.4 - confirmed working) -->
     <script src="https://cdn.jsdelivr.net/npm/livekit-client@1.15.4/dist/livekit-client.umd.min.js"></script>
@@ -24,7 +24,7 @@
     <script src="https://docs.opencv.org/4.5.4/opencv.js" async></script>
 
     <!-- Image processor helper -->
-    <script src="img_processor.js"></script>
+    <script src="img_processor.js?v=f73d4698"></script>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
@@ -430,7 +430,8 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2421394a"></script>
+<script src="sw-register.js?v=0ea6aea7" defer></script>
 </body>
 
 </html>

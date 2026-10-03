@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eaglevision-v13';
+const CACHE_NAME = 'eaglevision-v14';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -10,6 +10,7 @@ const STATIC_ASSETS = [
   '/themes.css',
   '/host.css',
   '/fonts.css',
+  '/sw-register.js',
   '/assets/fonts/fredoka-latin-700-normal.woff2',
   '/assets/fonts/poppins-latin-400-normal.woff2',
   '/landing.css',
@@ -23,7 +24,10 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(cache =>
+      // cache:'reload' skips the browser HTTP cache so we never precache a stale copy
+      Promise.all(STATIC_ASSETS.map(u => cache.add(new Request(u, { cache: 'reload' })).catch(() => {})))
+    )
   );
   self.skipWaiting();
 });
@@ -54,7 +58,10 @@ self.addEventListener('fetch', event => {
   // site — this keeps the cache as an offline fallback instead of a
   // permanent trap.
   event.respondWith(
-    fetch(event.request)
+    // cache:'no-cache' = always revalidate with the server (cheap 304 via ETag) instead of
+    // trusting the HTTP cache. GitHub Pages sends max-age=600, so a plain fetch() here would
+    // happily serve 10-minute-old CSS/JS and break pages whose HTML had already updated.
+    fetch(event.request, { cache: 'no-cache' })
       .then(response => {
         if (response.ok) {
           const copy = response.clone();
@@ -62,6 +69,6 @@ self.addEventListener('fetch', event => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => caches.match(event.request, { ignoreSearch: true }))
   );
 });
