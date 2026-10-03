@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eaglevision-v12';
+const CACHE_NAME = 'eaglevision-v13';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -7,6 +7,7 @@ const STATIC_ASSETS = [
   '/host.html',
   '/tokens.css',
   '/style.css',
+  '/themes.css',
   '/host.css',
   '/fonts.css',
   '/assets/fonts/fredoka-latin-700-normal.woff2',

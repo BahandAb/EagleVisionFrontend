@@ -190,7 +190,7 @@ body.resizing-sidebar .side-panel {
 
 .side-panel .btn-leave {
     border-color: var(--border-control);
-    color: var(--text-secondary);
+    color: var(--panel-text-secondary);
 }
 
 .btn-leave:hover {
@@ -310,7 +310,7 @@ body.resizing-sidebar .side-panel {
 .panel-header {
     font-size: 14px;
     text-transform: uppercase;
-    color: var(--gray-88);
+    color: var(--panel-text-secondary);
     margin-bottom: 20px;
     letter-spacing: 1px;
     border-bottom: 1px solid var(--gray-33);
@@ -406,7 +406,7 @@ body.resizing-sidebar .side-panel {
 .tool-btn {
     background: transparent;
     border: none;
-    color: var(--gray-aa);
+    color: var(--tool-icon);
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -431,7 +431,7 @@ body.resizing-sidebar .side-panel {
 }
 
 .tool-btn.active {
-    color: var(--white);
+    color: var(--tool-icon-active);
     background: var(--select-toolcol);
     transform: scale(1.15);
     animation: pulse 2s infinite;
@@ -499,7 +499,7 @@ input[type=range] {
 .control-group label {
     display: block;
     margin-bottom: 10px;
-    color: var(--gray-aa);
+    color: var(--panel-label);
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
@@ -1296,3 +1296,94 @@ input[type=range] {
 .landing-card .landing-tagline { color: var(--white); }
 .input-group input { letter-spacing: 0; font-weight: 400; font-family: var(--font-body); }
 .input-group input:not(:placeholder-shown) { font-weight: 600; }
+
+/* ============================================================
+   Phase 5: theme picker (eagle + speech bubble) and theme hooks
+   ============================================================ */
+.tool-btn img.icon-pan { filter: var(--tool-img-filter); }   /* only the white hand needs a dark variant */
+.tool-btn.active img.icon-pan { filter: var(--tool-img-filter-active); }
+.top-header .btn-leave.top-exit { background: var(--bg-topbar-btn); }
+
+#panel-tools.active { display: flex; flex-direction: column; }
+.theme-picker {
+    position: relative;
+    margin: auto -20px -20px;      /* bleed to the panel edges; mascot is clipped by the panel bottom */
+    padding: 24px 20px 0;
+    text-align: left;
+    overflow: hidden;
+    height: 210px;
+    flex-shrink: 0;
+}
+.theme-picker::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--theme-decor-panel);
+    pointer-events: none;
+}
+.theme-picker > .theme-locked-msg,
+.theme-picker > .theme-bubble { position: relative; }
+.theme-locked-msg {
+    margin: 0 0 8px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--panel-label);
+}
+.theme-bubble {
+    position: relative;
+    margin-left: 55px;
+    display: inline-flex;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--white);
+    border-radius: 18px;
+}
+.theme-bubble::after {          /* speech-bubble tail pointing at the eagle */
+    content: "";
+    position: absolute;
+    left: 28px;
+    bottom: -10px;
+    border: 10px solid transparent;
+    border-top-color: var(--white);
+    border-bottom: 0;
+}
+.theme-dot {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 50%;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+}
+.theme-dot-ocean { background: var(--select-toolcol-base, #2f84b6); }
+.theme-dot-sakura { background: #e085a8; }
+.theme-dot-starry { background: #85b8b0; }
+.theme-dot[aria-checked="true"]::after { content: "\2713"; }
+.theme-mascot { position: absolute; left: 50px; bottom: -48px; width: 130px; height: auto; }  /* lower part is clipped by the picker, like the mockup */
+.theme-picker.is-locked .theme-bubble { background: var(--theme-disabled-fill); }
+.theme-picker.is-locked .theme-bubble::after { border-top-color: var(--theme-disabled-fill); }
+.theme-picker.is-locked .theme-dot { cursor: not-allowed; filter: saturate(0.45) brightness(0.85); }
+
+/* Panel-scope text tokens: hint/disclaimer grays and danger text must pass 4.5:1 on every theme's panel */
+.side-panel {
+    --gray-66: var(--hint-on-panel);
+    --gray-88: var(--hint-on-panel);
+    --gray-99: var(--hint-on-panel);
+    --gray-aa: var(--hint-on-panel);
+    --gray-cc: var(--hint-on-panel);
+    --gray-dd: var(--panel-label);
+}
+.side-panel .slider-value { color: var(--panel-label); }
+.side-panel .admin-badge { color: var(--success-on-panel); border-color: var(--success-on-panel); }
+.side-panel .btn-leave.active { color: var(--panel-label); }
+.side-panel .text-accent { color: var(--accent-on-panel); }
+.top-header .btn-leave.top-exit { color: var(--white); }
+.side-panel .btn-leave.btn-danger { color: var(--danger-on-panel); }
+.activity-icon-label { color: var(--text-muted); }

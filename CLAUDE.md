@@ -13,6 +13,7 @@ here (see "Security" below).
 | `host.html` + `host.js` | Instructor flow: camera setup, live framing, admin controls |
 | `tokens.css` | **All design tokens** (colors, layout vars). Loaded FIRST by every page. Never hardcode hex elsewhere; add a token |
 | `style.css` | Loaded by every page (incl. homepage). Workspace/host/session styles; uses tokens only |
+| `themes.css` | Workspace color themes (`<html data-theme>`), workspace.html only. Light themes use dark text; re-audit contrast after any change |
 | `fonts.css` + `assets/fonts/` | Self-hosted Fredoka/Poppins (OFL). Only index/about/session load them; don't swap to Google Fonts |
 | `host.css` | Host page styles (was an inline `<style>` in host.html) |
 | `landing.css` | Homepage/about-only styles, layered on top of `style.css`; also hardcodes many hexes |
@@ -136,6 +137,10 @@ computed-style diff over all elements, not just screenshots.
   load on school Wi-Fi; convert to WebP/resize when touching them.
 - README still describes things (e.g. admin-key flow) that should be
   re-verified against the code after the overhaul.
+
+## Workspace themes
+
+`script.js` (`applyTheme/setTheme/setThemesLocked`) + `themes.css`. The host can lock themes for students over the socket (`admin_set_themes_locked`; backend must be deployed for this to work — without it students simply stay unlocked). `.btn-leave` etc. use `transition: all .3s`, so measure computed colors only after transitions finish or contrast audits will report false failures.
 
 ## Deferred / discussed but not built
 

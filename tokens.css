@@ -22,6 +22,20 @@
     --bg-stroke-btn-selected: #787878;
     --border-control: #7f97a8;     /* lightened from sampled #586875 to reach 3:1 on --bg-panel (D25 A) */
     --text-secondary: #d8d6d5;
+    --hint-on-panel: #c7d3df;      /* secondary/hint text inside the side panel */
+    --success-on-panel: #44ff44;
+    --accent-on-panel: #fdd257;
+    --danger-on-panel: #ffb0b3;    /* danger text on the side panel (5.4:1 on --bg-panel) */
+    --panel-label: #ffffff;        /* themes.css overrides these four on the light themes */
+    --panel-text-secondary: var(--text-secondary);
+    --tool-icon: #ffffff;
+    --tool-icon-active: #ffffff;
+    --tool-img-filter: none;
+    --tool-img-filter-active: none;
+    --bg-topbar-btn: transparent;
+    --theme-decor-workspace: none;
+    --theme-decor-panel: none;
+    --theme-disabled-fill: #cecece;
     --text-muted: #a0a0a0;         /* D26 A: passes 4.5:1 on --bg-topbar and --bg-dark */
     --select-toolcol: #2f84b6;     /* msg 7; D7: blue stays on the right tool column */
 

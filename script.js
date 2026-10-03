@@ -325,8 +325,9 @@ function startConnection() {
     socket.on("connect", () => { socket.emit("join_room", { room: currentRoomID, username: currentUserName }); });
     socket.on("session_ended", () => { alert("Session Ended"); leaveSession(); });
     socket.on("kicked", () => { alert("You were kicked."); leaveSession(); });
-    socket.on("admin_access_granted", () => { isAdmin = true; alert("Host Access Granted!"); document.getElementById("adminLoginForm").style.display = 'none'; document.getElementById("adminControlsArea").style.display = 'block'; renderRoster(); });
+    socket.on("admin_access_granted", () => { isAdmin = true; alert("Host Access Granted!"); document.getElementById("adminLoginForm").style.display = 'none'; document.getElementById("adminControlsArea").style.display = 'block'; renderRoster(); setThemesLocked(themesLocked); document.getElementById('checkLockThemes').checked = themesLocked; });
     socket.on("admin_access_denied", () => alert("Invalid Key"));
+    socket.on("themes_locked_update", (d) => { setThemesLocked(d && d.locked); });
     socket.on("roster_update", (r) => { latestRoster = r; renderRoster(); });
     socket.on("sync_view_command", (data) => { panX = data.panX; panY = data.panY; scale = data.scale; updateTransform(); });
     socket.on("receive_broadcast_stroke", (stroke) => { history.push(stroke); redrawCanvas(); });
@@ -816,3 +817,39 @@ function getAdjustedCanvas({ cropToSquare } = {}) {
     );
     return cropped;
 }
+
+
+/* ---- Color themes (themes.css). Choice is per device; the host can lock it for the room. ---- */
+const THEME_IDS = ['ocean', 'sakura', 'starry'];
+let themesLocked = false;
+function applyTheme(id) {
+    if (!THEME_IDS.includes(id)) id = 'ocean';
+    if (id === 'ocean') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', id);
+    document.querySelectorAll('.theme-dot').forEach(d => d.setAttribute('aria-checked', String(d.dataset.themeId === id)));
+}
+function setTheme(id) {
+    if (themesLocked && !isAdmin) return;
+    applyTheme(id);
+    try { localStorage.setItem('eagleTheme', id); } catch (e) { /* private mode: keep for this visit only */ }
+}
+function setThemesLocked(locked) {
+    themesLocked = !!locked;
+    const lockedForMe = themesLocked && !isAdmin;
+    const picker = document.getElementById('themePicker');
+    if (picker) picker.classList.toggle('is-locked', lockedForMe);
+    const msg = document.getElementById('themeLockedMsg'); if (msg) msg.style.display = lockedForMe ? 'block' : 'none';
+    // A locked student sees the default theme; their saved choice is kept and comes back on unlock.
+    let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
+    applyTheme(lockedForMe ? 'ocean' : (saved || 'ocean'));
+    document.querySelectorAll('.theme-dot').forEach(d => { d.disabled = lockedForMe; });
+}
+function toggleThemesLock() {
+    if (!isAdmin) return;
+    const locked = document.getElementById('checkLockThemes').checked;
+    socket.emit('admin_set_themes_locked', { room: currentRoomID, key: currentAdminKey, locked: locked });
+}
+(function initThemes() {
+    let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
+    applyTheme(saved || 'ocean');
+})();
