@@ -194,3 +194,9 @@ Only default and selected states appear in the images. Hover, focus, pressed, an
 
 ## 8. Constraints (from CLAUDE.md, do not violate)
 No build step; no `position: fixed` bottom-anchored mobile UI; no secrets in repo; service worker stays network-first.
+
+## 9. Mockup review notes (Draft, after receiving images 06-08, 14, 15)
+- Applied: enter-code logo image + small mascot + instructor text without icon + mixed-case placeholders; homepage eyebrow without icon, "Microworld!", clouds/stars/peeking eagle decor (hidden below 900px); draw colors ordered red, yellow, green, blue, white with red selected by default.
+- Not applied (no art yet): "Who it's for" card illustrations (K12 tiles, owls, graduation-cap eagle, medical eagle, medical cross), shorter card titles ("College Labs", "Medical Ed.") from the mockup (copy decision for the team), the "<>" rail icon, settings gear art, theme picker (eagle + speech bubble).
+- Deliberate deviations: mockup text/borders that fail contrast were kept lightened (hero body, headline accent colors, outline-button text is white rather than yellow).
+- Themes 2/3: mockups use white text/icons on light pink/teal panels (2.2-2.6:1). Plan: ship with dark text on those panels (D12 A) unless the team objects; teacher-disable needs a backend event (not built).

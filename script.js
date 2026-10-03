@@ -14,7 +14,7 @@ let isFrozen = false;
 let currentTool = 'move';
 // Draw colors live in tokens.css (--draw-*); swatches pass the token name.
 const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-let drawColor = cssVar('--draw-yellow');
+let drawColor = cssVar('--draw-red');
 let drawThickness = 6;
 let annotationsHidden = false;
 

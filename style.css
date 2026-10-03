@@ -1282,10 +1282,17 @@ input[type=range] {
 .activity-icon.active .rail-img { opacity: 1; }
 .join-mascot {
     position: absolute;
-    top: -62px;
+    top: -52px;
     left: 50%;
     transform: translateX(-50%);
-    width: 110px;
+    width: 90px;
     height: auto;
     pointer-events: none;
 }
+
+/* Phase 4d: enter-code details measured from mockup 06 */
+.join-logo { display: block; height: 50px; width: auto; margin: 0 auto; }
+.landing-card .logo-text { margin-bottom: 14px; }
+.landing-card .landing-tagline { color: var(--white); }
+.input-group input { letter-spacing: 0; font-weight: 400; font-family: var(--font-body); }
+.input-group input:not(:placeholder-shown) { font-weight: 600; }

@@ -1511,3 +1511,26 @@
 /* Placeholder text must stay readable on the blue form fields */
 .form-group input::placeholder,
 .form-group textarea::placeholder { color: var(--mk-text-soft); opacity: 0.85; }
+
+/* ---- Phase 4c: hero decor from the mockups (clouds, stars, peeking eagle) ---- */
+.hero-stage { position: relative; overflow: hidden; background: var(--mk-bg); }
+.hero-stage .hero { position: relative; z-index: 1; background: transparent; }
+.decor { position: absolute; pointer-events: none; z-index: 0; }
+.decor-cloud-1 { width: 180px; left: -30px; top: 60px; }
+.decor-cloud-2 { width: 190px; right: -50px; top: 40px; }
+.decor-cloud-3 { width: 220px; left: 38%; bottom: -50px; }
+.decor-star-1 { width: 56px; left: 6%; top: 300px; }
+.decor-star-2 { width: 100px; right: 4%; bottom: 60px; }
+.hero-visual { position: relative; }
+.hero-peek {
+    position: absolute;
+    right: -95px;
+    top: 36%;
+    width: 150px;
+    transform: rotate(90deg);
+    z-index: 0;
+}
+.hero-photo-wrap { z-index: 1; }
+@media (max-width: 900px) {
+    .decor, .hero-peek { display: none; }
+}
