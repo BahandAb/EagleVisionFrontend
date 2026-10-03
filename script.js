@@ -12,7 +12,9 @@ let livekitRoom = null; // NEW: LiveKit Room Instance
 let currentRoomID = "", currentUserName = "Anonymous";
 let isFrozen = false;
 let currentTool = 'move';
-let drawColor = '#FFD700';
+// Draw colors live in tokens.css (--draw-*); swatches pass the token name.
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+let drawColor = cssVar('--draw-yellow');
 let drawThickness = 6;
 let annotationsHidden = false;
 
@@ -212,7 +214,7 @@ function enterPhotoMode(imageUrl) {
     videoEl.style.display = 'none';
     photoEl.style.display = 'block';
     photoEl.src = imageUrl;
-    statusTag.innerText = "● PHOTO MODE"; statusTag.style.display = "block"; statusTag.style.background = "#44FF44";
+    statusTag.innerText = "● PHOTO MODE"; statusTag.style.display = "block"; statusTag.style.background = "var(--success)";
     if (isAdmin) { document.getElementById('btnModeLive').classList.remove('active'); document.getElementById('btnModePhoto').classList.add('active'); }
     scale = 1.0; panX = 0; panY = 0; updateTransform(); resizeCanvas();
 }
@@ -220,7 +222,7 @@ function enterLiveMode() {
     isPhotoMode = false;
     photoEl.style.display = 'none';
     videoEl.style.display = 'block';
-    statusTag.innerText = "● LIVE (HC)"; statusTag.style.display = "block"; statusTag.style.background = "#ff4444";
+    statusTag.innerText = "● LIVE (HC)"; statusTag.style.display = "block"; statusTag.style.background = "var(--danger)";
     if (isAdmin) { document.getElementById('btnModePhoto').classList.remove('active'); document.getElementById('btnModeLive').classList.add('active'); }
 }
 
@@ -229,8 +231,8 @@ function renderRoster() {
     list.innerHTML = ""; let c = 0;
     for (const [sid, user] of Object.entries(latestRoster)) {
         c++; const isMe = (sid === socket.id);
-        let html = `<span style="color:${isMe ? '#FFD700' : '#ddd'}">${user.name}</span>`;
-        if (user.role === 'admin') html += ` <span class="material-icons" style="font-size:14px;color:#FFD700">verified</span>`;
+        let html = `<span style="color:${isMe ? 'var(--accent)' : 'var(--gray-dd)'}">${user.name}</span>`;
+        if (user.role === 'admin') html += ` <span class="material-icons" style="font-size:14px;color:var(--accent)">verified</span>`;
         let btn = ""; if (isAdmin && !isMe) btn = `<button class="btn-kick" onclick="kickUser('${sid}')">KICK</button>`;
         const item = document.createElement("div"); item.className = "roster-item"; item.innerHTML = `<div>${html}</div>${btn}`; list.appendChild(item);
     }
@@ -253,7 +255,7 @@ function setTool(tool) {
     else { canvas.style.cursor = (tool === 'move') ? 'grab' : (tool === 'text') ? 'text' : 'crosshair'; }
 }
 function updateEraserIcon() { const icon = document.querySelector('#btnToolEraser span'); if (icon) icon.innerText = (eraserMode === 'normal') ? 'cleaning_services' : 'delete_sweep'; }
-function setColor(c, el) { drawColor = c; document.querySelectorAll('.color-swatch').forEach(e => e.classList.remove('active')); el.classList.add('active'); }
+function setColor(token, el) { drawColor = cssVar(token); document.querySelectorAll('.color-swatch').forEach(e => e.classList.remove('active')); el.classList.add('active'); }
 function setThickness(t, el) { drawThickness = t; document.querySelectorAll('.thickness-btn').forEach(e => e.classList.remove('active')); el.classList.add('active'); }
 
 // --- MATH ---
@@ -305,7 +307,7 @@ function redrawCanvas() {
 function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = viewport.offsetHeight; redrawCanvas(); }
 function clearAnnotations() { history = []; redrawCanvas(); }
 function toggleAnnotationVisibility() { annotationsHidden = !annotationsHidden; canvas.style.opacity = annotationsHidden ? '0' : '1'; canvas.style.pointerEvents = annotationsHidden ? 'none' : 'auto'; }
-function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid #444; cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); }
+function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid var(--gray-44); cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); }
 
 // --- CONNECTION LOGIC ---
 function startConnection() {
@@ -363,7 +365,7 @@ function startConnection() {
                 if (!isPhotoMode) {
                     statusTag.style.display = "block";
                     statusTag.innerText = "● LIVE (HC)";
-                    statusTag.style.background = "#ff4444";
+                    statusTag.style.background = "var(--danger)";
                 }
                 setTimeout(resizeCanvas, 500);
             }

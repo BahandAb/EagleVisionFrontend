@@ -11,7 +11,8 @@ here (see "Security" below).
 | `index.html` / `about.html` | Landing pages |
 | `session.html` → `workspace.html` | Student flow: enter a code, then the collaboration workspace (video + annotations + Eagle AI) |
 | `host.html` + `host.js` | Instructor flow: camera setup, live framing, admin controls |
-| `style.css` | **Loaded by every page** (incl. homepage). Owns the `:root` color tokens + workspace/host/session styles |
+| `tokens.css` | **All design tokens** (colors, layout vars). Loaded FIRST by every page. Never hardcode hex elsewhere; add a token |
+| `style.css` | Loaded by every page (incl. homepage). Workspace/host/session styles; uses tokens only |
 | `landing.css` | Homepage/about-only styles, layered on top of `style.css`; also hardcodes many hexes |
 | `sw.js` | Service worker (see gotcha below); only registered from `index.html` |
 | `docs/design/` | Design-overhaul spec (`SPEC.md`, `DECISIONS.md`, `SOURCES.md`, `reference/` images). Read before any visual change |
@@ -100,16 +101,15 @@ this repo is public and it happened once already (passwords were live in
 
 A team-researched color/typography overhaul is being specified in
 `docs/design/`. Until a spec item is marked `Approved`, don't restyle on
-your own. When implementing: tokens first (planned `tokens.css`, loaded
-before everything), no new hardcoded hexes, and move inline `style="..."`
+your own. When implementing: `tokens.css` exists (Phase 1 done); no new hardcoded
+hexes (`--gray-*`/`--legacy-*` are exact old values pending Phase 4 cleanup; JS reads colors via `cssVar('--token')`), and move inline `style="..."`
 into classes — inline styles (workspace.html alone has ~80) silently bypass
 token changes.
 
 ## Known weaknesses (audit, not yet fixed)
 
-- `style.css` is mislabeled/shared: homepage depends on its `:root` tokens
-  and its `body { overflow: hidden }` has to be overridden by `.home-body`.
-  Split tokens out before the overhaul.
+- `style.css` is shared by every page and its `body { overflow: hidden }`
+  has to be overridden by `.home-body`. (Tokens are now split out into `tokens.css`.)
 - `landing.css?v=8` is hand-bumped cache busting — the same trap as the old
   `CACHE_NAME` problem. Prefer relying on the network-first SW, or make
   version strings part of a deploy step.

@@ -186,7 +186,7 @@ Only default and selected states appear in the images. Hover, focus, pressed, an
 - **Host.** No reference (D31).
 
 ## 7. Rollout (Draft)
-1. Phase 1: `tokens.css` loaded first by every page; replace hardcoded hexes (resolve D1-D6 first).
+1. **Phase 1 (Implemented):** `tokens.css` is loaded first by every page; `:root` removed from `style.css`. Every hardcoded hex in CSS/HTML/JS is now a token; neutrals and one-offs keep their exact old values (`--gray-*`, `--legacy-*`). Workspace adopts the new palette (D1-D8 defaults); homepage and enter-code keep the old navy under `--mk-*` (only the yellow changed to #fdd257). Draw swatches use `--draw-*` tokens. Not yet done: borders/inactive states, glow (D8), canvas/scope colors, layouts. Original text: `tokens.css` loaded first by every page; replace hardcoded hexes (resolve D1-D6 first).
 2. Phase 2: migrate inline styles to classes.
 3. Phase 3: typography and spacing (needs D19).
 4. Phase 4: component restyle and page layouts (workspace first, then enter-code, then homepage).

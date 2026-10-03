@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision Workspace</title>
+    <link rel="stylesheet" href="tokens.css">
     <link rel="stylesheet" href="style.css">
 
     <!-- Socket.IO for signaling -->
@@ -72,16 +73,11 @@
                 <div class="control-group">
                     <label>Draw Color</label>
                     <div class="color-picker-row">
-                        <div class="color-swatch active" style="background: #FFD700;"
-                            onclick="setColor('#FFD700', this)"></div>
-                        <div class="color-swatch" style="background: #FF4444;" onclick="setColor('#FF4444', this)">
-                        </div>
-                        <div class="color-swatch" style="background: #44FF44;" onclick="setColor('#44FF44', this)">
-                        </div>
-                        <div class="color-swatch" style="background: #44FFFF;" onclick="setColor('#44FFFF', this)">
-                        </div>
-                        <div class="color-swatch" style="background: #FFFFFF;" onclick="setColor('#FFFFFF', this)">
-                        </div>
+                        <div class="color-swatch draw-yellow active" onclick="setColor('--draw-yellow', this)"></div>
+                        <div class="color-swatch draw-red" onclick="setColor('--draw-red', this)"></div>
+                        <div class="color-swatch draw-green" onclick="setColor('--draw-green', this)"></div>
+                        <div class="color-swatch draw-blue" onclick="setColor('--draw-blue', this)"></div>
+                        <div class="color-swatch draw-white" onclick="setColor('--draw-white', this)"></div>
                     </div>
                 </div>
 
@@ -104,7 +100,7 @@
                     <label>Actions</label>
                     <button class="btn-leave" style="width: 100%; margin-bottom: 10px;"
                         onclick="clearAnnotations()">Clear My Screen</button>
-                    <button class="btn-leave" style="width: 100%; border-color: #555;"
+                    <button class="btn-leave" style="width: 100%; border-color: var(--gray-55);"
                         onclick="toggleAnnotationVisibility()">Hide/Show Annotations</button>
                 </div>
             </div>
@@ -112,24 +108,24 @@
             <div id="panel-adjustments" class="panel-content">
                 <div class="panel-header">🔧 Image Settings</div>
                 <div class="control-group">
-                    <label style="color: #ff6666;">Red Channel: <span id="val-r"
+                    <label style="color: var(--legacy-ff6666);">Red Channel: <span id="val-r"
                             style="color:white; float:right">100</span></label>
                     <input type="range" id="slider-r" min="0" max="255" value="100"
                         oninput="updateRGB('r', this.value)">
                 </div>
                 <div class="control-group">
-                    <label style="color: #66ff66;">Green Channel: <span id="val-g"
+                    <label style="color: var(--legacy-66ff66);">Green Channel: <span id="val-g"
                             style="color:white; float:right">100</span></label>
                     <input type="range" id="slider-g" min="0" max="255" value="100"
                         oninput="updateRGB('g', this.value)">
                 </div>
                 <div class="control-group">
-                    <label style="color: #66aaff;">Blue Channel: <span id="val-b"
+                    <label style="color: var(--legacy-66aaff);">Blue Channel: <span id="val-b"
                             style="color:white; float:right">100</span></label>
                     <input type="range" id="slider-b" min="0" max="255" value="100"
                         oninput="updateRGB('b', this.value)">
                 </div>
-                <hr style="border-color: #333; margin: 20px 0;">
+                <hr style="border-color: var(--gray-33); margin: 20px 0;">
                 <div class="control-group">
                     <label>Brightness: <span id="val-brightness" style="color:white; float:right">100</span></label>
                     <input type="range" id="slider-brightness" min="0" max="300" value="100"
@@ -145,7 +141,7 @@
                     <input type="range" id="slider-saturation" min="0" max="300" value="100"
                         oninput="updateFilter('saturation', this.value)">
                 </div>
-                <hr style="border-color: #333; margin: 20px 0;">
+                <hr style="border-color: var(--gray-33); margin: 20px 0;">
                 <div class="control-group">
                     <label>Orientation</label>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -160,7 +156,7 @@
                             V</button>
                     </div>
                 </div>
-                <button class="btn-leave" style="width: 100%; border-color: #ff4444; color: #ff4444; margin-top: 10px;"
+                <button class="btn-leave" style="width: 100%; border-color: var(--danger); color: var(--danger); margin-top: 10px;"
                     onclick="resetAdjustments()">Reset All</button>
             </div>
 
@@ -185,10 +181,10 @@
                     <div class="control-group">
                         <label>Access Code</label>
                         <input type="password" id="eaglePasswordInput" placeholder="Enter access code"
-                            style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white; margin-bottom: 5px;"
+                            style="width: 100%; padding: 8px; background: var(--gray-11); border: 1px solid var(--gray-44); color: white; margin-bottom: 5px;"
                             onkeypress="if(event.key==='Enter') unlockEagleAI()">
                         <button class="btn-leave" style="width: 100%;" onclick="unlockEagleAI()">Unlock</button>
-                        <div id="eagle-error" style="color: #ff4444; display: none; margin-top: 5px; font-size: 12px;"></div>
+                        <div id="eagle-error" style="color: var(--danger); display: none; margin-top: 5px; font-size: 12px;"></div>
                     </div>
                 </div>
                 
@@ -250,7 +246,7 @@
                             <button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="askCustomQuestion()">
                                 Ask Eagle AI
                             </button>
-                            <small style="color: #666; font-size: 11px; display: block; margin-top: 4px;">
+                            <small style="color: var(--gray-66); font-size: 11px; display: block; margin-top: 4px;">
                                 <span id="charCount">0</span>/500 characters
                             </small>
                         </div>
@@ -261,7 +257,7 @@
                 <div id="eagle-results" style="display: none;">
                     <div class="control-group">
                         <div class="results-header">
-                            <span style="color: #aaa; font-size: 12px; text-transform: uppercase;">Results</span>
+                            <span style="color: var(--gray-aa); font-size: 12px; text-transform: uppercase;">Results</span>
                             <div>
                                 <button class="btn-leave" style="padding: 4px 8px; font-size: 12px;" onclick="copyResults()">
                                     Copy
@@ -288,7 +284,7 @@
                     <div class="control-group">
                         <label>Admin Key</label>
                         <input type="text" id="adminKeyInput" placeholder="Enter Key"
-                            style="width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: white;">
+                            style="width: 100%; padding: 8px; background: var(--gray-11); border: 1px solid var(--gray-44); color: white;">
                         <button class="btn-leave" style="width: 100%; margin-top: 5px;"
                             onclick="attemptAdminLogin()">Unlock Host Controls</button>
                     </div>
@@ -296,23 +292,23 @@
 
                 <div id="adminControlsArea" style="display: none;">
                     <div
-                        style="color:#44FF44; font-weight:bold; text-align:center; margin-bottom: 20px; border: 1px solid #44FF44; padding: 10px; border-radius: 6px;">
+                        style="color:var(--success); font-weight:bold; text-align:center; margin-bottom: 20px; border: 1px solid var(--success); padding: 10px; border-radius: 6px;">
                         <span class="material-icons" style="vertical-align: middle;">verified</span> HOST ACCESS
                     </div>
 
                     <div class="control-group">
                         <label>Microscope Mode</label>
                         <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-                            <button id="btnModeLive" class="btn-leave active" style="flex: 1; border-color: #FF4444;"
+                            <button id="btnModeLive" class="btn-leave active" style="flex: 1; border-color: var(--danger);"
                                 onclick="triggerReturnLive()">
                                 <span class="material-icons" style="font-size:16px;">videocam</span> LIVE
                             </button>
-                            <button id="btnModePhoto" class="btn-leave" style="flex: 1; border-color: #44FF44;"
+                            <button id="btnModePhoto" class="btn-leave" style="flex: 1; border-color: var(--success);"
                                 onclick="triggerRequestPhoto()">
                                 <span class="material-icons" style="font-size:16px;">image</span> 4K PHOTO
                             </button>
                         </div>
-                        <small style="color:#888; display:block; margin-bottom: 15px;">
+                        <small style="color:var(--gray-88); display:block; margin-bottom: 15px;">
                             Use <b>4K Photo</b> for large classes (30+ students). <br>
                             Use <b>Live</b> for small groups (Max 4 students).
                         </small>
@@ -323,22 +319,22 @@
                         <div class="checkbox-group">
                             <label>
                                 <input type="checkbox" id="checkFollowMode" onchange="toggleFollowMode()">
-                                <span style="color: #FFD700">Follow Mode</span>
+                                <span style="color: var(--accent)">Follow Mode</span>
                             </label>
-                            <small style="color:#666; display:block; margin-left:24px;">Force student view to match
+                            <small style="color:var(--gray-66); display:block; margin-left:24px;">Force student view to match
                                 yours.</small>
 
                             <label style="margin-top: 10px;">
                                 <input type="checkbox" id="checkBroadcast" onchange="toggleBroadcastMode()">
-                                <span style="color: #FFD700">Broadcast Drawings</span>
+                                <span style="color: var(--accent)">Broadcast Drawings</span>
                             </label>
-                            <small style="color:#666; display:block; margin-left:24px;">Students see what you
+                            <small style="color:var(--gray-66); display:block; margin-left:24px;">Students see what you
                                 draw.</small>
                         </div>
                     </div>
 
                     <div class="control-group">
-                        <button class="btn-leave" style="width: 100%; border-color: #FF4444; color: #FF4444;"
+                        <button class="btn-leave" style="width: 100%; border-color: var(--danger); color: var(--danger);"
                             onclick="adminClearAll()">
                             <span class="material-icons"
                                 style="font-size: 16px; vertical-align: middle;">delete_forever</span>
@@ -350,7 +346,7 @@
 
             <div id="panel-code" class="panel-content">
                 <div class="panel-header">Developer Tools</div>
-                <p style="font-size: 12px; color: #888;">Coming Soon: Python Overlay Engine</p>
+                <p style="font-size: 12px; color: var(--gray-88);">Coming Soon: Python Overlay Engine</p>
             </div>
         </div>
 
@@ -392,7 +388,7 @@
                     <span class="material-icons" id="iconFreeze">pause</span>
                 </button>
                 <button class="tool-btn" onclick="takeSnapshot()" title="Save Screenshot to Gallery">
-                    <span class="material-icons" style="color: #FFD700;">camera_alt</span>
+                    <span class="material-icons" style="color: var(--accent);">camera_alt</span>
                 </button>
             </div>
         </div>

@@ -1,10 +1,11 @@
-const CACHE_NAME = 'eaglevision-v6';
+const CACHE_NAME = 'eaglevision-v7';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/session.html',
   '/workspace.html',
   '/host.html',
+  '/tokens.css',
   '/style.css',
   '/landing.css',
   '/script.js',
