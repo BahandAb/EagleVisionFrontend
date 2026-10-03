@@ -187,7 +187,7 @@ Only default and selected states appear in the images. Hover, focus, pressed, an
 
 ## 7. Rollout (Draft)
 1. **Phase 1 (Implemented):** `tokens.css` is loaded first by every page; `:root` removed from `style.css`. Every hardcoded hex in CSS/HTML/JS is now a token; neutrals and one-offs keep their exact old values (`--gray-*`, `--legacy-*`). Workspace adopts the new palette (D1-D8 defaults); homepage and enter-code keep the old navy under `--mk-*` (only the yellow changed to #fdd257). Draw swatches use `--draw-*` tokens. Not yet done: borders/inactive states, glow (D8), canvas/scope colors, layouts. Original text: `tokens.css` loaded first by every page; replace hardcoded hexes (resolve D1-D6 first).
-2. Phase 2: migrate inline styles to classes.
+2. **Phase 2 (Implemented):** every static inline `style=` is now a class (only JS-toggled `display:none` state remains inline); host.html's `<style>` block moved to `host.css`. Verified with a computed-style diff of every element on all 5 pages (0 unintended differences). Also landed from Phase 4: scope square (#3d3d3d + 2px #697076 frame), `--bg-dark` canvas, blue tool selection circle, rail active bg, stroke buttons, white swatch glow + check marker (D8), session-code chip, lighter control borders (`--border-control` #7f97a8, D25), `--text-muted` #a0a0a0 (D26), red filter label text #ff9a9d (D9). Remaining Phase 2 debt: inline styles generated in JS strings (script.js, host.js).
 3. Phase 3: typography and spacing (needs D19).
 4. Phase 4: component restyle and page layouts (workspace first, then enter-code, then homepage).
 5. Phase 5: themes 2/3 and teacher-disable (needs D11-D15), a11y pass, README/CLAUDE.md update.

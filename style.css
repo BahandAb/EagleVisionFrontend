@@ -116,14 +116,13 @@ body.resizing-sidebar .side-panel {
 
 .session-code {
     font-size: 36px;
-    font-weight: 900;
+    font-weight: 300;
     letter-spacing: 4px;
-    color: var(--accent);
-    text-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.3);
+    color: var(--white);
+    background: var(--bg-code);
     font-family: 'Courier New', monospace;
-    border: 1px solid var(--accent);
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 4px 12px;
+    border-radius: 6px;
 }
 
 .tag-live {
@@ -139,7 +138,7 @@ body.resizing-sidebar .side-panel {
 .btn-leave {
     background: transparent;
     border: 1px solid var(--gray-44);
-    color: var(--gray-88);
+    color: var(--text-muted);
     padding: 12px 20px;
     border-radius: 4px;
     cursor: pointer;
@@ -152,6 +151,11 @@ body.resizing-sidebar .side-panel {
     align-items: center;
     justify-content: center;
     gap: 5px;
+}
+
+.side-panel .btn-leave {
+    border-color: var(--border-control);
+    color: var(--text-secondary);
 }
 
 .btn-leave:hover {
@@ -209,7 +213,7 @@ body.resizing-sidebar .side-panel {
 
 .activity-icon.active {
     color: var(--accent);
-    background: rgba(var(--accent-rgb), 0.1);
+    background: var(--bg-rail-active);
     border-left: 3px solid var(--accent);
 }
 
@@ -281,7 +285,7 @@ body.resizing-sidebar .side-panel {
 /* --- WORKSPACE AREA --- */
 .workspace-area {
     flex: 1;
-    background: var(--black);
+    background: var(--bg-dark);
     position: relative;
     display: flex;
     /* DESKTOP: Row layout (Video Left, Toolbar Right) */
@@ -303,11 +307,11 @@ body.resizing-sidebar .side-panel {
     max-width: min(80vh, 100%);
     /* Force 1:1 Aspect Ratio to match the app crop */
     aspect-ratio: 1/1;
-    border: 1px solid var(--gray-33);
-    border-radius: 4px;
+    border: 2px solid var(--border-scope);
+    border-radius: 6px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
     overflow: hidden;
-    background: var(--gray-11);
+    background: var(--bg-scope-empty);
 }
 
 .transform-container {
@@ -392,8 +396,8 @@ body.resizing-sidebar .side-panel {
 }
 
 .tool-btn.active {
-    color: var(--black);
-    background: var(--accent);
+    color: var(--white);
+    background: var(--select-toolcol);
     transform: scale(1.15);
     animation: pulse 2s infinite;
 }
@@ -409,32 +413,6 @@ body.resizing-sidebar .side-panel {
 
 .tool-btn.active {
     animation: pulse-tool 2s infinite;
-}
-
-/* Color-coded tool states for visual clarity */
-#btnToolDraw.active {
-    background: linear-gradient(135deg, var(--legacy-4caf50), var(--legacy-45a049)) !important;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-}
-
-#btnToolEraser.active {
-    background: linear-gradient(135deg, var(--legacy-ff5252), var(--legacy-e04848)) !important;
-    box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
-}
-
-#btnToolText.active {
-    background: linear-gradient(135deg, var(--legacy-ffc107), var(--legacy-e6ad06)) !important;
-    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
-}
-
-#btnToolCount.active {
-    background: linear-gradient(135deg, var(--legacy-2196f3), var(--legacy-1e87db)) !important;
-    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-}
-
-#btnToolMove.active {
-    background: linear-gradient(135deg, var(--legacy-9e9e9e), var(--legacy-8a8a8a)) !important;
-    box-shadow: 0 4px 15px rgba(158, 158, 158, 0.4);
 }
 
 .count-badge {
@@ -520,10 +498,24 @@ input[type=range] {
 }
 
 .color-swatch.active {
-    border-color: white;
+    border: 3px solid var(--white);
     transform: scale(1.2);
-    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.8);
-    border: 3px solid var(--accent);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    position: relative;
+}
+
+/* D8: white glow is invisible on the white swatch, so every selected swatch
+   also carries a check marker. */
+.color-swatch.active::after {
+    content: "\2713";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--bg-dark);
 }
 
 .thickness-row {
@@ -535,8 +527,8 @@ input[type=range] {
 .thickness-btn {
     height: 30px;
     flex: 1;
-    background: var(--gray-22);
-    border: 1px solid var(--gray-44);
+    background: var(--bg-stroke-btn);
+    border: 1px solid var(--border-control);
     border-radius: 4px;
     cursor: pointer;
     display: flex;
@@ -545,7 +537,7 @@ input[type=range] {
 }
 
 .thickness-btn.active {
-    background: var(--gray-44);
+    background: var(--bg-stroke-btn-selected);
     border-color: var(--accent);
 }
 
@@ -1115,3 +1107,130 @@ input[type=range] {
     font-size: 13px;
     padding: 12px;
 }
+/* ============================================================
+   PHASE 2: former inline styles, now classes.
+   Compound selectors (.btn-leave.btn-danger etc.) are deliberate: the
+   inline styles they replace beat every class rule, so these need
+   enough specificity to win the same fights.
+   ============================================================ */
+
+/* Layout utilities */
+.w-full { width: 100%; }
+.flex-1 { flex: 1; }
+.mt-5 { margin-top: 5px; }
+.mt-8 { margin-top: 8px; }
+.mt-10 { margin-top: 10px; }
+.mb-4 { margin-bottom: 4px; }
+.mb-5 { margin-bottom: 5px; }
+.mb-10 { margin-bottom: 10px; }
+.ml-4 { margin-left: 4px; }
+.row-gap-10 { display: flex; gap: 10px; }
+.row-center-8 { display: flex; align-items: center; gap: 8px; }
+.row-between { display: flex; align-items: center; justify-content: space-between; }
+.gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.is-clickable { cursor: pointer; }
+.va-middle { vertical-align: middle; }
+.text-accent { color: var(--accent); }
+
+/* Icons / images */
+.material-icons.icon-16 { font-size: 16px; }
+.material-icons.icon-20 { font-size: 20px; }
+.img-h-20 { height: 20px; }
+.img-h-24 { height: 24px; }
+
+/* Activity bar: Eagle AI tab */
+.activity-icon.activity-icon-stack { flex-direction: column; padding: 8px 0; }
+.activity-icon-label {
+    font-size: 8px;
+    line-height: 1.1;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Side panel */
+.panel-rule { border-color: var(--gray-33); margin: 20px 0; }
+.dot-2 { width: 2px; height: 2px; }
+.dot-6 { width: 6px; height: 6px; }
+.dot-12 { width: 12px; height: 12px; }
+.slider-value { color: var(--white); float: right; }
+.control-group label.filter-label-r { color: var(--filter-label-r-text); }
+.control-group label.filter-label-g { color: var(--filter-label-g); }
+.control-group label.filter-label-b { color: var(--filter-label-b); }
+.hint-block { color: var(--gray-88); display: block; margin-bottom: 15px; }
+.hint-sm { color: var(--gray-66); font-size: 11px; display: block; margin-top: 4px; }
+.hint-text { font-size: 12px; color: var(--gray-88); }
+.option-hint { color: var(--gray-66); display: block; margin-left: 24px; }
+.results-label { color: var(--gray-aa); font-size: 12px; text-transform: uppercase; }
+.eagle-error { color: var(--danger); margin-top: 5px; font-size: 12px; }
+.admin-badge {
+    color: var(--success);
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    border: 1px solid var(--success);
+    padding: 10px;
+    border-radius: 6px;
+}
+.panel-input {
+    width: 100%;
+    padding: 8px;
+    background: var(--gray-11);
+    border: 1px solid var(--gray-44);
+    color: var(--white);
+}
+
+/* Button variants layered on .btn-leave */
+.btn-leave.btn-danger { border-color: var(--danger); color: var(--danger); }
+.btn-leave.btn-border-danger { border-color: var(--danger); }
+.btn-leave.btn-border-success { border-color: var(--success); }
+.btn-leave.btn-border-muted { border-color: var(--gray-55); }
+.btn-leave.btn-compact { padding: 4px 8px; font-size: 12px; }
+.btn-leave.btn-compact-xs { padding: 6px 10px; font-size: 11px; }
+.btn-leave.btn-accent-link,
+.btn-leave.btn-accent-link:hover {
+    text-align: center;
+    background: var(--accent);
+    color: var(--black);
+    border: none;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Static snapshot image (display:none/block is toggled by script.js inline) */
+#staticPhoto.static-photo { object-fit: contain; }
+
+/* Enter-code page (session.html) */
+.back-link {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    color: var(--gray-66);
+    font-size: 13px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 1px;
+}
+.landing-tagline { color: var(--gray-aa); margin-bottom: 20px; font-size: 14px; }
+.input-group .landing-name-input,
+.landing-name-input { font-size: 18px; margin-top: 5px; }
+.admin-toggle-wrap { margin-top: 15px; text-align: left; }
+.admin-toggle {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--gray-66);
+    font-size: 12px;
+    gap: 5px;
+}
+.admin-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--gray-44);
+    background: var(--gray-22);
+    color: var(--white);
+}
+.landing-error { color: var(--danger); margin-top: 15px; font-size: 14px; }

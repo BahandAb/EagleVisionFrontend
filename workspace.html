@@ -32,7 +32,7 @@
         </div>
         <div class="header-right">
             <span id="displaySessionCode" class="session-code">...</span>
-            <div id="statusTag" class="tag-live" style="display: none;">● LIVE</div>
+            <div id="statusTag" class="tag-live" style="display:none;">● LIVE</div>
             <button class="btn-leave" onclick="leaveSession()">EXIT</button>
         </div>
     </div>
@@ -49,9 +49,9 @@
             <div class="activity-icon" onclick="togglePanel('gallery')" title="Gallery">
                 <span class="material-icons">photo_library</span>
             </div>
-            <div class="activity-icon" onclick="togglePanel('ailab')" title="AI Lab" style="flex-direction: column; padding: 8px 0;">
-                <img src="assets/EagleAILogo.png" alt="AI" style="height: 24px; margin-bottom: 4px;">
-                <span style="font-size: 8px; line-height: 1.1; text-align: center; font-weight: 600; letter-spacing: 0.5px;">EAGLE<br>AI</span>
+            <div class="activity-icon activity-icon-stack" onclick="togglePanel('ailab')" title="AI Lab">
+                <img class="img-h-24 mb-4" src="assets/EagleAILogo.png" alt="AI">
+                <span class="activity-icon-label">EAGLE<br>AI</span>
             </div>
             <div class="activity-icon" onclick="togglePanel('people')" title="Roster">
                 <span class="material-icons">group</span>
@@ -59,7 +59,7 @@
             <div class="activity-icon" onclick="togglePanel('settings')" title="Settings">
                 <span class="material-icons">settings</span>
             </div>
-            <div style="flex:1"></div>
+            <div class="flex-1"></div>
             <div class="activity-icon" onclick="togglePanel('code')" title="Developer Mode">
                 <span class="material-icons">code</span>
             </div>
@@ -85,22 +85,22 @@
                     <label>Stroke Thickness</label>
                     <div class="thickness-row">
                         <div class="thickness-btn" onclick="setThickness(2, this)">
-                            <div class="dot-preview" style="width: 2px; height: 2px;"></div>
+                            <div class="dot-preview dot-2"></div>
                         </div>
                         <div class="thickness-btn active" onclick="setThickness(6, this)">
-                            <div class="dot-preview" style="width: 6px; height: 6px;"></div>
+                            <div class="dot-preview dot-6"></div>
                         </div>
                         <div class="thickness-btn" onclick="setThickness(12, this)">
-                            <div class="dot-preview" style="width: 12px; height: 12px;"></div>
+                            <div class="dot-preview dot-12"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="control-group">
                     <label>Actions</label>
-                    <button class="btn-leave" style="width: 100%; margin-bottom: 10px;"
+                    <button class="btn-leave w-full mb-10"
                         onclick="clearAnnotations()">Clear My Screen</button>
-                    <button class="btn-leave" style="width: 100%; border-color: var(--gray-55);"
+                    <button class="btn-leave w-full btn-border-muted"
                         onclick="toggleAnnotationVisibility()">Hide/Show Annotations</button>
                 </div>
             </div>
@@ -108,67 +108,63 @@
             <div id="panel-adjustments" class="panel-content">
                 <div class="panel-header">🔧 Image Settings</div>
                 <div class="control-group">
-                    <label style="color: var(--legacy-ff6666);">Red Channel: <span id="val-r"
-                            style="color:white; float:right">100</span></label>
+                    <label class="filter-label-r">Red Channel: <span class="slider-value" id="val-r">100</span></label>
                     <input type="range" id="slider-r" min="0" max="255" value="100"
                         oninput="updateRGB('r', this.value)">
                 </div>
                 <div class="control-group">
-                    <label style="color: var(--legacy-66ff66);">Green Channel: <span id="val-g"
-                            style="color:white; float:right">100</span></label>
+                    <label class="filter-label-g">Green Channel: <span class="slider-value" id="val-g">100</span></label>
                     <input type="range" id="slider-g" min="0" max="255" value="100"
                         oninput="updateRGB('g', this.value)">
                 </div>
                 <div class="control-group">
-                    <label style="color: var(--legacy-66aaff);">Blue Channel: <span id="val-b"
-                            style="color:white; float:right">100</span></label>
+                    <label class="filter-label-b">Blue Channel: <span class="slider-value" id="val-b">100</span></label>
                     <input type="range" id="slider-b" min="0" max="255" value="100"
                         oninput="updateRGB('b', this.value)">
                 </div>
-                <hr style="border-color: var(--gray-33); margin: 20px 0;">
+                <hr class="panel-rule">
                 <div class="control-group">
-                    <label>Brightness: <span id="val-brightness" style="color:white; float:right">100</span></label>
+                    <label>Brightness: <span class="slider-value" id="val-brightness">100</span></label>
                     <input type="range" id="slider-brightness" min="0" max="300" value="100"
                         oninput="updateFilter('brightness', this.value)">
                 </div>
                 <div class="control-group">
-                    <label>Contrast: <span id="val-contrast" style="color:white; float:right">100</span></label>
+                    <label>Contrast: <span class="slider-value" id="val-contrast">100</span></label>
                     <input type="range" id="slider-contrast" min="0" max="300" value="100"
                         oninput="updateFilter('contrast', this.value)">
                 </div>
                 <div class="control-group">
-                    <label>Saturation: <span id="val-saturation" style="color:white; float:right">100</span></label>
+                    <label>Saturation: <span class="slider-value" id="val-saturation">100</span></label>
                     <input type="range" id="slider-saturation" min="0" max="300" value="100"
                         oninput="updateFilter('saturation', this.value)">
                 </div>
-                <hr style="border-color: var(--gray-33); margin: 20px 0;">
+                <hr class="panel-rule">
                 <div class="control-group">
                     <label>Orientation</label>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <button class="btn-leave" style="flex: 1;" onclick="rotateFeed()"><span class="material-icons"
-                                style="font-size: 16px;">rotate_right</span> 90°</button>
-                        <button class="btn-leave" style="flex: 1;" onclick="normalizeFeed()">Normalize</button>
+                    <div class="row-gap-10 mb-10">
+                        <button class="btn-leave flex-1" onclick="rotateFeed()"><span class="material-icons icon-16">rotate_right</span> 90°</button>
+                        <button class="btn-leave flex-1" onclick="normalizeFeed()">Normalize</button>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="btnFlipH" class="btn-leave" style="flex: 1;" onclick="toggleFlip('h')">Flip
+                    <div class="row-gap-10">
+                        <button id="btnFlipH" class="btn-leave flex-1" onclick="toggleFlip('h')">Flip
                             H</button>
-                        <button id="btnFlipV" class="btn-leave" style="flex: 1;" onclick="toggleFlip('v')">Flip
+                        <button id="btnFlipV" class="btn-leave flex-1" onclick="toggleFlip('v')">Flip
                             V</button>
                     </div>
                 </div>
-                <button class="btn-leave" style="width: 100%; border-color: var(--danger); color: var(--danger); margin-top: 10px;"
+                <button class="btn-leave w-full btn-danger mt-10"
                     onclick="resetAdjustments()">Reset All</button>
             </div>
 
             <div id="panel-gallery" class="panel-content">
                 <div class="panel-header">📸 My Gallery</div>
-                <div id="galleryGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+                <div class="gallery-grid" id="galleryGrid"></div>
             </div>
             <!-- Eagle AI Panel -->
             <div id="panel-ailab" class="panel-content">
-                <div class="panel-header" style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="display:flex; align-items:center; gap:8px;"><img src="assets/EagleAILogo.png" alt="Eagle AI" style="height:20px;"> Eagle AI</span>
-                    <button class="btn-leave" style="padding: 6px 10px; font-size: 11px;" onclick="lockEagleAI()">Exit AI</button>
+                <div class="panel-header row-between">
+                    <span class="row-center-8"><img class="img-h-20" src="assets/EagleAILogo.png" alt="Eagle AI"> Eagle AI</span>
+                    <button class="btn-leave btn-compact-xs" onclick="lockEagleAI()">Exit AI</button>
                 </div>
 
                 <div class="ai-disclaimer">
@@ -180,16 +176,15 @@
                 <div id="eagle-password-entry">
                     <div class="control-group">
                         <label>Access Code</label>
-                        <input type="password" id="eaglePasswordInput" placeholder="Enter access code"
-                            style="width: 100%; padding: 8px; background: var(--gray-11); border: 1px solid var(--gray-44); color: white; margin-bottom: 5px;"
+                        <input class="panel-input mb-5" type="password" id="eaglePasswordInput" placeholder="Enter access code"
                             onkeypress="if(event.key==='Enter') unlockEagleAI()">
-                        <button class="btn-leave" style="width: 100%;" onclick="unlockEagleAI()">Unlock</button>
-                        <div id="eagle-error" style="color: var(--danger); display: none; margin-top: 5px; font-size: 12px;"></div>
+                        <button class="btn-leave w-full" onclick="unlockEagleAI()">Unlock</button>
+                        <div class="eagle-error" id="eagle-error" style="display:none;"></div>
                     </div>
                 </div>
                 
                 <!-- Basic Tier (unlocked with basic password) -->
-                <div id="eagle-basic-tier" style="display: none;">
+                <div id="eagle-basic-tier" style="display:none;">
                     <div class="tier-badge">Basic Access</div>
                     <div class="control-group">
                         <div class="ai-mode-group">
@@ -207,17 +202,17 @@
                                 <span class="ai-pro-badge">PRO</span>
                             </label>
                         </div>
-                        <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="analyzeSpecimen()">
+                        <button class="btn-primary w-full mt-10" onclick="analyzeSpecimen()">
                             Analyze Specimen
                         </button>
-                        <button class="btn-leave" style="width: 100%; margin-top: 10px;" onclick="upgradeToPro()">
+                        <button class="btn-leave w-full mt-10" onclick="upgradeToPro()">
                             Unlock Pro Features
                         </button>
                     </div>
                 </div>
                 
                 <!-- Pro Tier (unlocked with pro password) -->
-                <div id="eagle-pro-tier" style="display: none;">
+                <div id="eagle-pro-tier" style="display:none;">
                     <div class="tier-badge pro">Pro Access</div>
                     <div class="control-group">
                         <div class="ai-mode-group">
@@ -235,7 +230,7 @@
                                 <span class="ai-pro-badge">PRO</span>
                             </label>
                         </div>
-                        <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="analyzeSpecimen()">
+                        <button class="btn-primary w-full mt-10" onclick="analyzeSpecimen()">
                             Analyze Specimen
                         </button>
                     </div>
@@ -243,10 +238,10 @@
                         <label>Custom Question</label>
                         <div class="custom-question-section">
                             <textarea id="customQuestionInput" placeholder="Ask anything about the specimen..." maxlength="500"></textarea>
-                            <button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="askCustomQuestion()">
+                            <button class="btn-primary w-full mt-8" onclick="askCustomQuestion()">
                                 Ask Eagle AI
                             </button>
-                            <small style="color: var(--gray-66); font-size: 11px; display: block; margin-top: 4px;">
+                            <small class="hint-sm">
                                 <span id="charCount">0</span>/500 characters
                             </small>
                         </div>
@@ -254,15 +249,15 @@
                 </div>
                 
                 <!-- Results Display (shared) -->
-                <div id="eagle-results" style="display: none;">
+                <div id="eagle-results" style="display:none;">
                     <div class="control-group">
                         <div class="results-header">
-                            <span style="color: var(--gray-aa); font-size: 12px; text-transform: uppercase;">Results</span>
+                            <span class="results-label">Results</span>
                             <div>
-                                <button class="btn-leave" style="padding: 4px 8px; font-size: 12px;" onclick="copyResults()">
+                                <button class="btn-leave btn-compact" onclick="copyResults()">
                                     Copy
                                 </button>
-                                <button class="btn-leave" style="padding: 4px 8px; font-size: 12px; margin-left: 4px;" onclick="saveResults()">
+                                <button class="btn-leave btn-compact ml-4" onclick="saveResults()">
                                     Save
                                 </button>
                             </div>
@@ -283,32 +278,30 @@
                 <div id="adminLoginForm">
                     <div class="control-group">
                         <label>Admin Key</label>
-                        <input type="text" id="adminKeyInput" placeholder="Enter Key"
-                            style="width: 100%; padding: 8px; background: var(--gray-11); border: 1px solid var(--gray-44); color: white;">
-                        <button class="btn-leave" style="width: 100%; margin-top: 5px;"
+                        <input class="panel-input" type="text" id="adminKeyInput" placeholder="Enter Key">
+                        <button class="btn-leave w-full mt-5"
                             onclick="attemptAdminLogin()">Unlock Host Controls</button>
                     </div>
                 </div>
 
-                <div id="adminControlsArea" style="display: none;">
-                    <div
-                        style="color:var(--success); font-weight:bold; text-align:center; margin-bottom: 20px; border: 1px solid var(--success); padding: 10px; border-radius: 6px;">
-                        <span class="material-icons" style="vertical-align: middle;">verified</span> HOST ACCESS
+                <div id="adminControlsArea" style="display:none;">
+                    <div class="admin-badge">
+                        <span class="material-icons va-middle">verified</span> HOST ACCESS
                     </div>
 
                     <div class="control-group">
                         <label>Microscope Mode</label>
-                        <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-                            <button id="btnModeLive" class="btn-leave active" style="flex: 1; border-color: var(--danger);"
+                        <div class="row-gap-10 mb-5">
+                            <button id="btnModeLive" class="btn-leave active flex-1 btn-border-danger"
                                 onclick="triggerReturnLive()">
-                                <span class="material-icons" style="font-size:16px;">videocam</span> LIVE
+                                <span class="material-icons icon-16">videocam</span> LIVE
                             </button>
-                            <button id="btnModePhoto" class="btn-leave" style="flex: 1; border-color: var(--success);"
+                            <button id="btnModePhoto" class="btn-leave flex-1 btn-border-success"
                                 onclick="triggerRequestPhoto()">
-                                <span class="material-icons" style="font-size:16px;">image</span> 4K PHOTO
+                                <span class="material-icons icon-16">image</span> 4K PHOTO
                             </button>
                         </div>
-                        <small style="color:var(--gray-88); display:block; margin-bottom: 15px;">
+                        <small class="hint-block">
                             Use <b>4K Photo</b> for large classes (30+ students). <br>
                             Use <b>Live</b> for small groups (Max 4 students).
                         </small>
@@ -319,25 +312,24 @@
                         <div class="checkbox-group">
                             <label>
                                 <input type="checkbox" id="checkFollowMode" onchange="toggleFollowMode()">
-                                <span style="color: var(--accent)">Follow Mode</span>
+                                <span class="text-accent">Follow Mode</span>
                             </label>
-                            <small style="color:var(--gray-66); display:block; margin-left:24px;">Force student view to match
+                            <small class="option-hint">Force student view to match
                                 yours.</small>
 
-                            <label style="margin-top: 10px;">
+                            <label class="mt-10">
                                 <input type="checkbox" id="checkBroadcast" onchange="toggleBroadcastMode()">
-                                <span style="color: var(--accent)">Broadcast Drawings</span>
+                                <span class="text-accent">Broadcast Drawings</span>
                             </label>
-                            <small style="color:var(--gray-66); display:block; margin-left:24px;">Students see what you
+                            <small class="option-hint">Students see what you
                                 draw.</small>
                         </div>
                     </div>
 
                     <div class="control-group">
-                        <button class="btn-leave" style="width: 100%; border-color: var(--danger); color: var(--danger);"
+                        <button class="btn-leave w-full btn-danger"
                             onclick="adminClearAll()">
-                            <span class="material-icons"
-                                style="font-size: 16px; vertical-align: middle;">delete_forever</span>
+                            <span class="material-icons icon-16 va-middle">delete_forever</span>
                             Clear ALL Screens
                         </button>
                     </div>
@@ -346,7 +338,7 @@
 
             <div id="panel-code" class="panel-content">
                 <div class="panel-header">Developer Tools</div>
-                <p style="font-size: 12px; color: var(--gray-88);">Coming Soon: Python Overlay Engine</p>
+                <p class="hint-text">Coming Soon: Python Overlay Engine</p>
             </div>
         </div>
 
@@ -357,7 +349,7 @@
                 <div class="transform-container" id="zoomLayer">
                     <video id="remoteVideo" autoplay playsinline muted></video>
 
-                    <img id="staticPhoto" style="display: none; width: 100%; height: 100%; object-fit: contain;">
+                    <img class="static-photo" id="staticPhoto" style="display:none;">
 
                     <canvas id="annotationCanvas"></canvas>
                 </div>
@@ -370,10 +362,10 @@
                 </button>
                 <div class="toolbar-divider"></div>
                 <button class="tool-btn" onclick="setTool('draw')" id="btnToolDraw" title="Draw with Pen">
-                    <img src="assets/Pencil.png" alt="Draw" style="height: 24px;">
+                    <img class="img-h-24" src="assets/Pencil.png" alt="Draw">
                 </button>
                 <button class="tool-btn" onclick="setTool('eraser')" id="btnToolEraser" title="Erase Your Drawings">
-                    <img src="assets/Eraser.png" alt="Erase" style="height: 24px;">
+                    <img class="img-h-24" src="assets/Eraser.png" alt="Erase">
                 </button>
                 <button class="tool-btn" onclick="setTool('text')" id="btnToolText" title="Add Text Labels">
                     <span class="material-icons">title</span>
@@ -381,14 +373,14 @@
                 <button class="tool-btn" onclick="setTool('count')" id="btnToolCount"
                     title="Count Objects (Click to Add Numbers)">
                     <span class="material-icons">touch_app</span>
-                    <div id="countBadge" class="count-badge" style="display: none;">0</div>
+                    <div id="countBadge" class="count-badge" style="display:none;">0</div>
                 </button>
                 <div class="toolbar-divider"></div>
                 <button class="tool-btn" onclick="toggleFreeze()" title="Pause the Video">
                     <span class="material-icons" id="iconFreeze">pause</span>
                 </button>
                 <button class="tool-btn" onclick="takeSnapshot()" title="Save Screenshot to Gallery">
-                    <span class="material-icons" style="color: var(--accent);">camera_alt</span>
+                    <span class="material-icons text-accent">camera_alt</span>
                 </button>
             </div>
         </div>
@@ -397,22 +389,21 @@
     <div id="photoModal" class="modal-overlay" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <img id="modalImage" class="modal-img">
-            <a id="modalDownload" class="btn-leave"
-                style="text-align: center; background: var(--accent); color: black; border: none; font-weight: bold; text-decoration: none;"
+            <a id="modalDownload" class="btn-leave btn-accent-link"
                 download="snapshot.png">DOWNLOAD PHOTO</a>
         </div>
     </div>
 
-    <div id="textModal" class="modal-overlay" style="display: none;" onclick="cancelTextInput()">
+    <div id="textModal" class="modal-overlay" style="display:none;" onclick="cancelTextInput()">
         <div class="text-modal-content" onclick="event.stopPropagation()">
             <h3 class="text-modal-title">Add Text Annotation</h3>
             <input type="text" id="textInput" class="text-modal-input" placeholder="Type your text here...">
             <div class="text-modal-buttons">
                 <button onclick="confirmTextInput()" class="text-modal-btn btn-confirm">
-                    <span class="material-icons" style="font-size: 20px;">check</span> ADD TEXT
+                    <span class="material-icons icon-20">check</span> ADD TEXT
                 </button>
                 <button onclick="cancelTextInput()" class="text-modal-btn btn-cancel">
-                    <span class="material-icons" style="font-size: 20px;">close</span> CANCEL
+                    <span class="material-icons icon-20">close</span> CANCEL
                 </button>
             </div>
         </div>

@@ -1477,3 +1477,12 @@
         flex-direction: column;
     }
 }
+
+/* ---- PHASE 2: former inline styles (index/about) ---- */
+.btn-hero-outline.btn-hero-accent { border-color: var(--accent); color: var(--accent); }
+.hero-fine { font-size: 11px; letter-spacing: 0.5px; color: rgba(var(--white-rgb), 0.3); margin-top: 4px; }
+.about-hero p.about-fine { font-size: 11px; letter-spacing: 0.5px; color: rgba(var(--white-rgb), 0.25); margin-top: 16px; }
+.form-success { color: var(--success); margin-top: 12px; font-size: 14px; }
+.footer-note { color: var(--gray-55); font-size: 13px; margin: 8px 0 0; }
+.footer-fine { color: var(--gray-44); font-size: 11px; margin: 6px 0 0; letter-spacing: 0.5px; }
+.footer-link { color: var(--gray-66); font-size: 13px; margin-top: 8px; display: inline-block; }

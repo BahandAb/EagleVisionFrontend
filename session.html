@@ -10,34 +10,33 @@
 </head>
 <body class="landing-body">
 
-    <a href="index.html" style="position:fixed;top:20px;left:24px;color:var(--gray-66);font-size:13px;text-decoration:none;display:flex;align-items:center;gap:4px;letter-spacing:1px;">
-        <span class="material-icons" style="font-size:16px;">arrow_back</span> HOME
+    <a class="back-link" href="index.html">
+        <span class="material-icons icon-16">arrow_back</span> HOME
     </a>
 
     <div class="landing-card">
         <h1 class="logo-text">EagleVision</h1>
-        <p style="color: var(--gray-aa); margin-bottom: 20px; font-size: 14px;">Connect to a live microscope session.</p>
+        <p class="landing-tagline">Connect to a live microscope session.</p>
         
         <div class="input-group">
             <input type="text" id="landingSessionInput" placeholder="CODE (e.g. 123456)" maxlength="8" autocomplete="off">
-            <input type="text" id="landingNameInput" placeholder="YOUR NAME" maxlength="15" autocomplete="off" style="font-size: 18px; margin-top: 5px;">
+            <input class="landing-name-input" type="text" id="landingNameInput" placeholder="YOUR NAME" maxlength="15" autocomplete="off">
         </div>
 
-        <div style="margin-top: 15px; text-align: left;">
-            <div onclick="toggleAdminInput()" style="cursor: pointer; display: flex; align-items: center; color: var(--gray-66); font-size: 12px; gap: 5px;">
-                <span class="material-icons" style="font-size: 16px;">vpn_key</span>
+        <div class="admin-toggle-wrap">
+            <div class="admin-toggle" onclick="toggleAdminInput()">
+                <span class="material-icons icon-16">vpn_key</span>
                 <span>I am the Instructor</span>
             </div>
             
-            <div id="adminInputDiv" style="display: none; margin-top: 10px;">
-                <input type="password" id="landingAdminKey" placeholder="Admin Key" 
-                       style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--gray-44); background: var(--gray-22); color: white;">
+            <div class="mt-10" id="adminInputDiv" style="display:none;">
+                <input class="admin-input" type="password" id="landingAdminKey" placeholder="Admin Key">
             </div>
         </div>
 
         <button class="btn-primary" onclick="goToWorkspace()">JOIN SESSION</button>
 
-        <p id="landingError" style="color: var(--danger); display: none; margin-top: 15px; font-size: 14px;"></p>
+        <p class="landing-error" id="landingError" style="display:none;"></p>
     </div>
 
     <script>

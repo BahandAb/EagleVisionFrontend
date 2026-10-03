@@ -16,6 +16,13 @@
     --bg-code: #25486c;            /* D2: mockup value; D4: also enter-code card */
     --border-divider: #435562;     /* sampled from image 14; ambiguous (antialiased 1px line) */
     --bg-scope-empty: #3d3d3d;     /* msg 6 */
+    --border-scope: #697076;       /* 2px frame around the microscope square */
+    --bg-rail-active: #252019;     /* active rail tab */
+    --bg-stroke-btn: #3d3d3d;
+    --bg-stroke-btn-selected: #787878;
+    --border-control: #7f97a8;     /* lightened from sampled #586875 to reach 3:1 on --bg-panel (D25 A) */
+    --text-secondary: #d8d6d5;
+    --text-muted: #a0a0a0;         /* D26 A: passes 4.5:1 on --bg-topbar and --bg-dark */
     --select-toolcol: #2f84b6;     /* msg 7; D7: blue stays on the right tool column */
 
     --accent: #fdd257;             /* D5/D6: global yellow (was #FFD700) */
@@ -33,7 +40,8 @@
     --draw-blue: #5dd8ff;
     --draw-white: #ffffff;
 
-    --filter-label-r: #e84e53;     /* D9 open: 2.49:1 on --bg-panel */
+    --filter-label-r: #e84e53;     /* slider accent (2.49:1 on --bg-panel: not for text) */
+    --filter-label-r-text: #ff9a9d; /* D9 A: lighter red for label TEXT, 4.58:1 on --bg-panel */
     --filter-label-g: #adf66d;
     --filter-label-b: #5dd8ff;
 
@@ -53,6 +61,7 @@
 
     /* ---- 4. Neutrals (exact pre-overhaul values; rename by role in Phase 4) ---- */
     --black: #000000;
+    --white-rgb: 255, 255, 255;
     --white: #ffffff;
     --gray-11: #111111;
     --gray-22: #222222;

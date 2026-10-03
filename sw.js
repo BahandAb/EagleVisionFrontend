@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eaglevision-v7';
+const CACHE_NAME = 'eaglevision-v8';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -7,6 +7,7 @@ const STATIC_ASSETS = [
   '/host.html',
   '/tokens.css',
   '/style.css',
+  '/host.css',
   '/landing.css',
   '/script.js',
   '/host.js',

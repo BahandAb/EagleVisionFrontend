@@ -6,310 +6,31 @@
   <title>EagleVision – Host</title>
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* ── Base ── */
-    body { background: var(--mk-bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; overflow-y: auto; }
-
-    /* ── Setup screen ── */
-    #setup-screen {
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 1.5rem 1rem; gap: 1.25rem;
-    }
-    #setup-screen h1 { font-size: 1.6rem; margin: 0; text-align: center; }
-    .setup-card {
-      background: var(--host-surface);
-      border: 1px solid var(--host-border);
-      border-radius: 12px;
-      padding: 1.25rem 1.25rem;
-      width: 100%; max-width: 560px;
-      display: flex; flex-direction: column; gap: 1rem;
-      box-sizing: border-box;
-    }
-    .setup-card label { font-size: .85rem; color: var(--host-muted); margin-bottom: .25rem; display: block; }
-    .setup-card select, .setup-card input {
-      width: 100%; padding: .65rem .8rem;
-      background: var(--mk-bg); color: var(--text);
-      border: 1px solid var(--host-border); border-radius: 8px;
-      font-size: 1rem; box-sizing: border-box;
-      -webkit-appearance: none; appearance: none;
-    }
-    #preview-video {
-      width: 100%; border-radius: 8px; background: var(--black);
-      aspect-ratio: 16/9; object-fit: cover;
-    }
-    .code-row { display: flex; align-items: center; gap: .6rem; }
-    #session-code-display {
-      flex: 1; padding: .6rem .8rem;
-      background: var(--mk-bg); color: var(--accent);
-      border: 1px solid var(--host-border); border-radius: 8px;
-      font-size: 1.4rem; font-weight: 700; letter-spacing: .15em; text-align: center;
-    }
-    #btn-regen {
-      padding: .55rem 1rem; border-radius: 8px;
-      border: 1px solid var(--host-border);
-      background: transparent; color: var(--host-muted);
-      cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
-    }
-    #btn-start {
-      padding: .85rem; border-radius: 10px;
-      background: var(--accent); color: var(--mk-bg);
-      border: none; font-size: 1rem; font-weight: 700;
-      cursor: pointer; transition: opacity .2s;
-    }
-    #btn-start:active { opacity: .75; }
-    #setup-error { color: var(--legacy-f87171); font-size: .9rem; display: none; margin: 0; }
-
-    /* ── Access gate ── */
-    #gate-screen {
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 1.5rem 1rem; gap: 1.25rem;
-    }
-    #gate-screen h1 { font-size: 1.6rem; margin: 0; text-align: center; }
-    #gate-screen p { font-size: .9rem; color: var(--host-muted); margin: 0; text-align: center; }
-    #gate-error { color: var(--legacy-f87171); font-size: .9rem; display: none; margin: 0; text-align: center; }
-    @media (max-width: 640px) {
-      #gate-screen { padding: 1rem .75rem; justify-content: flex-start; padding-top: 2.5rem; }
-      #gate-screen h1 { font-size: 1.35rem; }
-    }
-
-    /* ── Session screen ── */
-    #session-screen { display: none; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
-
-    /* Header */
-    #session-header {
-      display: flex; align-items: center; gap: .5rem;
-      padding: .5rem .75rem;
-      background: var(--host-surface);
-      border-bottom: 1px solid var(--host-border);
-      flex-shrink: 0;
-      min-height: 48px;
-    }
-    #session-header .logo { font-weight: 800; font-size: 1rem; color: var(--accent); white-space: nowrap; }
-    #hdr-code {
-      font-weight: 700; font-size: 1rem; letter-spacing: .12em; white-space: nowrap;
-      color: var(--accent);
-      background: rgba(var(--accent-rgb), .08); border: 1px solid rgba(var(--accent-rgb), .2);
-      padding: .2rem .6rem; border-radius: 6px;
-    }
-    .badge {
-      padding: .2rem .5rem; border-radius: 999px;
-      font-size: .7rem; font-weight: 600; white-space: nowrap;
-    }
-    .badge-socket { background: var(--legacy-1e3a2f); color: var(--legacy-4ade80); }
-    .badge-socket.err { background: var(--legacy-3b1a1a); color: var(--legacy-f87171); }
-    .badge-lk { background: var(--legacy-1a2a3b); color: var(--legacy-60a5fa); }
-    .badge-lk.err { background: var(--legacy-3b1a1a); color: var(--legacy-f87171); }
-    #hdr-viewers {
-      margin-left: auto; font-size: .8rem; color: var(--host-muted);
-      white-space: nowrap; flex-shrink: 0;
-    }
-    #btn-end {
-      padding: .35rem .75rem; border-radius: 8px;
-      background: var(--legacy-7f1d1d); color: var(--legacy-fca5a5);
-      border: none; cursor: pointer; font-size: .8rem; white-space: nowrap;
-      min-height: 34px; flex-shrink: 0;
-    }
-
-    /* Main layout */
-    #main-layout { display: flex; flex: 1; overflow: hidden; position: relative; }
-
-    /* Activity bar — desktop: vertical left column */
-    #activity-bar {
-      width: 52px; background: var(--host-surface);
-      border-right: 1px solid var(--host-border);
-      display: flex; flex-direction: column; align-items: center;
-      padding: .5rem 0; gap: .4rem; flex-shrink: 0;
-      z-index: 10;
-    }
-    .ab-btn {
-      width: 40px; height: 40px; border-radius: 8px;
-      border: none; background: transparent;
-      color: var(--host-muted); cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-    }
-    .ab-btn svg { flex-shrink: 0; }
-    .ab-label { font-size: .6rem; font-weight: 600; letter-spacing: .02em; display: none; }
-    .ab-btn:hover, .ab-btn.active { background: var(--host-border); color: var(--text); }
-
-    /* Side panel — desktop */
-    #side-panel {
-      width: 260px; background: var(--host-surface);
-      border-right: 1px solid var(--host-border);
-      display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
-      transition: transform .25s ease;
-    }
-    .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-    .panel.active { display: flex; }
-    .panel-title {
-      padding: .7rem 1rem .6rem; font-size: .8rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .08em;
-      color: var(--host-muted);
-      border-bottom: 1px solid var(--host-border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .panel-body { padding: .75rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: .5rem; }
-
-    /* Roster */
-    .roster-item {
-      display: flex; align-items: center; gap: .5rem;
-      padding: .45rem .5rem; border-radius: 6px;
-      background: var(--mk-bg);
-    }
-    .roster-avatar {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--accent); color: var(--mk-bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: .75rem; font-weight: 700; flex-shrink: 0;
-    }
-    .roster-name { flex: 1; font-size: .85rem; }
-    .roster-kick {
-      padding: .25rem .5rem; border-radius: 4px;
-      background: var(--legacy-3b1a1a); color: var(--legacy-f87171);
-      border: none; cursor: pointer; font-size: .8rem; min-height: 30px;
-    }
-
-    /* Controls panel */
-    .ctrl-group { display: flex; flex-direction: column; gap: .4rem; }
-    .ctrl-label { font-size: .75rem; color: var(--host-muted); }
-    .ctrl-btn {
-      padding: .55rem .7rem; border-radius: 8px;
-      border: 1px solid var(--host-border);
-      background: transparent; color: var(--text);
-      cursor: pointer; font-size: .85rem; text-align: left;
-      min-height: 40px;
-    }
-    .ctrl-btn:active { background: var(--host-border); }
-    .ctrl-btn.danger { border-color: var(--legacy-7f1d1d); color: var(--legacy-f87171); }
-    .ctrl-btn.danger:active { background: var(--legacy-7f1d1d); }
-    #instruction-input {
-      width: 100%; padding: .55rem .6rem;
-      background: var(--mk-bg); color: var(--text);
-      border: 1px solid var(--host-border); border-radius: 8px;
-      font-size: .9rem; box-sizing: border-box; min-height: 40px;
-    }
-
-    /* Workspace */
-    #workspace {
-      flex: 1; display: flex; align-items: center; justify-content: center;
-      background: var(--black); position: relative; overflow: hidden;
-    }
-    #host-canvas { max-width: 100%; max-height: 100%; display: block; aspect-ratio: 1/1; width: auto; height: auto; touch-action: none; }
-    /* Framing mode: the canvas IS the crop — drag/pinch happens directly on
-       it, so the accent ring + grab cursor are the only visual cue needed. */
-    #workspace.framing-mode #host-canvas { outline: 3px solid var(--accent); outline-offset: -3px; cursor: grab; }
-    #workspace.framing-mode #host-canvas:active { cursor: grabbing; }
-
-    /* Panel backdrop (mobile) */
-    #panel-backdrop {
-      display: none;
-      position: fixed; inset: 0; background: rgba(0,0,0,.5);
-      z-index: 19;
-    }
-
-    /* ── Mobile layout ── */
-    @media (max-width: 640px) {
-      /* Header: single tight row — hide logo and status badges */
-      #session-header { padding: .4rem .6rem; gap: .4rem; }
-      #session-header .logo { display: none; }
-      #badge-socket, #badge-lk { display: none; }
-
-      /* Stack workspace above the tab bar in normal flow instead of pinning
-         the bar with position:fixed — fixed elements anchor to the raw
-         browser viewport, which on Android Chrome can render underneath
-         the browser's own bottom toolbar / the OS nav bar, making the tab
-         bar visible but untappable. Normal flow stays inside the properly
-         dvh-sized container instead. */
-      #main-layout { flex-direction: column; }
-
-      #workspace { order: 1; flex: 1; min-height: 0; }
-
-      /* Bottom tab bar */
-      #activity-bar {
-        order: 2;
-        position: static;
-        width: 100%; height: 58px; flex-shrink: 0;
-        flex-direction: row; justify-content: space-around;
-        padding: 0; gap: 0;
-        border-right: none; border-top: 1px solid var(--host-border);
-        z-index: 20; background: var(--host-surface);
-      }
-      .ab-btn { width: auto; flex: 1; height: 58px; border-radius: 0; }
-      .ab-label { display: block; }
-
-      /* Side panel → bottom sheet that slides up above the tab bar */
-      #side-panel {
-        position: fixed;
-        left: 0; right: 0;
-        bottom: 58px;
-        top: auto;
-        width: 100%;
-        max-height: 52vh;
-        border-right: none;
-        border-top: 1px solid var(--host-border);
-        border-radius: 14px 14px 0 0;
-        transform: translateY(100%);
-        transition: transform .28s cubic-bezier(.32,.72,0,1);
-        z-index: 20;
-        overflow: hidden;
-      }
-      #side-panel.open { transform: translateY(0); }
-
-      /* Drag handle on the sheet */
-      #side-panel::before {
-        content: '';
-        display: block;
-        width: 36px; height: 4px;
-        background: var(--host-border);
-        border-radius: 2px;
-        margin: .55rem auto .1rem;
-        flex-shrink: 0;
-      }
-
-      .panel-close-btn { display: block !important; }
-      #panel-backdrop.open { display: block; }
-
-      /* Workspace fills remaining space */
-      #workspace { touch-action: none; }
-
-      /* Setup screen */
-      #setup-screen { padding: 1rem .75rem; justify-content: flex-start; padding-top: 1.5rem; }
-      #setup-screen h1 { font-size: 1.35rem; }
-      .setup-card { padding: 1rem; gap: .85rem; }
-    }
-
-    @media (hover: hover) {
-      .ctrl-btn:hover { background: var(--host-border); }
-      .ctrl-btn.danger:hover { background: var(--legacy-7f1d1d); }
-      #btn-start:hover { opacity: .85; }
-      #btn-regen:hover { color: var(--text); }
-    }
-  </style>
+  <link rel="stylesheet" href="host.css">
 </head>
 <body>
 
 <!-- ══════════════ ACCESS GATE ══════════════ -->
 <div id="gate-screen">
-  <a href="index.html" style="align-self:flex-start;display:flex;align-items:center;gap:.35rem;color:var(--host-muted);text-decoration:none;font-size:.9rem;margin-bottom:-.25rem;">
+  <a class="host-back-link" href="index.html">
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 4 7 10 13 16"/></svg>
     Back
   </a>
   <h1>EagleVision</h1>
   <p>Enter your host access password to continue.</p>
-  <div class="setup-card" style="max-width:380px;gap:.85rem;">
+  <div class="setup-card setup-card-narrow">
     <div>
       <label for="gate-password-input">Access Password</label>
       <input id="gate-password-input" type="password" placeholder="Enter password…" autocomplete="current-password">
     </div>
     <p id="gate-error"></p>
-    <button id="btn-gate-submit" class="ctrl-btn" style="background:var(--accent);color:var(--mk-bg);font-weight:700;border:none;padding:.85rem;border-radius:10px;font-size:1rem;cursor:pointer;">Continue</button>
+    <button id="btn-gate-submit" class="ctrl-btn btn-gate">Continue</button>
   </div>
 </div>
 
 <!-- ══════════════ SETUP SCREEN ══════════════ -->
 <div id="setup-screen" style="display:none;">
-  <a href="index.html" style="align-self:flex-start;display:flex;align-items:center;gap:.35rem;color:var(--host-muted);text-decoration:none;font-size:.9rem;margin-bottom:-.25rem;">
+  <a class="host-back-link" href="index.html">
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 4 7 10 13 16"/></svg>
     Back
   </a>
@@ -324,7 +45,7 @@
     <video id="preview-video" autoplay muted playsinline></video>
 
     <div>
-      <label for="resolution-select">Feed Quality <span style="font-weight:400;color:var(--host-muted)">(controls what students see — always square)</span></label>
+      <label for="resolution-select">Feed Quality <span class="text-muted-normal">(controls what students see — always square)</span></label>
       <select id="resolution-select">
         <option value="1080x1080">High – 1080 × 1080</option>
         <option value="720x720" selected>Standard – 720 × 720</option>
@@ -403,10 +124,10 @@
       <div id="panel-status" class="panel active">
         <div class="panel-title">
           Status
-          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close" style="display:none;background:none;border:none;color:var(--host-muted);font-size:1.1rem;cursor:pointer;padding:0 .25rem;">✕</button>
+          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close">✕</button>
         </div>
         <div class="panel-body" id="status-body">
-          <p style="font-size:.85rem;color:var(--host-muted)">Session is live. Waiting for students to join…</p>
+          <p class="host-hint">Session is live. Waiting for students to join…</p>
         </div>
       </div>
 
@@ -414,7 +135,7 @@
       <div id="panel-roster" class="panel">
         <div class="panel-title">
           Roster
-          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close" style="display:none;background:none;border:none;color:var(--host-muted);font-size:1.1rem;cursor:pointer;padding:0 .25rem;">✕</button>
+          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close">✕</button>
         </div>
         <div class="panel-body" id="roster-body"></div>
       </div>
@@ -423,12 +144,12 @@
       <div id="panel-controls" class="panel">
         <div class="panel-title">
           Controls
-          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close" style="display:none;background:none;border:none;color:var(--host-muted);font-size:1.1rem;cursor:pointer;padding:0 .25rem;">✕</button>
+          <button class="panel-close-btn" onclick="closeMobilePanel()" aria-label="Close">✕</button>
         </div>
         <div class="panel-body">
           <div class="ctrl-group">
             <span class="ctrl-label">Camera</span>
-            <select id="session-camera-select" class="ctrl-btn" style="cursor:pointer"></select>
+            <select id="session-camera-select" class="ctrl-btn is-clickable"></select>
           </div>
           <div class="ctrl-group">
             <span class="ctrl-label">Broadcast</span>
