@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eaglevision-v5';
+const CACHE_NAME = 'eaglevision-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -34,11 +34,10 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  if (url.hostname === 'api.eaglevision.dev' ||
-      url.hostname.includes('livekit') ||
-      url.hostname.includes('cdn.jsdelivr.net') ||
-      url.hostname.includes('fonts.googleapis.com')) {
-    event.respondWith(fetch(event.request));
+  // Only handle same-origin GETs. Everything else (API calls, LiveKit,
+  // CDN scripts, Google Fonts, the multi-MB opencv.js) goes straight to the
+  // network untouched, and POSTs can't be cached anyway.
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
     return;
   }
 
@@ -51,8 +50,10 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        }
         return response;
       })
       .catch(() => caches.match(event.request))

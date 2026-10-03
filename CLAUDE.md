@@ -11,9 +11,16 @@ here (see "Security" below).
 | `index.html` / `about.html` | Landing pages |
 | `session.html` → `workspace.html` | Student flow: enter a code, then the collaboration workspace (video + annotations + Eagle AI) |
 | `host.html` + `host.js` | Instructor flow: camera setup, live framing, admin controls |
-| `style.css` | Shared workspace/host styles (dark theme, CSS vars) |
-| `landing.css` | Landing/about page styles |
-| `sw.js` | Service worker (see gotcha below) |
+| `style.css` | **Loaded by every page** (incl. homepage). Owns the `:root` color tokens + workspace/host/session styles |
+| `landing.css` | Homepage/about-only styles, layered on top of `style.css`; also hardcodes many hexes |
+| `sw.js` | Service worker (see gotcha below); only registered from `index.html` |
+| `docs/design/` | Design-overhaul spec (`SPEC.md`, `DECISIONS.md`, `SOURCES.md`, `reference/` images). Read before any visual change |
+
+Body classes: `home-body` = index/about, `landing-body` = `session.html` (the
+code-entry page, despite the name), none = host/workspace.
+
+The mobile app repo (`BahandAb/EagleVisionMobileApp`) is **deprecated** —
+still works, but don't spend effort on it or keep it in design parity.
 
 Backend is a separate private repo, `BahandAb/EagleVisionBackend` (Flask +
 Socket.IO + LiveKit token issuer + Gemini AI proxy), reachable at
@@ -63,7 +70,9 @@ this repo is public and it happened once already (passwords were live in
    stale `host.html`/`script.js`/etc. forever, regardless of what shipped —
    this repo's history has several "bump cache to v3/v4" band-aid commits
    before it was actually fixed. It's now network-first with cache as an
-   offline-only fallback (`sw.js`). Don't revert to cache-first.
+   offline-only fallback (`sw.js`). Don't revert to cache-first. It also
+   only handles same-origin GETs and only caches `response.ok` — don't
+   widen that (it used to cache 404s/opaque CDN responses).
 2. **Never use `position: fixed` for bottom-anchored mobile UI.** Android
    Chrome's own bottom toolbar (and the OS nav bar) can render on top of a
    fixed-bottom element, making it visible but untappable. Use normal flex
@@ -86,6 +95,39 @@ this repo is public and it happened once already (passwords were live in
    override `getUserMedia` via `page.addInitScript` to force an `exact`
    mismatched resolution (e.g. 640×480) if you need to test aspect-ratio
    bugs realistically.
+
+## Design overhaul (in progress)
+
+A team-researched color/typography overhaul is being specified in
+`docs/design/`. Until a spec item is marked `Approved`, don't restyle on
+your own. When implementing: tokens first (planned `tokens.css`, loaded
+before everything), no new hardcoded hexes, and move inline `style="..."`
+into classes — inline styles (workspace.html alone has ~80) silently bypass
+token changes.
+
+## Known weaknesses (audit, not yet fixed)
+
+- `style.css` is mislabeled/shared: homepage depends on its `:root` tokens
+  and its `body { overflow: hidden }` has to be overridden by `.home-body`.
+  Split tokens out before the overhaul.
+- `landing.css?v=8` is hand-bumped cache busting — the same trap as the old
+  `CACHE_NAME` problem. Prefer relying on the network-first SW, or make
+  version strings part of a deploy step.
+- `_headers` (Netlify/Cloudflare syntax) has **no effect on GitHub Pages**;
+  Pages serves `max-age=600`. Don't rely on it for no-cache guarantees.
+- The SW is only registered on `index.html`, so a user landing directly on
+  `workspace.html`/`host.html` never gets it (no offline fallback, and the
+  SW only starts controlling those pages after a visit to the homepage).
+- `workspace.html` loads `opencv.js` (~10 MB) from docs.opencv.org on every
+  visit and `livekit-client` from jsDelivr with no SRI hash. Consider
+  lazy-loading opencv only when the feature is used, and self-hosting/SRI.
+- Only 2 `@media` blocks in `style.css` and 7 in `landing.css`; no
+  `prefers-reduced-motion`. Mobile/accessibility coverage is thin — the
+  overhaul spec must include a contrast/a11y pass.
+- Large unoptimized JPEG/PNG assets (~7 MB total in `assets/`) hurt first
+  load on school Wi-Fi; convert to WebP/resize when touching them.
+- README still describes things (e.g. admin-key flow) that should be
+  re-verified against the code after the overhaul.
 
 ## Deferred / discussed but not built
 
