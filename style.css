@@ -1275,6 +1275,7 @@ input[type=range] {
 .landing-body input { font-family: inherit; }
 
 /* Phase 4b: flat-color icons + mascot (replace Material icons where art exists) */
+.img-h-28 { height: 28px; width: auto; max-width: 36px; }
 .img-h-36 { height: 36px; width: auto; }
 .rail-img { height: 28px; width: auto; opacity: 0.8; transition: opacity 0.2s; }
 .activity-icon:hover .rail-img,

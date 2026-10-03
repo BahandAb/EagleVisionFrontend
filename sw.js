@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eaglevision-v10';
+const CACHE_NAME = 'eaglevision-v11';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
