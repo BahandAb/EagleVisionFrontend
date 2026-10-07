@@ -142,7 +142,7 @@ computed-style diff over all elements, not just screenshots.
 
 ## Workspace themes
 
-`script.js` (`applyTheme/setTheme/setThemesLocked`) + `themes.css`. The host can lock themes for students over the socket (`admin_set_themes_locked`; backend must be deployed for this to work — without it students simply stay unlocked). `.btn-leave` etc. use `transition: all .3s`, so measure computed colors only after transitions finish or contrast audits will report false failures.
+`script.js` (`applyTheme/setTheme/setThemesLocked`) + `themes.css`. The host can lock themes for students over the socket (`admin_set_themes_locked`; backend must be deployed for this to work — without it students simply stay unlocked). The two light themes (Micro Pink, Chlorophyll Green) deliberately use white text per the team's mockups, so a WCAG audit of them WILL report ~2.2-2.6:1 failures — that is a known, accepted design decision (see DECISIONS D12); don't "fix" it without asking. Objective Blue and the marketing pages must stay at 0 failures. `.btn-leave` etc. use `transition: all .3s`, so measure computed colors only after transitions finish or contrast audits will report false failures.
 
 ## ⚠ Backend deploy pending
 

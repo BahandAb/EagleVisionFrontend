@@ -206,3 +206,6 @@ D11 A (ship all three), D12 A (dark text on light themes), D13 B-lite (decor kep
 
 ## 11. Cleanup log
 Unused tokens removed; remaining one-offs renamed by role (`--host-*` status badges, `--tier-*`, `--kick-*`, `--brand-linkedin`, `--bg-input-focus`); `--mk-bg-alt` merged into `--mk-card`; neutral `--gray-*` kept as a documented ramp. Phone fix: workspace tool dock no longer overflows the screen (box-sizing) and has tighter padding below 400px.
+
+## 12. Team feedback round (2026-10-07)
+Applied from Sarah's notes: picker eagle raised and bubble/dots/eagle centered on the panel (verified numerically at 1366 and 390px); decor now uses the team's own art (panel flower/star clusters, 3-shape canvas backdrops, portrait fallback with single shapes, real cloud, peek eagle, K12 tiles, check mark; medical cross recreated as SVG because that image file did not arrive); draw-color row no longer moves between themes (band is a pseudo-element); panel divider is flush with the panel edge (no gap, one line); light themes now use WHITE text/icons/outlines/filter labels. **D12 reversed at the team's request**: white on the pink/green panels measures ~2.2-2.6:1 (fails AA); a faint text-shadow was added and the one-block dark-text fallback is documented in `themes.css`. Homepage: clouds fully visible and kept off the text; eagle more visible beside the photo.
