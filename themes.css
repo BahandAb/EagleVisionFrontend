@@ -4,8 +4,10 @@
    default and needs no overrides (it is the :root palette in tokens.css).
    Names: Objective Blue (default), Micro Pink, Chlorophyll Green (D14).
 
-   Light themes (micro-pink, chlorophyll-green) use DARK text on the panel and tool column,
-   because the mockups' white-on-pink/teal measure 2.2-2.6:1 (D12 A).
+   Light themes (micro-pink, chlorophyll-green) use WHITE text/icons/outlines as in the team's
+   mockups (D12 revised after the team asked for it). NOTE: white on these panels measures only
+   ~2.2-2.6:1 (fails WCAG AA); the dark-text variant is the one-block fix if that is ever revisited:
+   set --panel-label/--panel-text-secondary/--tool-icon/--hint-on-panel to #1e1e1e and --tool-img-filter to brightness(0).
    ============================================================ */
 
 html[data-theme="micro-pink"] {
@@ -18,29 +20,23 @@ html[data-theme="micro-pink"] {
     --select-toolcol: #bb6c84;
     --bg-stroke-btn: #9f9f9f;
     --bg-stroke-btn-selected: #c2c2c2;
-    --border-control: rgba(30, 30, 30, 0.6);
-    --panel-label: #1e1e1e;
-    --panel-text-secondary: #2b2b2b;
-    --tool-icon: #1e1e1e;
+    --border-control: rgba(255, 255, 255, 0.8);
+    --border-divider: rgba(255, 255, 255, 0.7);
+    --panel-label: #ffffff;
+    --panel-text-secondary: #ffffff;
+    --tool-icon: #ffffff;
     --tool-icon-active: #ffffff;
-    --tool-img-filter: brightness(0);
+    --tool-img-filter: none;
     --tool-img-filter-active: none;
-    --filter-label-r-text: #5c0c10;
-    --filter-label-g: #123000;
-    --filter-label-b: #00314a;
-    --hint-on-panel: #3a2430;
-    --danger-on-panel: #5c0c10;
-    --success-on-panel: #053305;
-    --accent-on-panel: #3a2300;
-    --theme-decor-workspace:
-        url("assets/ui/decor-flower-dark.png") 4% 22% / 190px no-repeat,
-        url("assets/ui/decor-flower-dark.png") 9% 96% / 150px no-repeat,
-        url("assets/ui/decor-flower-dark.png") 99% 34% / 210px no-repeat,
-        url("assets/ui/decor-flower-dark.png") 94% 98% / 150px no-repeat;
-    --theme-decor-panel:
-        url("assets/ui/decor-flower-pink.png") 64% 58% / 110px no-repeat,
-        url("assets/ui/decor-flower-pink.png") 12% 30% / 42px no-repeat,
-        url("assets/ui/decor-flower-pink.png") 20% 74% / 52px no-repeat;
+    --filter-label-r-text: #ffffff;
+    --filter-label-g: #ffffff;
+    --filter-label-b: #ffffff;
+    --hint-on-panel: #ffffff;
+    --danger-on-panel: #ffffff;
+    --success-on-panel: #ffffff;
+    --accent-on-panel: #ffffff;
+    --theme-decor-workspace: url("assets/ui/decor-canvas-flowers.png") center / cover no-repeat;
+    --theme-decor-panel: url("assets/ui/decor-panel-flowers.png") left bottom / 100% auto no-repeat;
 }
 
 html[data-theme="chlorophyll-green"] {
@@ -53,50 +49,52 @@ html[data-theme="chlorophyll-green"] {
     --select-toolcol: #efae6a;
     --bg-stroke-btn: #a6a6a6;
     --bg-stroke-btn-selected: #c6c6c6;
-    --border-control: rgba(30, 30, 30, 0.6);
-    --panel-label: #1e1e1e;
-    --panel-text-secondary: #2b2b2b;
-    --tool-icon: #1e1e1e;
-    --tool-icon-active: #1e1e1e;
-    --tool-img-filter: brightness(0);
-    --tool-img-filter-active: brightness(0);
-    --filter-label-r-text: #5c0c10;
-    --filter-label-g: #123000;
-    --filter-label-b: #00314a;
-    --hint-on-panel: #1f3a36;
-    --danger-on-panel: #5c0c10;
-    --success-on-panel: #053305;
-    --accent-on-panel: #3a2300;
-    --theme-decor-workspace:
-        url("assets/ui/decor-star-dark.svg") 3% 20% / 210px no-repeat,
-        url("assets/ui/decor-star-dark.svg") 6% 98% / 150px no-repeat,
-        url("assets/ui/decor-star-dark.svg") 100% 62% / 230px no-repeat;
-    --theme-decor-panel:
-        url("assets/ui/star-yellow.svg") 92% 64% / 100px no-repeat,
-        url("assets/ui/star-pink.svg") 6% 70% / 62px no-repeat,
-        url("assets/ui/star-skyblue.svg") 26% 38% / 38px no-repeat;
+    --border-control: rgba(255, 255, 255, 0.8);
+    --border-divider: rgba(255, 255, 255, 0.7);
+    --panel-label: #ffffff;
+    --panel-text-secondary: #ffffff;
+    --tool-icon: #ffffff;
+    --tool-icon-active: #ffffff;
+    --tool-img-filter: none;
+    --tool-img-filter-active: none;
+    --filter-label-r-text: #ffffff;
+    --filter-label-g: #ffffff;
+    --filter-label-b: #ffffff;
+    --hint-on-panel: #ffffff;
+    --danger-on-panel: #ffffff;
+    --success-on-panel: #ffffff;
+    --accent-on-panel: #ffffff;
+    --theme-decor-workspace: url("assets/ui/decor-canvas-stars.png") center / cover no-repeat;
+    --theme-decor-panel: url("assets/ui/decor-panel-stars.png") left bottom / 100% auto no-repeat;
 }
 
-/* Light themes: panel text/border adjustments (hint + danger text come from the tokens above) */
+/* Portrait screens: the wide 3-shape backdrop would be cropped by `cover`, so place the same
+   3 single shapes explicitly. */
+@media (max-aspect-ratio: 1/1) {
+    html[data-theme="micro-pink"] {
+        --theme-decor-workspace:
+            url("assets/ui/decor-flower-single.png") 6% 8% / 120px no-repeat,
+            url("assets/ui/decor-flower-single.png") 24% 96% / 150px no-repeat,
+            url("assets/ui/decor-flower-single.png") 100% 48% / 140px no-repeat;
+    }
+    html[data-theme="chlorophyll-green"] {
+        --theme-decor-workspace:
+            url("assets/ui/decor-star-single.png") 6% 8% / 120px no-repeat,
+            url("assets/ui/decor-star-single.png") 24% 96% / 150px no-repeat,
+            url("assets/ui/decor-star-single.png") 100% 48% / 140px no-repeat;
+    }
+}
+
+/* Light themes: every outline/rule follows --border-control / --border-divider (white). A faint
+   shadow keeps white text legible on the pastel panels without changing the palette. */
 html[data-theme="micro-pink"] .side-panel,
-html[data-theme="chlorophyll-green"] .side-panel {
-    border-right-color: var(--border-control);
-}
-
-html[data-theme="micro-pink"] .color-picker-row,
-html[data-theme="chlorophyll-green"] .color-picker-row {
-    background: var(--bg-swatch-row);
-    margin-left: -20px;
-    margin-right: -20px;
-    padding: 6px 20px;
+html[data-theme="chlorophyll-green"] .side-panel,
+html[data-theme="micro-pink"] .toolbar-dock,
+html[data-theme="chlorophyll-green"] .toolbar-dock {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 
 html[data-theme="micro-pink"] .workspace-area,
 html[data-theme="chlorophyll-green"] .workspace-area {
     background: var(--theme-decor-workspace), var(--bg-dark);
-}
-
-html[data-theme="micro-pink"] .btn-leave.top-exit,
-html[data-theme="chlorophyll-green"] .btn-leave.top-exit {
-    background: var(--bg-topbar-btn);
 }

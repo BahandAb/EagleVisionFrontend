@@ -256,7 +256,7 @@ body.resizing-sidebar .side-panel {
 .side-panel {
     width: var(--sidebar-width);
     background: var(--bg-panel);
-    border-right: 1px solid var(--gray-33);
+    border-right: 0;
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
@@ -273,12 +273,11 @@ body.resizing-sidebar .side-panel {
 .sidebar-resizer::before {
     content: "";
     position: absolute;
-    left: 2px;
+    left: 0;
     top: 0;
     bottom: 0;
-    width: 2px;
-    background: var(--gray-33);
-    opacity: 0.6;
+    width: 1px;
+    background: var(--border-divider);
 }
 
 .sidebar-resizer.dragging {
@@ -313,7 +312,7 @@ body.resizing-sidebar .side-panel {
     color: var(--panel-text-secondary);
     margin-bottom: 20px;
     letter-spacing: 1px;
-    border-bottom: 1px solid var(--gray-33);
+    border-bottom: 1px solid var(--border-divider);
     padding-bottom: 10px;
 }
 
@@ -1184,7 +1183,7 @@ input[type=range] {
 }
 
 /* Side panel */
-.panel-rule { border-color: var(--gray-33); margin: 20px 0; }
+.panel-rule { border: 0; border-top: 1px solid var(--border-divider); margin: 20px 0; }
 .dot-2 { width: 2px; height: 2px; }
 .dot-6 { width: 6px; height: 6px; }
 .dot-12 { width: 12px; height: 12px; }
@@ -1307,12 +1306,12 @@ input[type=range] {
 #panel-tools.active { display: flex; flex-direction: column; }
 .theme-picker {
     position: relative;
-    margin: auto -20px -20px;      /* bleed to the panel edges; mascot is clipped by the panel bottom */
-    padding: 24px 20px 0;
-    text-align: left;
+    margin: auto -20px -20px;      /* bleed to the panel edges; the eagle is clipped by the panel bottom */
+    padding: 22px 20px 0;
     overflow: hidden;
     height: 210px;
     flex-shrink: 0;
+    text-align: center;
 }
 .theme-picker::before {
     content: "";
@@ -1325,24 +1324,22 @@ input[type=range] {
 .theme-picker > .theme-bubble { position: relative; }
 .theme-locked-msg {
     margin: 0 0 8px;
-    text-align: center;
     font-size: 12px;
     color: var(--panel-label);
 }
 .theme-bubble {
-    position: relative;
-    margin-left: 55px;
     display: inline-flex;
     gap: 12px;
     padding: 10px 14px;
     background: var(--white);
     border-radius: 18px;
 }
-.theme-bubble::after {          /* speech-bubble tail pointing at the eagle */
+.theme-bubble::after {          /* tail, centered above the eagle */
     content: "";
     position: absolute;
-    left: 28px;
-    bottom: -10px;
+    left: 50%;
+    bottom: -9px;
+    transform: translateX(-50%);
     border: 10px solid transparent;
     border-top-color: var(--white);
     border-bottom: 0;
@@ -1354,19 +1351,22 @@ input[type=range] {
     border-radius: 50%;
     border: 0;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--white);
-    font-size: 14px;
-    font-weight: 900;
-    line-height: 1;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 12px 12px;
 }
-.theme-dot-objective-blue { background: var(--theme-dot-objective-blue); }
-.theme-dot-micro-pink { background: var(--theme-dot-micro-pink); }
-.theme-dot-chlorophyll-green { background: var(--theme-dot-chlorophyll-green); }
-.theme-dot[aria-checked="true"]::after { content: "\2713"; }
-.theme-mascot { position: absolute; left: 50px; bottom: -48px; width: 130px; height: auto; }  /* lower part is clipped by the picker, like the mockup */
+.theme-dot-objective-blue { background-color: var(--theme-dot-objective-blue); }
+.theme-dot-micro-pink { background-color: var(--theme-dot-micro-pink); }
+.theme-dot-chlorophyll-green { background-color: var(--theme-dot-chlorophyll-green); }
+.theme-dot[aria-checked="true"] { background-image: url("assets/ui/check.png"); }
+.theme-mascot {
+    position: absolute;
+    left: 50%;
+    bottom: -22px;
+    transform: translateX(-50%);
+    width: 140px;
+    height: auto;
+}
 .theme-picker.is-locked .theme-bubble { background: var(--theme-disabled-fill); }
 .theme-picker.is-locked .theme-bubble::after { border-top-color: var(--theme-disabled-fill); }
 .theme-picker.is-locked .theme-dot { cursor: not-allowed; filter: saturate(0.45) brightness(0.85); }
@@ -1398,3 +1398,16 @@ input[type=range] {
     .tool-btn { width: 40px; height: 40px; }
     .toolbar-dock { padding: 8px 8px; }
 }
+
+/* Swatch-row highlight band (light themes): drawn behind the row, so the row never moves between themes */
+.color-picker-row { position: relative; }
+.color-picker-row::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    right: -20px;
+    top: -6px;
+    bottom: -6px;
+    background: var(--bg-swatch-row, transparent);
+}
+.color-picker-row > .color-swatch { position: relative; }
