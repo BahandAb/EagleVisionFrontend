@@ -549,7 +549,7 @@ input[type=range] {
     content: "";
     position: absolute;
     inset: 0;
-    background: url("assets/ui/check.png") center / 20px 20px no-repeat;
+    background: url("assets/ui/check.png") center / 22px auto no-repeat;   /* auto height keeps the 922:629 aspect ratio */
     /* thin dark halo so the white check is still visible on the yellow, green, blue and white swatches */
     filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.75));
 }
@@ -1352,7 +1352,7 @@ input[type=range] {
     cursor: pointer;
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 12px 12px;
+    background-size: 13px auto;   /* keep the check image aspect ratio */
 }
 .theme-dot-objective-blue { background-color: var(--theme-dot-objective-blue); }
 .theme-dot-micro-pink { background-color: var(--theme-dot-micro-pink); }
