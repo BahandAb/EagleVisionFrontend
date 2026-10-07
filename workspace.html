@@ -6,9 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision Workspace</title>
-    <link rel="stylesheet" href="tokens.css?v=7e70ef48">
-    <link rel="stylesheet" href="style.css?v=fc83b747">
-    <link rel="stylesheet" href="themes.css?v=f95fa943">
+    <link rel="stylesheet" href="tokens.css?v=903a1de2">
+    <link rel="stylesheet" href="style.css?v=23278c33">
+    <link rel="stylesheet" href="themes.css?v=3d242b62">
     <script>
         /* Apply the saved theme before first paint (no flash). Failures fall back to the default theme. */
         try { var t = localStorage.getItem('eagleTheme'); if (t === 'micro-pink' || t === 'chlorophyll-green') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
@@ -123,17 +123,17 @@
             <div id="panel-adjustments" class="panel-content">
                 <div class="panel-header">🔧 Image Settings</div>
                 <div class="control-group">
-                    <label class="filter-label-r">Red Channel: <span class="slider-value" id="val-r">100</span></label>
+                    <label>Red Channel: <span class="slider-value" id="val-r">100</span></label>
                     <input type="range" id="slider-r" min="0" max="255" value="100"
                         oninput="updateRGB('r', this.value)">
                 </div>
                 <div class="control-group">
-                    <label class="filter-label-g">Green Channel: <span class="slider-value" id="val-g">100</span></label>
+                    <label>Green Channel: <span class="slider-value" id="val-g">100</span></label>
                     <input type="range" id="slider-g" min="0" max="255" value="100"
                         oninput="updateRGB('g', this.value)">
                 </div>
                 <div class="control-group">
-                    <label class="filter-label-b">Blue Channel: <span class="slider-value" id="val-b">100</span></label>
+                    <label>Blue Channel: <span class="slider-value" id="val-b">100</span></label>
                     <input type="range" id="slider-b" min="0" max="255" value="100"
                         oninput="updateRGB('b', this.value)">
                 </div>

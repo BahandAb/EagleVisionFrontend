@@ -28,9 +28,6 @@ html[data-theme="micro-pink"] {
     --tool-icon-active: #ffffff;
     --tool-img-filter: none;
     --tool-img-filter-active: none;
-    --filter-label-r-text: #ffffff;
-    --filter-label-g: #ffffff;
-    --filter-label-b: #ffffff;
     --hint-on-panel: #ffffff;
     --danger-on-panel: #ffffff;
     --success-on-panel: #ffffff;
@@ -41,7 +38,7 @@ html[data-theme="micro-pink"] {
 
 html[data-theme="chlorophyll-green"] {
     --bg-topbar: #4468ad;
-    --bg-code: #3c72b0;
+    --bg-code: #5982bb;       /* session-code box (team request) */
     --bg-topbar-btn: #4468a1;
     --bg-panel: #82b8b0;
     --bg-swatch-row: #80bbb4;
@@ -57,9 +54,6 @@ html[data-theme="chlorophyll-green"] {
     --tool-icon-active: #ffffff;
     --tool-img-filter: none;
     --tool-img-filter-active: none;
-    --filter-label-r-text: #ffffff;
-    --filter-label-g: #ffffff;
-    --filter-label-b: #ffffff;
     --hint-on-panel: #ffffff;
     --danger-on-panel: #ffffff;
     --success-on-panel: #ffffff;

@@ -474,6 +474,11 @@ input[type=range] {
     margin-top: 5px;
 }
 
+/* RGB channel sliders are colored (track fill + thumb), in every theme; labels stay normal */
+#slider-r { accent-color: var(--slider-r); }
+#slider-g { accent-color: var(--slider-g); }
+#slider-b { accent-color: var(--slider-b); }
+
 .checkbox-group label {
     display: flex;
     align-items: center;
@@ -1185,9 +1190,6 @@ input[type=range] {
 .dot-6 { width: 6px; height: 6px; }
 .dot-12 { width: 12px; height: 12px; }
 .slider-value { color: var(--white); float: right; }
-.control-group label.filter-label-r { color: var(--filter-label-r-text); }
-.control-group label.filter-label-g { color: var(--filter-label-g); }
-.control-group label.filter-label-b { color: var(--filter-label-b); }
 .hint-block { color: var(--gray-88); display: block; margin-bottom: 15px; }
 .hint-sm { color: var(--gray-66); font-size: 11px; display: block; margin-top: 4px; }
 .hint-text { font-size: 12px; color: var(--gray-88); }
