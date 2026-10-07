@@ -56,9 +56,9 @@
     --draw-green: #adf66d;
     --draw-blue: #5dd8ff;
     --draw-white: #ffffff;
-    --filter-label-r-text: #ff9a9d; /* D9 A: lighter red for label TEXT, 4.58:1 on --bg-panel */
-    --filter-label-g: #adf66d;
-    --filter-label-b: #5dd8ff;
+    --slider-r: var(--draw-red);     /* RGB channel sliders (fill + thumb) */
+    --slider-g: var(--draw-green);
+    --slider-b: var(--draw-blue);
 
     /* ---- Typography (Phase 3; fonts.css loads Fredoka + Poppins) ---- */
     --font-display: 'Fredoka', 'Segoe UI', Roboto, sans-serif;   /* marketing headings, mascot-friendly */
