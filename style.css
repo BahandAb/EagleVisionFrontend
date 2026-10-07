@@ -194,8 +194,8 @@ body.resizing-sidebar .side-panel {
 }
 
 .btn-leave:hover {
-    border-color: var(--danger);
-    color: var(--danger);
+    border-color: var(--danger-neutral);
+    color: var(--danger-neutral);
     transform: translateY(-2px);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
@@ -544,14 +544,12 @@ input[type=range] {
 }
 
 /* D8: white glow is invisible on the white swatch, so every selected swatch
-   also carries the same white check as the theme dots (with a faint dark halo). */
+   also carries the same white check as the theme dots (no glow or shading). */
 .color-swatch.active::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: url("assets/ui/check.png") center / 22px auto no-repeat;   /* auto height keeps the 922:629 aspect ratio */
-    /* thin dark halo so the white check is still visible on the yellow, green, blue and white swatches */
-    filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.75));
+    background: url("assets/ui/check.png") center / 16px auto no-repeat;   /* auto height keeps the 922:629 aspect ratio; no shading (team request) */
 }
 
 .thickness-row {
@@ -1214,10 +1212,10 @@ input[type=range] {
 }
 
 /* Button variants layered on .btn-leave */
-.btn-leave.btn-danger { border-color: var(--danger); color: var(--danger); }
+.btn-leave.btn-danger { border-color: var(--danger-neutral); color: var(--danger); }
 .btn-leave.btn-border-danger { border-color: var(--danger); }
 .btn-leave.btn-border-success { border-color: var(--success); }
-.btn-leave.btn-border-muted { border-color: var(--gray-55); }
+.btn-leave.btn-border-muted { border-color: var(--border-control); }
 .btn-leave.btn-compact { padding: 4px 8px; font-size: 12px; }
 .btn-leave.btn-compact-xs { padding: 6px 10px; font-size: 11px; }
 .btn-leave.btn-accent-link,
@@ -1385,6 +1383,9 @@ input[type=range] {
 .side-panel .text-accent { color: var(--accent-on-panel); }
 .top-header .btn-leave.top-exit { color: var(--white); }
 .side-panel .btn-leave.btn-danger { color: var(--danger-on-panel); }
+/* hover on any button (incl. Reset All / Clear ALL): the neutral red, not neon */
+.side-panel .btn-leave:hover,
+.side-panel .btn-leave.btn-danger:hover { border-color: var(--danger-neutral); color: var(--danger-neutral); }
 .activity-icon-label { color: var(--text-muted); }
 
 /* Phone fix: the tool dock was 10px wider than the screen (width:100% + padding + border without border-box),

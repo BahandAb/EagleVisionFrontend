@@ -20,7 +20,8 @@
     --bg-rail-active: #252019;     /* active rail tab */
     --bg-stroke-btn: #3d3d3d;
     --bg-stroke-btn-selected: #787878;
-    --border-control: #7f97a8;     /* lightened from sampled #586875 to reach 3:1 on --bg-panel (D25 A) */
+    --border-control: #ffffff;     /* panel button/stroke outlines: white in every theme (team request) */
+    --danger-neutral: var(--draw-red);  /* hover + Reset-All outline red (softer than --danger) */
     --text-secondary: #d8d6d5;
     --hint-on-panel: #c7d3df;      /* secondary/hint text inside the side panel */
     --success-on-panel: #44ff44;
