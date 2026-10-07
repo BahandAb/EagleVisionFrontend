@@ -552,6 +552,11 @@ input[type=range] {
     background: url("assets/ui/check.png") center / 16px auto no-repeat;   /* auto height keeps the 922:629 aspect ratio; no shading (team request) */
 }
 
+/* The white swatch is the only one where a white check disappears, so only it gets a dark halo */
+.color-swatch.draw-white.active::after {
+    filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.75));
+}
+
 .thickness-row {
     display: flex;
     gap: 10px;
