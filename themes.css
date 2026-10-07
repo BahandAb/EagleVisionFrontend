@@ -60,7 +60,7 @@ html[data-theme="chlorophyll-green"] {
     --success-on-panel: #ffffff;
     --accent-on-panel: #ffffff;
     --theme-decor-workspace: url("assets/ui/decor-canvas-stars.png") center / cover no-repeat;
-    --theme-decor-panel: url("assets/ui/decor-panel-stars-left.png") 22px bottom / 26% auto no-repeat,
+    --theme-decor-panel: url("assets/ui/decor-panel-stars-left.png") 16px bottom / 22% auto no-repeat,
         url("assets/ui/decor-panel-stars-big.png") right 16px bottom 26px / 50% auto no-repeat;
 }
 
