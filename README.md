@@ -193,7 +193,7 @@ Returns `{ "success": true, "tier": "basic" | "pro" }` or 401. Used by the front
 
 ### Workspace Layout
 
-The workspace has a left **activity bar** (panel tabs), a **resizable side panel**, and a centered **viewport** (video + annotation canvas) with a floating tool column on its right. The activity bar opens seven panels:
+The workspace has a left **activity bar** (panel tabs), a **resizable side panel**, and a centered **viewport** (video + annotation canvas) with a floating tool column on its right. The activity bar opens eight panels:
 
 | Panel | Icon | Contents |
 |-------|------|----------|
@@ -202,7 +202,8 @@ The workspace has a left **activity bar** (panel tabs), a **resizable side panel
 | Gallery | Photo | Saved snapshots with lightbox preview |
 | Eagle AI | Eagle logo | Specimen analysis (Basic / Pro) |
 | People | Group | Live participant roster |
-| Settings | Gear | Admin controls (follow mode, broadcast drawings, lock themes, clear all) |
+| Host | Shield | Admin key + host controls (follow mode, broadcast drawings, lock themes, clear all) |
+| Settings | Gear | Colorblind symbols switch and a text list of the color themes |
 | Dev | Code | Developer mode (placeholder) |
 
 **Tool column** (floating, right of the viewport; below it on phones):

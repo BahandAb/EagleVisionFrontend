@@ -784,7 +784,7 @@ function applyTheme(id) {
     if (!THEME_IDS.includes(id)) id = 'objective-blue';
     if (id === 'objective-blue') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', id);
-    document.querySelectorAll('.theme-dot').forEach(d => d.setAttribute('aria-checked', String(d.dataset.themeId === id)));
+    document.querySelectorAll('.theme-dot, .theme-option').forEach(d => d.setAttribute('aria-checked', String(d.dataset.themeId === id)));
 }
 function setTheme(id) {
     if (themesLocked && !isAdmin) return;
@@ -800,7 +800,8 @@ function setThemesLocked(locked) {
     // A locked student sees the default theme; their saved choice is kept and comes back on unlock.
     let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
     applyTheme(lockedForMe ? 'objective-blue' : (saved || 'objective-blue'));
-    document.querySelectorAll('.theme-dot').forEach(d => { d.disabled = lockedForMe; });
+    document.querySelectorAll('.theme-dot, .theme-option').forEach(d => { d.disabled = lockedForMe; });
+    const oh = document.getElementById('themeOptionsHint'); if (oh) oh.style.display = lockedForMe ? 'block' : 'none';
 }
 function toggleThemesLock() {
     if (!isAdmin) return;
@@ -817,7 +818,7 @@ function toggleThemesLock() {
 function applySymbolsMode(on) {
     if (on) document.documentElement.setAttribute('data-symbols', 'on');
     else document.documentElement.removeAttribute('data-symbols');
-    const t = document.getElementById('symbolsToggle'); if (t) t.checked = !!on;
+    document.querySelectorAll('.js-symbols-toggle').forEach(t => { t.checked = !!on; });
 }
 function setSymbolsMode(on) {
     applySymbolsMode(on);
