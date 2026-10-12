@@ -215,7 +215,7 @@ Size: S small, M medium, L large. "Media" = waiting on images.
 
 | ID | Item | Size | Needs |
 |---|---|---|---|
-| R3-01 | Pan tool keeps the current stock hand icon (no change) | S | none |
+| R3-01 | Pan tool: restore the PRE-OVERHAUL icon (Material Icons `pan_tool`), not Sarah's white-hand PNG (clarified 2026-10-12) | S | none |
 | R3-02 | Panel decor: big flower and big star a little smaller (green + pink themes) | S | none |
 | R3-03 | Snapshot (camera) icon a little smaller | S | none |
 | R3-04 | Selected-tool pulsing circle smaller, clear of the dock border | S | none |
@@ -229,3 +229,4 @@ Size: S small, M medium, L large. "Media" = waiting on images.
 | R3-12 | iOS Safari pass (bottom search bar: dvh/safe-area, no 100vh traps); real-device test by the team after | M | none |
 | R3-13 | Undo for pen, eraser, counter, text | L | D45, button icon (media?) |
 | R3-14 | Draggable text boxes | L | D46 |
+| R3-15 | RGB sliders: all three unfilled tracks must look identical (currently the red slider's track renders white, green/blue dark: Chromium's accent-color tints the track by luminance). Use explicit custom track styling | S | none |
