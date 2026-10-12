@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision Workspace</title>
     <link rel="stylesheet" href="tokens.css?v=30d0efda">
-    <link rel="stylesheet" href="style.css?v=f02857d3">
-    <link rel="stylesheet" href="themes.css?v=231eaefe">
+    <link rel="stylesheet" href="style.css?v=61cc892d">
+    <link rel="stylesheet" href="themes.css?v=dcfe2252">
     <script>
         /* Apply the saved theme before first paint (no flash). Failures fall back to the default theme. */
         try { var t = localStorage.getItem('eagleTheme'); if (t === 'micro-pink' || t === 'chlorophyll-green') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
@@ -60,7 +60,10 @@
                 <span class="activity-icon-label">EAGLE<br>AI</span>
             </div>
             <div class="activity-icon" onclick="togglePanel('people')" title="Roster">
-                <img class="rail-img" src="assets/ui/icon-roster.png" alt="Roster">
+                <img class="rail-img rail-img-wide" src="assets/ui/icon-roster.png" alt="Roster">
+            </div>
+            <div class="activity-icon" onclick="togglePanel('host')" title="Host Controls">
+                <span class="material-icons">shield</span>
             </div>
             <div class="activity-icon" onclick="togglePanel('settings')" title="Settings">
                 <span class="material-icons">settings</span>
@@ -80,7 +83,7 @@
                     <div class="label-row">
                         <label>Draw Color</label>
                         <label class="switch" title="Show a symbol on each drawing color (helps tell colors apart)">
-                            <input type="checkbox" id="symbolsToggle" onchange="setSymbolsMode(this.checked)">
+                            <input type="checkbox" id="symbolsToggle" class="js-symbols-toggle" onchange="setSymbolsMode(this.checked)">
                             <span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
                             <span class="switch-text">Symbols</span>
                         </label>
@@ -295,8 +298,8 @@
                 <div id="studentRosterList"></div>
             </div>
 
-            <div id="panel-settings" class="panel-content">
-                <div class="panel-header">Settings</div>
+            <div id="panel-host" class="panel-content">
+                <div class="panel-header">🛡️ Host Controls</div>
 
                 <div id="adminLoginForm">
                     <div class="control-group">
@@ -365,6 +368,28 @@
                 </div>
             </div>
 
+            <div id="panel-settings" class="panel-content">
+                <div class="panel-header">⚙️ Settings</div>
+
+                <div class="control-group">
+                    <label>Colorblind symbols</label>
+                    <label class="switch settings-switch">
+                        <input type="checkbox" class="js-symbols-toggle" onchange="setSymbolsMode(this.checked)">
+                        <span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
+                        <span class="switch-text">Show symbols on drawing colors</span>
+                    </label>
+                    <small class="hint-block">Puts a small picture on each drawing color so they are easy to tell apart. Saved on this device.</small>
+                </div>
+
+                <div class="control-group" id="themeOptions" role="radiogroup" aria-label="Color theme">
+                    <label>Color theme</label>
+                    <button type="button" class="btn-leave w-full mb-5 theme-option" role="radio" aria-checked="true" data-theme-id="objective-blue" onclick="setTheme('objective-blue')">Objective Blue</button>
+                    <button type="button" class="btn-leave w-full mb-5 theme-option" role="radio" aria-checked="false" data-theme-id="micro-pink" onclick="setTheme('micro-pink')">Micro Pink</button>
+                    <button type="button" class="btn-leave w-full theme-option" role="radio" aria-checked="false" data-theme-id="chlorophyll-green" onclick="setTheme('chlorophyll-green')">Chlorophyll Green</button>
+                    <small class="hint-block mt-5" id="themeOptionsHint" style="display:none;">Your teacher has disabled this feature.</small>
+                </div>
+            </div>
+
             <div id="panel-code" class="panel-content">
                 <div class="panel-header">Developer Tools</div>
                 <p class="hint-text">Coming Soon: Python Overlay Engine</p>
@@ -387,7 +412,7 @@
             <div class="toolbar-dock">
                 <button class="tool-btn active" onclick="setTool('move')" id="btnToolMove"
                     title="Move and Zoom the Image">
-                    <span class="material-icons">pan_tool</span>
+                    <span class="material-icons icon-pan-glyph">pan_tool</span>
                 </button>
                 <div class="toolbar-divider"></div>
                 <button class="tool-btn" onclick="setTool('draw')" id="btnToolDraw" title="Draw with Pen">
@@ -428,7 +453,7 @@
 
     <script src="undo.js?v=bb0d0198"></script>
     <script src="text-tool.js?v=099e2d11"></script>
-    <script src="script.js?v=c6a408f1"></script>
+    <script src="script.js?v=f429ebbe"></script>
 <script src="sw-register.js?v=0ea6aea7" defer></script>
 </body>
 

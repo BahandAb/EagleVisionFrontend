@@ -1110,6 +1110,7 @@ input[type=range] {
 }
 .panel-input {
     width: 100%;
+    box-sizing: border-box;
     padding: 8px;
     background: var(--gray-11);
     border: 1px solid var(--gray-44);
@@ -1163,6 +1164,7 @@ input[type=range] {
 }
 .admin-input {
     width: 100%;
+    box-sizing: border-box;
     padding: 8px;
     border-radius: 4px;
     border: 1px solid var(--join-card-border);
@@ -1207,7 +1209,7 @@ input[type=range] {
 .theme-picker {
     position: relative;
     margin: auto -20px -20px;      /* bleed to the panel edges; the eagle is clipped by the panel bottom */
-    padding: 38px 20px 0;
+    padding: 44px 20px 0;
     box-sizing: border-box;
     overflow: hidden;
     height: 250px;
@@ -1332,18 +1334,21 @@ input[type=range] {
 .control-group label.switch {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     margin: 0;
     cursor: pointer;
     font-size: 12px;
+    line-height: 14px;           /* the switch is exactly one line of text tall */
     letter-spacing: 0.5px;
 }
+.control-group label.settings-switch { font-size: 13px; line-height: 16px; text-transform: none; font-weight: 600; }
 .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .switch-track {
     position: relative;
-    width: 38px;
-    height: 18px;
-    border-radius: 9px;
+    flex-shrink: 0;
+    width: 26px;
+    height: 14px;
+    border-radius: 7px;
     background: var(--gray-33);
     transition: background 0.2s;
 }
@@ -1351,14 +1356,17 @@ input[type=range] {
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: var(--theme-dot-objective-blue-light, #a8dcf8);
     transition: transform 0.2s;
 }
-.switch input:checked + .switch-track .switch-knob { transform: translateX(20px); }
+.switch input:checked + .switch-track .switch-knob { transform: translateX(12px); }
 .switch input:focus-visible + .switch-track { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.settings-switch .switch-track { width: 30px; height: 16px; border-radius: 8px; }
+.settings-switch .switch-knob { width: 12px; height: 12px; }
+.settings-switch input:checked + .switch-track .switch-knob { transform: translateX(14px); }
 .swatch-symbol { display: none; width: 62%; height: 62%; object-fit: contain; pointer-events: none; }
 html[data-symbols="on"] .swatch-symbol { display: block; }
 /* with symbols on, the selected swatch is shown by the white ring + glow alone (no check) */
@@ -1436,3 +1444,9 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     textarea,
     select { font-size: 16px; }
 }
+
+/* Rail icons: the two-people roster art is wide, so it is sized by height to match the other icons' visual weight */
+.rail-img.rail-img-wide { height: 20px; }
+.theme-option[aria-checked="true"] { background: rgba(255, 255, 255, 0.18); }
+.theme-option:disabled { opacity: 0.5; cursor: not-allowed; }
+.tool-btn .material-icons.icon-pan-glyph { font-size: 24px; transform: translate(-2.5px, -2px); }   /* the hand glyph is heavier right/low; nudge it so its visual center sits in the circle */

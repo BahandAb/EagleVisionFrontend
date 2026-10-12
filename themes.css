@@ -35,7 +35,7 @@ html[data-theme="micro-pink"] {
     --theme-decor-workspace: url("assets/ui/decor-canvas-flowers.png") center / cover no-repeat;
     --theme-decor-panel:
         url("assets/ui/decor-pink-flower.png") 48px -1px / 40px auto no-repeat,
-        url("assets/ui/decor-molecule.png") 22px 81px / 68px auto no-repeat,
+        url("assets/ui/decor-molecule.png") 34px 81px / 68px auto no-repeat,
         url("assets/ui/decor-panel-flowers-big.png") 164px 41px / 135px auto no-repeat;
 }
 
