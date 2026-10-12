@@ -209,3 +209,23 @@ Unused tokens removed; remaining one-offs renamed by role (`--host-*` status bad
 
 ## 12. Team feedback round (2026-10-07)
 Applied from Sarah's notes: picker eagle raised and bubble/dots/eagle centered on the panel (verified numerically at 1366 and 390px); decor now uses the team's own art (panel flower/star clusters, 3-shape canvas backdrops, portrait fallback with single shapes, real cloud, peek eagle, K12 tiles, check mark; medical cross recreated as SVG because that image file did not arrive); draw-color row no longer moves between themes (band is a pseudo-element); panel divider is flush with the panel edge (no gap, one line); light themes now use WHITE text/icons/outlines/filter labels. **D12 reversed at the team's request**: white on the pink/green panels measures ~2.2-2.6:1 (fails AA); a faint text-shadow was added and the one-block dark-text fallback is documented in `themes.css`. Homepage: clouds fully visible and kept off the text; eagle more visible beside the photo.
+
+## 13. Round 3 backlog (Draft, from the Discord export; see SOURCES.md "Round 3")
+Size: S small, M medium, L large. "Media" = waiting on images.
+
+| ID | Item | Size | Needs |
+|---|---|---|---|
+| R3-01 | Pan tool keeps the current stock hand icon (no change) | S | none |
+| R3-02 | Panel decor: big flower and big star a little smaller (green + pink themes) | S | none |
+| R3-03 | Snapshot (camera) icon a little smaller | S | none |
+| R3-04 | Selected-tool pulsing circle smaller, clear of the dock border | S | none |
+| R3-05 | Session code box = Exit button size, matching font and size | S | D40 |
+| R3-06 | Picker eagle: move up a bit; correct the visual (not just box) centering | S | none |
+| R3-07 | Colorblind symbols on the five drawing colors, switchable | M | symbol art (media), D41 |
+| R3-08 | Remove check marks from swatches; keep the white outline | S | D43 |
+| R3-09 | Pink theme: new higher-contrast colors | M | media (palette) |
+| R3-10 | New "flower devouring eagle" art | M | media, where it goes |
+| R3-11 | New design for "the other page" | L | media, D44, Phoebe's eagle |
+| R3-12 | iOS Safari pass (bottom search bar: dvh/safe-area, no 100vh traps); real-device test by the team after | M | none |
+| R3-13 | Undo for pen, eraser, counter, text | L | D45, button icon (media?) |
+| R3-14 | Draggable text boxes | L | D46 |

@@ -46,3 +46,27 @@ Author and date were not provided for any message.
 
 ## Assets added to the repo
 Images 01-05 (color-controls icon, counter icon, gallery icon, two eagle mascots) are in `docs/design/reference/` at full size and in `assets/ui/` (icons resized to 128px tall). Used in: workspace rail (color controls, gallery), counter tool, enter-code mascot (happier eagle, D32 default). Pan, pen, roster and snapshot icons (09-12) are also wired in (pen brightened and snapshot grays lightened with ImageMagick to fix D21 contrast; originals untouched in `reference/`). `13-icon-theme2-flower` is saved in `assets/ui/` but unused until themes ship. Page mockups 06, 07, 08, 14, 15 are now in `reference/`. 16 (theme 3) and 17 (teacher-disabled state) are in `reference/` too; all 17 reference images are now present.
+
+
+## Round 3: Discord export (messages 2026-10-06 .. 10-08, pasted 2026-10-12)
+Line numbers = numbered lines of the pasted export. Media lines (8, 13, 27, 28, 32-34, 36-38, 46, 69, 79, 80, 83, 86) arrived without images; images come later in sets of five.
+
+| Lines | Who | Claim | Category | Lands in |
+|---|---|---|---|---|
+| 2 | Bahand (note to self) | Keep the same stock hand icon as before (pan tool) | icon | R3-01 |
+| 2 | Bahand | Big flower and big star (panel decor) a little smaller | decor | R3-02 |
+| 3-4 | Sarah | Forwarded #general item, "change this too" (content missing) | unknown | DECISIONS D39 |
+| 5 | Sarah | Camera (snapshot) icon a little too large | icon | R3-03 |
+| 6-7 | Sarah | Shrink the pulsing circle behind the selected tool; too close to the border | component | R3-04 |
+| 9-10 | Sarah | Box same size as Exit; font size + font match the rest (assumed: session code box) | component | R3-05, D40 |
+| 11-12 | Sarah | Bottom (picker) eagle still needs to go up a bit; slightly off center | decor | R3-06 |
+| 16-26, 44-56 | Sarah, Bahand | Colorblind support: small symbols on each drawing color, switchable on/off; Bahand: "cool setting to have", maybe ask Evan for advice | feature | R3-07, D41, D42 |
+| 24-25 | Sarah | Remove the check mark on the color options; keep only the white outline | component | R3-08, D43 |
+| 29-30 | Sarah | Pink theme changed for more color contrast (new colors in media); ignore purple outline on the pink box | theme | R3-09 |
+| 39-40 | Bahand | New art "flower devouring eagle" from Sarah; to implement later (media) | art | R3-10 |
+| 57-68 | Sarah, Bahand | Site checked with a red/green colorblind simulation: still coherent. No action | info | none |
+| 76-83 | Sarah | All graphics are hers, no stock images; new design for "the other page" (media); waiting on a new eagle for it from Phoebe | page design | R3-11, D44 |
+| 84-90 | Bahand | Test on iOS: Apple treats the site worse than Android; main difference is Safari's bottom search bar; wait until the updates are made | quality | R3-12 |
+| 92-103 | Sarah, Bahand | Undo button for eraser and pencil (also counter and text); Bahand thinks it is easy, may have had one before | feature | R3-13, D45 |
+| 104-112 | Sarah, Bahand | Text boxes should be draggable (currently stuck where placed); both fixes were tried and abandoned before, Bahand wants to make them happen now | feature | R3-14, D46 |
+| 1, 41-43, 69-75 | all | Chatter (welcome, emoji, event story) | none | none |

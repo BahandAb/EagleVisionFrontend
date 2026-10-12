@@ -40,3 +40,11 @@
 | D36 | Image 15/16 show a navy edge (#083e62) on the right column border, likely a leftover from theme 1 | Confirm it is an artifact | | | |
 | D37 | Red annotations on the empty microscope area are 2.92:1, and real specimen colors will vary | A) Add stroke outline/halo option. B) Accept | | | |
 | D38 | Messages have no author or date | Fill in | | | |
+| D39 | Lines 3-4 are a forwarded #general post with "change this too" but the content did not paste | Resend the image/text |  |  |  |
+| D40 | "The box" (line 9) is assumed to be the session code box in the workspace top bar. "Match the rest" is assumed to mean the Exit button's font (system sans, bold, same size) | A) Code box = Exit's height/padding + font. B) Different box |  |  |  |
+| D41 | Colorblind symbols: where is the on/off switch, what is the default, and is it per device (like themes)? | A) Setting in the Settings panel, default off, saved per device. B) Toggle next to the swatches. C) Both |  |  |  |
+| D42 | Symbol art and the "example" image have not arrived (lines 27-28) | Wait for media set |  |  |  |
+| D43 | Check mark removal (lines 24-25): always, or only when symbols are on? A selected WHITE swatch with only a white outline/glow is nearly indistinguishable from the others (D8) | A) Remove always; selected = white ring + glow + slight scale, plus a dark inner ring on the white swatch only. B) Remove only when symbols are on |  |  |  |
+| D44 | Which page is "the other page" with the new design and the pending eagle from Phoebe (lines 80-81)? | Host? About? Enter-code? Other |  |  |  |
+| D45 | Undo scope: which actions (pen, eraser, counter dots, text) and whose? Eraser undo means restoring what was erased. Host broadcast mode: do students see the undo? | A) Each user undoes only their own latest action (Ctrl/Cmd+Z and a button); host broadcast undo is synced to students. B) Local only |  |  |  |
+| D46 | Draggable text: drag the label while typing, after placing, or both; touch support | A) Both, mouse + touch, host-broadcast text syncs the new position. B) After placing only |  |  |  |
