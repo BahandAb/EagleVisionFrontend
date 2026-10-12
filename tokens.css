@@ -31,11 +31,11 @@
     --panel-text-secondary: var(--text-secondary);
     --tool-icon: #ffffff;
     --tool-icon-active: #ffffff;
-    --tool-img-filter: none;
-    --tool-img-filter-active: none;
     --bg-topbar-btn: transparent;
     --theme-decor-workspace: none;
     --theme-decor-panel: none;
+    --picker-eagle: url("assets/ui/mascot-eagle-happier.png");
+    --slider-track: rgba(255, 255, 255, 0.28);   /* unfilled range track: identical for every slider */
     --theme-disabled-fill: #cecece;
     --theme-dot-objective-blue: #2f84b6;
     --theme-dot-micro-pink: #e085a8;

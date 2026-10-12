@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eaglevision-v14';
+const CACHE_NAME = 'eaglevision-v15';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -15,6 +15,8 @@ const STATIC_ASSETS = [
   '/assets/fonts/poppins-latin-400-normal.woff2',
   '/landing.css',
   '/script.js',
+  '/undo.js',
+  '/text-tool.js',
   '/host.js',
   '/img_processor.js',
   '/js/socket.io.min.js',

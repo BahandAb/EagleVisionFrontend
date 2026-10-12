@@ -29,7 +29,8 @@ body.resizing-sidebar .side-panel {
         var(--bg-decor-wedge) 34% 62%,
         var(--bg-dark) 62% 100%);
     height: 100vh;
-    width: 100vw;
+    height: 100dvh;      /* iOS Safari: the bottom toolbar must not push content off-screen */
+    width: 100%;
 }
 
 .landing-card {
@@ -150,15 +151,21 @@ body.resizing-sidebar .side-panel {
 }
 
 .session-code {
-    font-size: 36px;
+    display: flex;
+    align-items: center;
+    height: 42px;
+    box-sizing: border-box;
+    padding: 0 16px;
+    font-family: var(--font-ui);
+    font-size: 22px;
     font-weight: 300;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
+    line-height: 1;
     color: var(--white);
     background: var(--bg-code);
-    font-family: var(--font-mono);
-    padding: 4px 12px;
     border-radius: 6px;
 }
+.top-header .btn-leave.top-exit { height: 42px; box-sizing: border-box; padding: 0 20px; }
 
 .tag-live {
     background: var(--danger);
@@ -411,8 +418,8 @@ body.resizing-sidebar .side-panel {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 55px;
-    height: 55px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: scale(1);
@@ -426,22 +433,22 @@ body.resizing-sidebar .side-panel {
 .tool-btn:hover {
     color: white;
     background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .tool-btn.active {
     color: var(--tool-icon-active);
     background: var(--select-toolcol);
-    transform: scale(1.15);
+    transform: scale(1);
     animation: pulse 2s infinite;
 }
 
 @keyframes pulse-tool {
     0%, 100% { 
-        transform: scale(1.15); 
+        transform: scale(1); 
     }
     50% { 
-        transform: scale(1.2); 
+        transform: scale(1.06); 
     }
 }
 
@@ -475,9 +482,6 @@ input[type=range] {
 }
 
 /* RGB channel sliders are colored (track fill + thumb), in every theme; labels stay normal */
-#slider-r { accent-color: var(--slider-r); }
-#slider-g { accent-color: var(--slider-g); }
-#slider-b { accent-color: var(--slider-b); }
 
 .checkbox-group label {
     display: flex;
@@ -517,11 +521,17 @@ input[type=range] {
 }
 
 .color-swatch {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
+    padding: 0;
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -627,8 +637,9 @@ input[type=range] {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.9);
     z-index: 100;
     display: none;
@@ -652,117 +663,6 @@ input[type=range] {
     max-height: 70vh;
     border-radius: 8px;
     object-fit: contain;
-}
-
-/* TEXT MODAL */
-.text-modal-content {
-    background: var(--bg-panel);
-    padding: 40px;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    border: 1px solid rgba(var(--accent-rgb), 0.2);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.text-modal-title {
-    margin: 0 0 20px 0;
-    color: var(--accent);
-    font-size: 18px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.text-modal-input {
-    width: 100%;
-    padding: 14px 16px;
-    font-size: 16px;
-    border: 2px solid var(--gray-33);
-    border-radius: 8px;
-    background: var(--gray-11);
-    color: white;
-    margin-bottom: 24px;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-    font-family: var(--font-ui);
-}
-
-.text-modal-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.3);
-    background: var(--bg-input-focus);
-}
-
-.text-modal-input::placeholder {
-    color: var(--gray-66);
-}
-
-.text-modal-buttons {
-    display: flex;
-    gap: 12px;
-}
-
-.text-modal-btn {
-    flex: 1;
-    padding: 12px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.btn-confirm {
-    background: var(--accent);
-    color: black;
-}
-
-.btn-confirm:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.3);
-}
-
-.btn-confirm:active {
-    transform: translateY(0);
-}
-
-.btn-cancel {
-    background: var(--gray-33);
-    color: var(--gray-aa);
-    border: 1px solid var(--gray-55);
-}
-
-.btn-cancel:hover {
-    background: var(--gray-44);
-    color: white;
-    border-color: var(--gray-66);
-    transform: translateY(-2px);
-}
-
-.btn-cancel:active {
-    transform: translateY(0);
 }
 
 /* --- MOBILE / TABLET OVERRIDES --- */
@@ -1301,19 +1201,19 @@ input[type=range] {
 /* ============================================================
    Phase 5: theme picker (eagle + speech bubble) and theme hooks
    ============================================================ */
-.tool-btn img.icon-pan { filter: var(--tool-img-filter); }   /* only the white hand needs a dark variant */
-.tool-btn.active img.icon-pan { filter: var(--tool-img-filter-active); }
 .top-header .btn-leave.top-exit { background: var(--bg-topbar-btn); }
 
 #panel-tools.active { display: flex; flex-direction: column; }
 .theme-picker {
     position: relative;
     margin: auto -20px -20px;      /* bleed to the panel edges; the eagle is clipped by the panel bottom */
-    padding: 22px 20px 0;
+    padding: 38px 20px 0;
+    box-sizing: border-box;
     overflow: hidden;
-    height: 210px;
+    height: 250px;
     flex-shrink: 0;
     text-align: center;
+    --pick-shift: -11px;           /* mockups put the bubble + eagle ~11px left of the panel center */
 }
 .theme-picker::before {
     content: "";
@@ -1323,9 +1223,13 @@ input[type=range] {
     pointer-events: none;
 }
 .theme-picker > .theme-locked-msg,
-.theme-picker > .theme-bubble { position: relative; }
+.theme-picker > .theme-bubble { position: relative; left: var(--pick-shift); }
 .theme-locked-msg {
-    margin: 0 0 8px;
+    position: absolute !important;
+    top: 14px;
+    left: 0 !important;
+    right: 0;
+    margin: 0;
     font-size: 12px;
     color: var(--panel-label);
 }
@@ -1363,11 +1267,12 @@ input[type=range] {
 .theme-dot[aria-checked="true"] { background-image: url("assets/ui/check.png"); }
 .theme-mascot {
     position: absolute;
-    left: 50%;
-    bottom: -22px;
+    left: calc(50% + var(--pick-shift));
+    bottom: 0;
     transform: translateX(-50%);
-    width: 140px;
-    height: auto;
+    width: 125px;
+    height: 134px;
+    background: var(--picker-eagle) center / contain no-repeat;
 }
 .theme-picker.is-locked .theme-bubble { background: var(--theme-disabled-fill); }
 .theme-picker.is-locked .theme-bubble::after { border-top-color: var(--theme-disabled-fill); }
@@ -1400,8 +1305,11 @@ input[type=range] {
     .workspace-area { padding: 12px; gap: 14px; }
 }
 @media (max-width: 400px) {
-    .tool-btn { width: 40px; height: 40px; }
-    .toolbar-dock { padding: 8px 8px; }
+    .tool-btn { width: 38px; height: 38px; }
+    .toolbar-dock { padding: 8px 8px; gap: 2px; }
+}
+@media (max-width: 370px) {
+    .tool-btn { width: 36px; height: 36px; }
 }
 
 /* Swatch-row highlight band (light themes): drawn behind the row, so the row never moves between themes */
@@ -1416,3 +1324,115 @@ input[type=range] {
     background: var(--bg-swatch-row, transparent);
 }
 .color-picker-row > .color-swatch { position: relative; }
+
+
+/* ---- Colorblind symbols (Sarah): a symbol on each drawing color, switchable, saved per device ---- */
+.label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.label-row > label:first-child { margin-bottom: 0; }
+.control-group label.switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch-track {
+    position: relative;
+    width: 38px;
+    height: 18px;
+    border-radius: 9px;
+    background: var(--gray-33);
+    transition: background 0.2s;
+}
+.switch-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--theme-dot-objective-blue-light, #a8dcf8);
+    transition: transform 0.2s;
+}
+.switch input:checked + .switch-track .switch-knob { transform: translateX(20px); }
+.switch input:focus-visible + .switch-track { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.swatch-symbol { display: none; width: 62%; height: 62%; object-fit: contain; pointer-events: none; }
+html[data-symbols="on"] .swatch-symbol { display: block; }
+/* with symbols on, the selected swatch is shown by the white ring + glow alone (no check) */
+html[data-symbols="on"] .color-swatch.active::after { display: none; }
+
+/* ---- Range sliders: one custom look so every track matches (accent-color tinted them differently) ---- */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    height: 22px;
+    margin: 5px 0 0;
+    --pct: 0%;
+    --slider-color: var(--accent);
+}
+input[type=range]::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--slider-color) var(--pct), var(--slider-track) var(--pct));
+}
+input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--slider-track); }
+input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--slider-color); }
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: var(--slider-color);
+    border: 2px solid var(--white);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+input[type=range]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--slider-color);
+    border: 2px solid var(--white);
+}
+#slider-r { --slider-color: var(--slider-r); }
+#slider-g { --slider-color: var(--slider-g); }
+#slider-b { --slider-color: var(--slider-b); }
+
+
+/* Undo button + inline text editor */
+.tool-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.tool-btn:disabled:hover { background: transparent; transform: none; }
+#textEditor {
+    position: absolute;
+    z-index: 30;
+    display: none;
+    min-width: 24px;
+    padding: 2px 6px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    line-height: 1.25;
+    text-align: center;
+    white-space: pre;
+    outline: 2px dashed rgba(255, 255, 255, 0.9);
+    outline-offset: 4px;
+    caret-color: #ffffff;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    transform-origin: center;
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+
+/* iOS Safari: stop the automatic zoom-on-focus (it triggers for inputs under 16px) and text inflation */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (hover: none) and (pointer: coarse) {
+    input:not([type=range]):not([type=checkbox]):not([type=radio]),
+    textarea,
+    select { font-size: 16px; }
+}

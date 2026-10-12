@@ -7,17 +7,18 @@
    Light themes (micro-pink, chlorophyll-green) use WHITE text/icons/outlines as in the team's
    mockups (D12 revised after the team asked for it). NOTE: white on these panels measures only
    ~2.2-2.6:1 (fails WCAG AA); the dark-text variant is the one-block fix if that is ever revisited:
-   set --panel-label/--panel-text-secondary/--tool-icon/--hint-on-panel to #1e1e1e and --tool-img-filter to brightness(0).
+   set --panel-label/--panel-text-secondary/--tool-icon/--hint-on-panel to #1e1e1e.
    ============================================================ */
 
 html[data-theme="micro-pink"] {
-    --bg-topbar: #82295b;
-    --bg-code: #a44d76;
-    --bg-topbar-btn: #7c2b57;
-    --bg-panel: #d889a9;
-    --bg-swatch-row: #de87a9;
-    --bg-toolcol: #e18ca6;
-    --select-toolcol: #bb6c84;
+    /* palette sampled from the team's new mockup (docs/design/reference/18-workspace-pink-new.png) */
+    --bg-topbar: #9cc4b7;
+    --bg-code: #86ac9f;
+    --bg-topbar-btn: transparent;
+    --bg-panel: #cc8ca7;
+    --bg-swatch-row: #d28aa7;
+    --bg-toolcol: #d3b1ec;
+    --select-toolcol: #b28eca;
     --bg-stroke-btn: #9f9f9f;
     --bg-stroke-btn-selected: #c2c2c2;
     --border-control: #ffffff;
@@ -26,15 +27,16 @@ html[data-theme="micro-pink"] {
     --panel-text-secondary: #ffffff;
     --tool-icon: #ffffff;
     --tool-icon-active: #ffffff;
-    --tool-img-filter: none;
-    --tool-img-filter-active: none;
     --hint-on-panel: #ffffff;
     --danger-on-panel: #ffffff;
     --success-on-panel: #ffffff;
     --accent-on-panel: #ffffff;
+    --picker-eagle: url("assets/ui/mascot-eagle-petals.png");
     --theme-decor-workspace: url("assets/ui/decor-canvas-flowers.png") center / cover no-repeat;
-    --theme-decor-panel: url("assets/ui/decor-panel-flowers-left.png") 22px bottom / 28% auto no-repeat,
-        url("assets/ui/decor-panel-flowers-big.png") right 16px bottom 26px / 53% auto no-repeat;
+    --theme-decor-panel:
+        url("assets/ui/decor-pink-flower.png") 48px -1px / 40px auto no-repeat,
+        url("assets/ui/decor-molecule.png") 22px 81px / 68px auto no-repeat,
+        url("assets/ui/decor-panel-flowers-big.png") 164px 41px / 135px auto no-repeat;
 }
 
 html[data-theme="chlorophyll-green"] {
@@ -53,15 +55,15 @@ html[data-theme="chlorophyll-green"] {
     --panel-text-secondary: #ffffff;
     --tool-icon: #ffffff;
     --tool-icon-active: #ffffff;
-    --tool-img-filter: none;
-    --tool-img-filter-active: none;
     --hint-on-panel: #ffffff;
     --danger-on-panel: #ffffff;
     --success-on-panel: #ffffff;
     --accent-on-panel: #ffffff;
     --theme-decor-workspace: url("assets/ui/decor-canvas-stars.png") center / cover no-repeat;
-    --theme-decor-panel: url("assets/ui/decor-panel-stars-left.png") 16px bottom / 22% auto no-repeat,
-        url("assets/ui/decor-panel-stars-big.png") right 16px bottom 26px / 50% auto no-repeat;
+    --theme-decor-panel:
+        url("assets/ui/decor-test-tube.png") 63px 3px / 28px auto no-repeat,
+        url("assets/ui/decor-rainbow.png") 23px 90px / 64px auto no-repeat,
+        url("assets/ui/decor-panel-stars-big.png") 177px 46px / 113px auto no-repeat;
 }
 
 /* Portrait screens: the wide 3-shape backdrop would be cropped by `cover`, so place the same

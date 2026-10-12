@@ -70,3 +70,6 @@ Line numbers = numbered lines of the pasted export. Media lines (8, 13, 27, 28, 
 | 92-103 | Sarah, Bahand | Undo button for eraser and pencil (also counter and text); Bahand thinks it is easy, may have had one before | feature | R3-13, D45 |
 | 104-112 | Sarah, Bahand | Text boxes should be draggable (currently stuck where placed); both fixes were tried and abandoned before, Bahand wants to make them happen now | feature | R3-14, D46 |
 | 1, 41-43, 69-75 | all | Chatter (welcome, emoji, event story) | none | none |
+
+## Round 3 media (zip, 2026-10-12)
+`reference/18-workspace-pink-new.png`, `19-workspace-green-new.png` (new mockups), plus `r3-*.png` originals: symbols (Cherries, SunIconColorblind, plantIconColorBlind, BlueBerries, cloudIconColorblind), RosterIconNew, moleculeIcon, pinkFlower, rainbow, testTube, theme2EagleWithPetals. Resized copies live in `assets/ui/`.
