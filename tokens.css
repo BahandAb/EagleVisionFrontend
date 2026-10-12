@@ -34,7 +34,7 @@
     --bg-topbar-btn: transparent;
     --theme-decor-workspace: none;
     --theme-decor-panel: none;
-    --undo-icon: url("assets/ui/undo-pink.png");   /* Objective Blue gets the PINK circle: the team mismatches them on purpose */
+    --undo-icon: url("assets/ui/undo-gold.png");   /* Objective Blue (default) = GOLD circle; the team mismatches circle and theme on purpose */
     --picker-eagle: url("assets/ui/mascot-eagle-happier.png");
     --slider-track: rgba(255, 255, 255, 0.28);   /* unfilled range track: identical for every slider */
     --theme-disabled-fill: #cecece;
