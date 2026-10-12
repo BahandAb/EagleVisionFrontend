@@ -6,9 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EagleVision Workspace</title>
-    <link rel="stylesheet" href="tokens.css?v=30d0efda">
-    <link rel="stylesheet" href="style.css?v=61cc892d">
-    <link rel="stylesheet" href="themes.css?v=dcfe2252">
+    <link rel="stylesheet" href="tokens.css?v=1454a746">
+    <link rel="stylesheet" href="style.css?v=79759e90">
+    <link rel="stylesheet" href="themes.css?v=1e86e481">
     <script>
         /* Apply the saved theme before first paint (no flash). Failures fall back to the default theme. */
         try { var t = localStorage.getItem('eagleTheme'); if (t === 'micro-pink' || t === 'chlorophyll-green') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
@@ -429,9 +429,7 @@
                     <img class="img-h-36" src="assets/ui/icon-counter.png" alt="Count">
                     <div id="countBadge" class="count-badge" style="display:none;">0</div>
                 </button>
-                <button class="tool-btn" onclick="undoLast()" id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
-                    <span class="material-icons">undo</span>
-                </button>
+                <button class="tool-btn tool-btn-undo" onclick="undoLast()" id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo" disabled></button>
                 <div class="toolbar-divider"></div>
                 <button class="tool-btn" onclick="toggleFreeze()" title="Pause the Video">
                     <span class="material-icons" id="iconFreeze">pause</span>

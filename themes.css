@@ -32,6 +32,7 @@ html[data-theme="micro-pink"] {
     --success-on-panel: #ffffff;
     --accent-on-panel: #ffffff;
     --picker-eagle: url("assets/ui/mascot-eagle-petals.png");
+    --undo-icon: url("assets/ui/undo-pink.png");
     --theme-decor-workspace: url("assets/ui/decor-canvas-flowers.png") center / cover no-repeat;
     --theme-decor-panel:
         url("assets/ui/decor-pink-flower.png") 48px -1px / 40px auto no-repeat,
@@ -40,6 +41,7 @@ html[data-theme="micro-pink"] {
 }
 
 html[data-theme="chlorophyll-green"] {
+    --undo-icon: url("assets/ui/undo-gold.png");
     --bg-topbar: #4468ad;
     --bg-code: #5982bb;       /* session-code box (team request) */
     --bg-topbar-btn: #4468a1;

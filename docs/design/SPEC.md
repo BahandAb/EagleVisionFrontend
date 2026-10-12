@@ -237,3 +237,6 @@ Known gaps: host broadcasting + undo is intentionally disabled (needs a backend 
 
 ## 15. Round 3 follow-ups (2026-10-12, second batch)
 Theme chooser bubble 6px lower; pink molecule moved inward; hand icon 24px and nudged so its visual center (centroid, measured from pixels) sits in the selection circle; roster rail icon 20px tall; admin-key and Eagle AI access-code inputs no longer overflow the panel (box-sizing); Symbols switch is now 26x14, one text line tall; Settings and Host split: new Host panel (shield icon, admin key + host controls) and a Settings panel (gear, symbols switch + text list of themes, which also works as the accessible alternative to the eagle bubble and respects the teacher lock). Panel titles now all carry an emoji (gear for Settings, shield for Host).
+
+## 16. Undo icons (2026-10-12)
+Team art for the undo button: white arrow on a themed circle (light blue = Objective Blue, pink = Micro Pink, gold = Chlorophyll Green; assignment inferred from the colors, confirm with Sarah). The circle is the button face; disabled state is dimmed.

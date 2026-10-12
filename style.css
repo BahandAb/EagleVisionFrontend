@@ -1450,3 +1450,12 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .theme-option[aria-checked="true"] { background: rgba(255, 255, 255, 0.18); }
 .theme-option:disabled { opacity: 0.5; cursor: not-allowed; }
 .tool-btn .material-icons.icon-pan-glyph { font-size: 24px; transform: translate(-2.5px, -2px); }   /* the hand glyph is heavier right/low; nudge it so its visual center sits in the circle */
+
+/* Undo button: the team's art is a themed circle with a white arrow, so the circle IS the button face */
+.tool-btn.tool-btn-undo,
+.tool-btn.tool-btn-undo:hover {
+    background: transparent var(--undo-icon) center / 38px 38px no-repeat;
+}
+.tool-btn.tool-btn-undo:hover { transform: scale(1.05); }
+.tool-btn.tool-btn-undo:disabled,
+.tool-btn.tool-btn-undo:disabled:hover { transform: none; }

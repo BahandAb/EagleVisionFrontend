@@ -34,6 +34,7 @@
     --bg-topbar-btn: transparent;
     --theme-decor-workspace: none;
     --theme-decor-panel: none;
+    --undo-icon: url("assets/ui/undo-blue.png");   /* team art: white undo arrow on a themed circle */
     --picker-eagle: url("assets/ui/mascot-eagle-happier.png");
     --slider-track: rgba(255, 255, 255, 0.28);   /* unfilled range track: identical for every slider */
     --theme-disabled-fill: #cecece;
