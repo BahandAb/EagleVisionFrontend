@@ -89,7 +89,7 @@ function resetAdjustments() {
     
     // Reset UI Inputs
     ['r', 'g', 'b', 'brightness', 'contrast', 'saturation'].forEach(k => {
-        document.getElementById(`slider-${k}`).value = 100;
+        const sl = document.getElementById(`slider-${k}`); sl.value = 100; if (typeof syncRangeFill === 'function') syncRangeFill(sl);
         document.getElementById(`val-${k}`).innerText = 100;
     });
     

@@ -15,6 +15,7 @@ here (see "Security" below).
 | `style.css` | Loaded by every page (incl. homepage). Workspace/host/session styles; uses tokens only |
 | `themes.css` | Workspace color themes (`<html data-theme>`), workspace.html only. Light themes use dark text; re-audit contrast after any change |
 | `fonts.css` + `assets/fonts/` | Self-hosted Fredoka/Poppins (OFL). Only index/about/session load them; don't swap to Google Fonts |
+| `undo.js` / `text-tool.js` | Undo (own actions only) and the text-box tool (drag/resize/rotate/edit). Both are plain scripts loaded before `script.js` and use its globals (`history`, `ctx`, `scale`, ...) |
 | `host.css` | Host page styles (was an inline `<style>` in host.html) |
 | `landing.css` | Homepage/about-only styles, layered on top of `style.css`; also hardcodes many hexes |
 | `sw.js` | Service worker (see gotcha below); registered on every page via `sw-register.js` |
@@ -139,6 +140,10 @@ computed-style diff over all elements, not just screenshots.
   load on school Wi-Fi; convert to WebP/resize when touching them.
 - README still describes things (e.g. admin-key flow) that should be
   re-verified against the code after the overhaul.
+
+## Annotations, undo, symbols
+
+All annotations live in the `history[]` array and are redrawn by `redrawCanvas()`. `undo.js` keeps a per-user stack of *own* actions (remote/broadcast items never enter it); text items are `{type:'text', anchor:'c', x, y (center), rot, size, id}` and are replaced by `id` when the host broadcasts an edit. Colorblind symbols are a per-device setting (`data-symbols="on"` on `<html>`, `localStorage.eagleSymbols`). Range sliders are fully custom-styled (`--pct` fill, set by `syncRangeFill`) because `accent-color` tinted the unfilled tracks inconsistently.
 
 ## Workspace themes
 

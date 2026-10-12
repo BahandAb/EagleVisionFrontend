@@ -200,7 +200,7 @@ function kickUser(sid) { if (confirm("Kick this student?")) socket.emit('kick_st
 function triggerRequestPhoto() { if (!isAdmin) return; socket.emit('admin_trigger_photo', { room: currentRoomID, key: currentAdminKey }); alert("Requesting High-Res Photo..."); }
 function triggerReturnLive() { if (!isAdmin) return; socket.emit('admin_return_live', { room: currentRoomID, key: currentAdminKey }); }
 function toggleFollowMode() { isFollowMode = document.getElementById("checkFollowMode").checked; if (isFollowMode) broadcastViewSync(); }
-function toggleBroadcastMode() { isBroadcastMode = document.getElementById("checkBroadcast").checked; }
+function toggleBroadcastMode() { isBroadcastMode = document.getElementById("checkBroadcast").checked; undoUpdateUI(); }
 function adminClearAll() { if (confirm("Erase all screens?")) { socket.emit('admin_clear_all', { room: currentRoomID, key: currentAdminKey }); clearAnnotations(); } }
 function broadcastViewSync() {
     if (!isAdmin || !isFollowMode) return;
@@ -249,7 +249,7 @@ function togglePanel(panelId) {
 }
 function setTool(tool) {
     if (tool === 'eraser' && currentTool === 'eraser') { eraserMode = (eraserMode === 'normal') ? 'stroke' : 'normal'; updateEraserIcon(); return; }
-    currentTool = tool; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    currentTool = tool; if (tool !== 'text') textToolDeselect(); document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
     const btn = document.getElementById('btnTool' + tool.charAt(0).toUpperCase() + tool.slice(1)); if (btn) btn.classList.add('active');
     if (tool === 'eraser') { updateEraserIcon(); canvas.style.cursor = 'crosshair'; }
     else { canvas.style.cursor = (tool === 'move') ? 'grab' : (tool === 'text') ? 'text' : 'crosshair'; }
@@ -272,27 +272,29 @@ function updateTransform() { if (zoomLayer) zoomLayer.style.transform = `transla
 // --- INPUT ---
 function handleStart(e) {
     if (annotationsHidden) return;
+    undoBegin();
     if (e.touches) { if (e.touches.length > 1) return; e.preventDefault(); }
     const pos = getLocalPos(e);
     if (currentTool === 'move') { isPanning = true; canvas.style.cursor = 'grabbing'; startPanX = (e.touches ? e.touches[0].clientX : e.clientX) - panX; startPanY = (e.touches ? e.touches[0].clientY : e.clientY) - panY; }
-    else if (currentTool === 'draw') { currentStroke = { type: 'stroke', color: drawColor, width: drawThickness, points: [{ x: pos.x, y: pos.y }] }; history.push(currentStroke); redrawCanvas(); }
-    else if (currentTool === 'eraser') { if (eraserMode === 'normal') { currentStroke = { type: 'stroke', color: 'eraser', width: drawThickness * 5, points: [{ x: pos.x, y: pos.y }] }; history.push(currentStroke); redrawCanvas(); } else checkStrokeHit(pos); }
+    else if (currentTool === 'draw') { currentStroke = { type: 'stroke', color: drawColor, width: drawThickness, points: [{ x: pos.x, y: pos.y }] }; history.push(currentStroke); undoAdd(currentStroke); redrawCanvas(); }
+    else if (currentTool === 'eraser') { if (eraserMode === 'normal') { currentStroke = { type: 'stroke', color: 'eraser', width: drawThickness * 5, points: [{ x: pos.x, y: pos.y }] }; history.push(currentStroke); undoAdd(currentStroke); redrawCanvas(); } else checkStrokeHit(pos); }
     else if (currentTool === 'count') {
         let hitIndex = -1; for (let i = history.length - 1; i >= 0; i--) { if (history[i].type === 'dot') { const dx = history[i].x - pos.x; const dy = history[i].y - pos.y; if (Math.sqrt(dx * dx + dy * dy) < 15 / scale) { hitIndex = i; break; } } }
-        if (hitIndex !== -1) history.splice(hitIndex, 1); else { const dot = { type: 'dot', x: pos.x, y: pos.y, color: drawColor }; history.push(dot); if (isAdmin && isBroadcastMode) socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: dot }); }
+        if (hitIndex !== -1) { const gone = history.splice(hitIndex, 1)[0]; undoRemove(gone, hitIndex); } else { const dot = { type: 'dot', x: pos.x, y: pos.y, color: drawColor }; history.push(dot); undoAdd(dot); if (isAdmin && isBroadcastMode) socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: dot }); }
         redrawCanvas();
     } else if (currentTool === 'text') {
-        openTextModal(pos.x, pos.y);
+        textToolStart(pos, e);
     }
 }
 function handleMove(e) {
     if (e.touches) e.preventDefault();
+    if (currentTool === 'text') { textToolMove(e); return; }
     if (currentTool === 'move' && isPanning) { const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; panX = cx - startPanX; panY = cy - startPanY; clampPan(); updateTransform(); broadcastViewSync(); }
     else if (currentTool === 'draw' && currentStroke) { const pos = getLocalPos(e); currentStroke.points.push({ x: pos.x, y: pos.y }); redrawCanvas(); }
     else if (currentTool === 'eraser') { const pos = getLocalPos(e); if (eraserMode === 'normal' && currentStroke) { currentStroke.points.push({ x: pos.x, y: pos.y }); redrawCanvas(); } else if (eraserMode === 'stroke') checkStrokeHit(pos); }
 }
-function handleEnd() { isPanning = false; if (currentTool === 'move') canvas.style.cursor = 'grab'; if (currentStroke && isAdmin && isBroadcastMode) socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: currentStroke }); currentStroke = null; }
-function checkStrokeHit(pos) { const hitRadius = 10 / scale; let didRemove = false; for (let i = history.length - 1; i >= 0; i--) { const item = history[i]; if (item.type === 'stroke' && item.color !== 'eraser') { for (let pt of item.points) { const dx = pt.x - pos.x; const dy = pt.y - pos.y; if (Math.sqrt(dx * dx + dy * dy) < hitRadius) { history.splice(i, 1); didRemove = true; break; } } } } if (didRemove) redrawCanvas(); }
+function handleEnd() { textToolEnd(); undoEnd(); isPanning = false; if (currentTool === 'move') canvas.style.cursor = 'grab'; if (currentStroke && isAdmin && isBroadcastMode) socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: currentStroke }); currentStroke = null; }
+function checkStrokeHit(pos) { const hitRadius = 10 / scale; let didRemove = false; for (let i = history.length - 1; i >= 0; i--) { const item = history[i]; if (item.type === 'stroke' && item.color !== 'eraser') { for (let pt of item.points) { const dx = pt.x - pos.x; const dy = pt.y - pos.y; if (Math.sqrt(dx * dx + dy * dy) < hitRadius) { undoRemove(history.splice(i, 1)[0], i); didRemove = true; break; } } } } if (didRemove) redrawCanvas(); }
 function handleWheel(e) { e.preventDefault(); const rect = viewport.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; const worldX = (mouseX - panX) / scale; const worldY = (mouseY - panY) / scale; const dir = e.deltaY > 0 ? -1 : 1; scale = Math.min(Math.max(1.0, scale + (dir * 0.1 * scale)), 5.0); panX = mouseX - worldX * scale; panY = mouseY - worldY * scale; clampPan(); updateTransform(); broadcastViewSync(); }
 
 function redrawCanvas() {
@@ -300,12 +302,13 @@ function redrawCanvas() {
     history.forEach(item => {
         if (item.type === 'stroke') { ctx.beginPath(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = item.width; ctx.globalCompositeOperation = (item.color === 'eraser') ? 'destination-out' : 'source-over'; if (item.color !== 'eraser') ctx.strokeStyle = item.color; if (item.points.length > 0) { ctx.moveTo(item.points[0].x, item.points[0].y); for (let i = 1; i < item.points.length; i++) ctx.lineTo(item.points[i].x, item.points[i].y); } ctx.stroke(); ctx.globalCompositeOperation = 'source-over'; }
         else if (item.type === 'dot') { dotCount++; ctx.beginPath(); ctx.arc(item.x, item.y, 10, 0, 2 * Math.PI); ctx.fillStyle = item.color; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = "white"; ctx.stroke(); ctx.fillStyle = "black"; ctx.font = "bold 10px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(dotCount, item.x, item.y); }
-        else if (item.type === 'text') { ctx.font = `bold ${item.size}px Arial`; ctx.fillStyle = item.color; ctx.strokeStyle = 'black'; ctx.lineWidth = 3; ctx.strokeText(item.text, item.x, item.y); ctx.fillText(item.text, item.x, item.y); }
+        else if (item.type === 'text') { drawTextItem(item); }
     });
+    drawTextSelection();
     const badge = document.getElementById('countBadge'); if (badge) { badge.innerText = dotCount; badge.style.display = dotCount > 0 ? 'flex' : 'none'; }
 }
 function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = viewport.offsetHeight; redrawCanvas(); }
-function clearAnnotations() { history = []; redrawCanvas(); }
+function clearAnnotations() { history = []; undoReset(); redrawCanvas(); }
 function toggleAnnotationVisibility() { annotationsHidden = !annotationsHidden; canvas.style.opacity = annotationsHidden ? '0' : '1'; canvas.style.pointerEvents = annotationsHidden ? 'none' : 'auto'; }
 function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid var(--gray-44); cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); }
 
@@ -330,7 +333,7 @@ function startConnection() {
     socket.on("themes_locked_update", (d) => { setThemesLocked(d && d.locked); });
     socket.on("roster_update", (r) => { latestRoster = r; renderRoster(); });
     socket.on("sync_view_command", (data) => { panX = data.panX; panY = data.panY; scale = data.scale; updateTransform(); });
-    socket.on("receive_broadcast_stroke", (stroke) => { history.push(stroke); redrawCanvas(); });
+    socket.on("receive_broadcast_stroke", (stroke) => { applyRemoteStroke(stroke); });
     socket.on("receive_clear_command", () => { clearAnnotations(); });
     socket.on("receive_broadcast_image", (imgData) => { enterPhotoMode(imgData); alert("Instructor switched to Photo Mode"); });
     socket.on("return_to_live", () => { enterLiveMode(); alert("Instructor switched to Live Mode"); });
@@ -401,52 +404,7 @@ function startConnection() {
 function toggleFreeze() { isFrozen = !isFrozen; if (isFrozen) { videoEl.pause(); document.getElementById('iconFreeze').innerText = "play_arrow"; } else { videoEl.play(); document.getElementById('iconFreeze').innerText = "pause"; } }
 function closeModal() { document.getElementById('photoModal').style.display = 'none'; }
 
-let pendingTextPosition = null;
-
-function openTextModal(x, y) {
-    pendingTextPosition = { x, y };
-    const modal = document.getElementById('textModal');
-    const input = document.getElementById('textInput');
-    modal.style.display = 'flex';
-    input.value = '';
-    input.focus();
-
-    // Allow Enter key to submit
-    input.onkeydown = (e) => {
-        if (e.key === 'Enter') confirmTextInput();
-        if (e.key === 'Escape') cancelTextInput();
-    };
-}
-
-function confirmTextInput() {
-    const input = document.getElementById('textInput');
-    const text = input.value.trim();
-
-    if (text && pendingTextPosition) {
-        const txtObj = {
-            type: 'text',
-            x: pendingTextPosition.x,
-            y: pendingTextPosition.y,
-            text: text,
-            color: drawColor,
-            size: 20
-        };
-        history.push(txtObj);
-
-        if (isAdmin && isBroadcastMode) {
-            socket.emit('admin_broadcast_stroke', { room: currentRoomID, stroke: txtObj });
-        }
-
-        redrawCanvas();
-    }
-
-    cancelTextInput();
-}
-
-function cancelTextInput() {
-    document.getElementById('textModal').style.display = 'none';
-    pendingTextPosition = null;
-}
+// Text annotations (add / drag / resize / rotate / edit) live in text-tool.js.
 
 // ==========================================
 // EAGLE AI SYSTEM
@@ -853,3 +811,27 @@ function toggleThemesLock() {
     let saved = null; try { saved = localStorage.getItem('eagleTheme'); } catch (e) { }
     applyTheme(saved || 'objective-blue');
 })();
+
+
+/* ---- Colorblind symbols (setting saved per device; toggle sits next to "Draw Color") ---- */
+function applySymbolsMode(on) {
+    if (on) document.documentElement.setAttribute('data-symbols', 'on');
+    else document.documentElement.removeAttribute('data-symbols');
+    const t = document.getElementById('symbolsToggle'); if (t) t.checked = !!on;
+}
+function setSymbolsMode(on) {
+    applySymbolsMode(on);
+    try { localStorage.setItem('eagleSymbols', on ? 'on' : 'off'); } catch (e) { /* private mode: keep for this visit */ }
+}
+(function initSymbols() {
+    let s = null; try { s = localStorage.getItem('eagleSymbols'); } catch (e) { }
+    applySymbolsMode(s === 'on');
+})();
+
+/* ---- Range slider fill: the filled part of every slider track is drawn from --pct ---- */
+function syncRangeFill(el) {
+    const min = Number(el.min) || 0, max = Number(el.max) || 100;
+    el.style.setProperty('--pct', ((el.value - min) / (max - min) * 100) + '%');
+}
+document.addEventListener('input', (e) => { if (e.target && e.target.matches && e.target.matches('input[type=range]')) syncRangeFill(e.target); }, true);
+document.querySelectorAll('input[type=range]').forEach(syncRangeFill);
