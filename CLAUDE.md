@@ -8,7 +8,7 @@ here (see "Security" below).
 
 | File | Role |
 |------|------|
-| `index.html` / `about.html` | Landing pages |
+| `index.html` / `about.html` / `privacy.html` | Marketing pages (`privacy.html` is a draft, `noindex` until reviewed) |
 | `session.html` → `workspace.html` | Student flow: enter a code, then the collaboration workspace (video + annotations + Eagle AI) |
 | `host.html` + `host.js` | Instructor flow: camera setup, live framing, admin controls |
 | `tokens.css` | **All design tokens** (colors, layout vars). Loaded FIRST by every page. Never hardcode hex elsewhere; add a token |
@@ -23,7 +23,7 @@ here (see "Security" below).
 
 Marketing pages (index/about) use the light-blue `--mk-*` palette; the host page keeps its own dark `--host-*` tokens; the workspace uses the app tokens. Don't mix them. Contrast was audited with a script (WCAG AA) — re-run an equivalent check after color changes.
 
-Body classes: `home-body` = index/about, `landing-body` = `session.html` (the
+Body classes: `home-body` = index/about/privacy, `landing-body` = `session.html` (the
 code-entry page, despite the name), none = host/workspace.
 
 The mobile app repo (`BahandAb/EagleVisionMobileApp`) is **deprecated** —
@@ -31,7 +31,10 @@ still works, but don't spend effort on it or keep it in design parity.
 
 Backend is a separate private repo, `BahandAb/EagleVisionBackend` (Flask +
 Socket.IO + LiveKit token issuer + Gemini AI proxy), reachable at
-`api.eaglevision.dev`. Deployed on an Oracle Cloud free-tier VM.
+`api.eaglevision.dev`. **There is no live backend server right now (as of October 2026):**
+the Oracle Cloud free-tier VM it ran on was terminated. Azure for Students is the
+emergency backup. Until a server is back, live sessions (hosting, joining, Eagle AI,
+host access) won't work; the static marketing pages are unaffected.
 
 ## Host framing system (host.js)
 
@@ -67,7 +70,7 @@ this repo is public and it happened once already (passwords were live in
 
 - No API keys, passwords, or tokens in this repo, ever — not even as
   "demo" values in the README. It's public.
-- Real access passwords live only in the backend's `.env` on the Oracle VM.
+- Real access passwords live only in the backend's `.env` on the backend server (never in this repo).
 
 ## Gotchas learned the hard way
 
@@ -151,7 +154,7 @@ All annotations live in the `history[]` array and are redrawn by `redrawCanvas()
 
 ## ⚠ Backend deploy pending
 
-"Lock Themes" depends on the backend event `admin_set_themes_locked`, which is merged but **not yet deployed** (the Oracle VM was down). Until then the host checkbox does nothing and students can always change theme; nothing else breaks. Tracking: https://github.com/BahandAb/EagleVisionBackend/issues/6. Delete this note once the VM is redeployed and the lock is verified.
+"Lock Themes" depends on the backend event `admin_set_themes_locked`, which is merged but **not yet deployed** (the Oracle VM was terminated; no backend is live right now). Until then the host checkbox does nothing and students can always change theme; nothing else breaks. Tracking: https://github.com/BahandAb/EagleVisionBackend/issues/6. Delete this note once a backend server is redeployed and the lock is verified.
 
 ## Deferred / discussed but not built
 
