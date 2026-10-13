@@ -8,7 +8,7 @@ here (see "Security" below).
 
 | File | Role |
 |------|------|
-| `index.html` / `about.html` / `privacy.html` | Marketing pages (`privacy.html` is a draft, `noindex` until reviewed) |
+| `index.html` / `about.html` / `privacy.html` | Marketing pages (`privacy.html` describes what the app collects; update it whenever data handling changes) |
 | `session.html` → `workspace.html` | Student flow: enter a code, then the collaboration workspace (video + annotations + Eagle AI) |
 | `host.html` + `host.js` | Instructor flow: camera setup, live framing, admin controls |
 | `tokens.css` | **All design tokens** (colors, layout vars). Loaded FIRST by every page. Never hardcode hex elsewhere; add a token |
