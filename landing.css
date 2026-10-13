@@ -1687,17 +1687,6 @@
 .footer-email { overflow-wrap: anywhere; }
 
 /* ---- PRIVACY PAGE ---- */
-.privacy-draft {
-    display: inline-block;
-    margin-top: 16px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: var(--mk-nav-bg);
-    color: var(--mk-accent-text);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
 .privacy-body ul { color: var(--mk-text-soft); font-size: 16px; line-height: 1.8; margin: 0 0 16px; padding-left: 22px; }
 .privacy-body li { margin-bottom: 6px; }
 .privacy-body strong { color: var(--mk-text); }
@@ -1712,3 +1701,18 @@
     .teacher-quote { padding: 24px 22px; }
     .teacher-quote blockquote p { font-size: 19px; }
 }
+
+/* Demo video (Google Drive embed) */
+.demo-section {
+    background: linear-gradient(180deg, var(--mk-bg) 0%, var(--mk-bg-band) 100%);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.06);
+}
+.demo-frame {
+    aspect-ratio: 16 / 9;
+    max-width: 900px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--mk-border);
+    background: var(--mk-nav-bg);
+}
+.demo-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
