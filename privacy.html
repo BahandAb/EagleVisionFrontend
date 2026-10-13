@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy | EagleVision</title>
+    <!-- DRAFT: Bahand must review this page before it goes live (Website Review item 20).
+         Remove the noindex line and the "Draft, pending review" badge once approved. -->
+    <meta name="robots" content="noindex">
+    <meta name="description" content="What EagleVision collects, where it goes, and how long it's kept, in plain language.">
+    <link rel="canonical" href="https://eaglevision.dev/privacy.html">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://eaglevision.dev/privacy.html">
+    <meta property="og:title" content="EagleVision Privacy">
+    <meta property="og:description" content="EagleVision streams one microscope to every student's device, with shared annotations. Built for classrooms. Free during early access.">
+    <meta property="og:image" content="https://eaglevision.dev/assets/Madeira%20Photos/ChromeBooksWithEaglevision.jpg">
+    <meta property="og:image:alt" content="Students at Madeira Elementary viewing the same live microscope feed on their Chromebooks">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="EagleVision Privacy">
+    <meta name="twitter:description" content="What EagleVision collects, where it goes, and how long it's kept, in plain language.">
+    <meta name="twitter:image" content="https://eaglevision.dev/assets/Madeira%20Photos/ChromeBooksWithEaglevision.jpg">
+    <link rel="stylesheet" href="tokens.css?v=81bee42c">
+    <link rel="stylesheet" href="fonts.css?v=db5611b8">
+    <link rel="preload" href="assets/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/fredoka-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="style.css?v=79759e90">
+    <link rel="stylesheet" href="landing.css?v=18e8043b">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="home-body">
+
+    <!-- NAV -->
+    <nav class="home-nav">
+        <a href="index.html"><img src="assets/EagleVisionLogo.png" alt="EagleVision" class="home-nav-logo-img"></a>
+        <div class="home-nav-links">
+            <a href="index.html#use-cases" class="home-nav-link">Use Cases</a>
+            <a href="index.html#how-it-works" class="home-nav-link">How It Works</a>
+            <a href="about.html" class="home-nav-link">About</a>
+            <a href="index.html#contact" class="home-nav-link">Contact</a>
+        </div>
+        <div class="home-nav-right">
+            <a href="session.html" class="home-nav-cta">Join Session</a>
+            <button class="hamburger" id="hamburger" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html#use-cases" class="mobile-menu-link">Use Cases</a>
+        <a href="index.html#how-it-works" class="mobile-menu-link">How It Works</a>
+        <a href="about.html" class="mobile-menu-link">About</a>
+        <a href="index.html#contact" class="mobile-menu-link">Contact</a>
+        <a href="session.html" class="mobile-menu-link mobile-menu-cta">Join Session</a>
+    </div>
+
+    <!-- HERO -->
+    <div class="about-hero">
+        <p class="section-label">Privacy</p>
+        <h1>What We Collect<br>and Why</h1>
+        <p>A plain-language summary of the information EagleVision handles, for teachers, schools, and families.</p>
+        <p class="privacy-draft">Draft, pending review</p>
+    </div>
+
+    <div class="privacy-body">
+
+        <div class="about-section">
+            <h2>The Short Version</h2>
+            <ul>
+                <li>Students don't create accounts. They join with a session code and a name they type in.</li>
+                <li>We don't use ads, analytics, or tracking cookies.</li>
+                <li>We don't record the live video.</li>
+                <li>Session details are kept on our server only while the session is running.</li>
+            </ul>
+        </div>
+
+        <div class="about-section">
+            <h2>Joining a Session</h2>
+            <p>To join, a student enters a <strong>session code</strong> and a <strong>name</strong> (up to 15 characters). The name is shown to the instructor and others in the session so they know who is connected. A first name or nickname works fine.</p>
+            <p>The code and name are sent to our server, which keeps them in memory while the session is running and removes them when everyone has left. Our server's logs may also briefly record names and session codes while we fix problems.</p>
+            <p>Your browser also keeps the code and name for the current tab, so a page refresh doesn't kick you out. They are cleared when the tab is closed.</p>
+        </div>
+
+        <div class="about-section">
+            <h2>Live Video, Annotations, and Snapshots</h2>
+            <ul>
+                <li><strong>Video.</strong> Only the instructor's camera is streamed. Students' cameras and microphones are never used. The stream passes through our streaming server to the people in the session and is not recorded.</li>
+                <li><strong>Annotations.</strong> Drawings and text added during a session are sent through our server to others in the same session. They are not saved after the session ends.</li>
+                <li><strong>Snapshots.</strong> Snapshots stay in the browser that took them unless the instructor chooses to share one with the session. Shared snapshots are sent through our server and are not stored. Anything you download is saved only on your own device.</li>
+            </ul>
+        </div>
+
+        <div class="about-section">
+            <h2>Eagle AI (Beta)</h2>
+            <p>Eagle AI is optional and needs an access code. When someone uses it, the current microscope image, and any question they type, is sent to our server and then to Google's Gemini service to generate an answer. Google handles that request under its own terms. Our server's logs may record the start of a typed question.</p>
+            <p>Past Eagle AI answers are saved in that browser only, so you can look back at them. Clearing the browser's site data removes them.</p>
+        </div>
+
+        <div class="about-section">
+            <h2>Settings Saved in Your Browser</h2>
+            <p>EagleVision remembers a few preferences on your device: your color theme, whether colorblind symbols are on, and the size of the side panel. These never leave your browser.</p>
+        </div>
+
+        <div class="about-section">
+            <h2>The Contact Form</h2>
+            <p>If you fill out the contact form, we receive your name, country, institution, role, email, your answers about equipment, and your message. The form is delivered to us by <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener">Formspree</a>. We use it only to reply to you and help set up EagleVision.</p>
+        </div>
+
+        <div class="about-section">
+            <h2>Other Services Your Browser Loads</h2>
+            <p>Like most websites, EagleVision loads some files from other services. Each one sees your device's IP address when your browser connects to it:</p>
+            <ul>
+                <li><strong>GitHub Pages</strong> hosts this website.</li>
+                <li><strong>Google Fonts</strong> provides the icons.</li>
+                <li><strong>jsDelivr</strong> provides the video streaming library.</li>
+                <li><strong>OpenCV</strong> (docs.opencv.org) provides image tools in the session workspace.</li>
+            </ul>
+        </div>
+
+        <div class="about-section">
+            <h2>Questions</h2>
+            <p>Email <a href="mailto:bahandab08@gmail.com">bahandab08@gmail.com</a> with any questions about this page, or to ask us to delete a contact form message you sent.</p>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="home-footer">
+        <img src="assets/EagleVisionLogo.png" alt="EagleVision" class="footer-logo">
+        <p class="footer-note">© 2026 Bahand Abdulrahman. Built for educators.</p>
+        <p class="footer-fine">Patent Pending</p>
+        <p class="footer-note"><a class="footer-email" href="mailto:bahandab08@gmail.com">bahandab08@gmail.com</a></p>
+        <p class="footer-fine">Partners and investors: email <a class="footer-email" href="mailto:bahandab08@gmail.com">bahandab08@gmail.com</a> for our pitch deck.</p>
+        <nav class="footer-links" aria-label="Footer">
+            <a class="footer-link" href="session.html">Join a Session →</a>
+            <a class="footer-link" href="privacy.html">Privacy</a>
+            <!-- TODO(Bahand): add the EagleVision LinkedIn company page link here (Website Review item 18). -->
+        </nav>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+        mobileMenu.querySelectorAll('.mobile-menu-link').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            });
+        });
+    </script>
+<script src="sw-register.js?v=0ea6aea7" defer></script>
+</body>
+</html>

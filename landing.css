@@ -1553,3 +1553,162 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
 }
+
+/* ---- WEBSITE REVIEW (Oct 2026): awards strip, needs/every-student, Madeira proof, FAQ, footer ---- */
+/* Anchored sections clear the fixed 64px nav */
+.home-body [id] { scroll-margin-top: 72px; }
+
+.awards-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 18px 24px;
+    background: var(--mk-nav-bg);
+    border-top: 1px solid var(--mk-border);
+    border-bottom: 1px solid var(--mk-border);
+    color: var(--mk-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+}
+.awards-strip:hover .awards-item, .awards-strip:focus-visible .awards-item { text-decoration: underline; }
+.awards-item { display: inline-flex; align-items: center; gap: 6px; }
+.awards-item .material-icons { font-size: 18px; color: var(--mk-accent-text); }
+.awards-sep { color: var(--mk-text-soft); }
+
+.classroom-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 680px;
+    margin: -24px 0 40px;
+    padding: 14px 18px;
+    background: var(--mk-card);
+    border: 1px solid var(--mk-border);
+    border-radius: 12px;
+    color: var(--mk-text);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+.classroom-stat .material-icons { color: var(--mk-accent-text); font-size: 26px; flex-shrink: 0; }
+
+.teacher-quote {
+    margin: 24px 0 0;
+    padding: 32px 36px;
+    background: var(--mk-card);
+    border: 1px solid var(--mk-border);
+    border-left: 4px solid var(--accent);
+    border-radius: 14px;
+}
+.teacher-quote blockquote { margin: 0; }
+.teacher-quote blockquote p {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--mk-text);
+    margin: 0 0 14px;
+}
+.teacher-quote figcaption { color: var(--mk-text-soft); font-size: 14px; }
+.teacher-quote figcaption strong { color: var(--mk-text); }
+
+.needs-section {
+    background: linear-gradient(180deg, var(--mk-bg-band) 0%, var(--mk-bg) 100%);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.06);
+}
+.every-student-section {
+    background: var(--mk-bg);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.06);
+}
+.feature-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+.feature-card {
+    background: var(--mk-card);
+    border: 1px solid var(--mk-border);
+    border-radius: 16px;
+    padding: 26px 22px;
+}
+.feature-icon { font-size: 30px; color: var(--mk-accent-text); display: block; margin-bottom: 14px; }
+.feature-card p { color: var(--mk-text); font-size: 15px; line-height: 1.6; margin: 0; }
+.needs-cost, .grow-note {
+    margin: 32px 0 0;
+    color: var(--mk-text);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+.grow-note { display: flex; align-items: center; gap: 10px; font-weight: 400; color: var(--mk-text-soft); }
+.grow-note .material-icons { color: var(--mk-accent-text); font-size: 22px; flex-shrink: 0; }
+
+.faq-section {
+    background: var(--mk-bg);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.06);
+}
+.faq-inner { max-width: 800px; }
+.faq-list { display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+    background: var(--mk-card);
+    border: 1px solid var(--mk-border);
+    border-radius: 12px;
+    padding: 0 22px;
+}
+.faq-item summary {
+    cursor: pointer;
+    padding: 18px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--mk-text);
+    list-style-position: inside;
+}
+.faq-item summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.faq-item p { margin: 0 0 18px; color: var(--mk-text-soft); font-size: 15px; line-height: 1.7; }
+.faq-item a, .contact-email a, .footer-email, .privacy-body a { color: var(--mk-accent-text); }
+
+.contact-email { color: var(--mk-text-soft); font-size: 15px; margin: -16px 0 28px; }
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px 20px;
+    margin-top: 4px;
+}
+.footer-email { overflow-wrap: anywhere; }
+
+/* ---- PRIVACY PAGE ---- */
+.privacy-draft {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--mk-nav-bg);
+    color: var(--mk-accent-text);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.privacy-body ul { color: var(--mk-text-soft); font-size: 16px; line-height: 1.8; margin: 0 0 16px; padding-left: 22px; }
+.privacy-body li { margin-bottom: 6px; }
+.privacy-body strong { color: var(--mk-text); }
+
+@media (max-width: 960px) {
+    .feature-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+    .feature-grid { grid-template-columns: 1fr; }
+    .awards-sep { display: none; }
+    .awards-strip { flex-direction: column; gap: 8px; }
+    .teacher-quote { padding: 24px 22px; }
+    .teacher-quote blockquote p { font-size: 19px; }
+}
