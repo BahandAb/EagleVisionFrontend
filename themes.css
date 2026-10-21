@@ -42,6 +42,7 @@ html[data-theme="micro-pink"] {
 
 html[data-theme="chlorophyll-green"] {
     --undo-icon: url("assets/ui/undo-pink.png");   /* Chlorophyll Green (star theme) = PINK circle */
+    --picker-eagle: url("assets/ui/mascot-eagle-sunflower.png");
     --bg-topbar: #4468ad;
     --bg-code: #5982bb;       /* session-code box (team request) */
     --bg-topbar-btn: #4468a1;
