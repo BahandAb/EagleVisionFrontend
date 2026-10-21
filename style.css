@@ -37,10 +37,10 @@ body.resizing-sidebar .side-panel {
     position: relative;
     margin-top: 60px;
     background: var(--join-card);
-    padding: 70px 40px 44px;
+    padding: 37px 52px 49px;
     border-radius: 30px;
     text-align: center;
-    border: 1px solid var(--join-card-border);
+    border: 2px solid var(--join-card-border);
     width: 420px;
     max-width: 90%;
     box-sizing: border-box;
@@ -1185,19 +1185,31 @@ input[type=range] {
 .activity-icon.active .rail-img { opacity: 1; }
 .join-mascot {
     position: absolute;
-    top: -52px;
+    top: -35px;
     left: 50%;
     transform: translateX(-50%);
-    width: 90px;
+    width: 64px;
     height: auto;
     pointer-events: none;
 }
 
-/* Phase 4d: enter-code details measured from mockup 06 */
-.join-logo { display: block; height: 50px; width: auto; margin: 0 auto; }
-.landing-card .logo-text { margin-bottom: 14px; }
-.landing-card .landing-tagline { color: var(--white); }
+/* Phase 4d: enter-code details measured from mockup 06; proportions re-measured from the team's
+   2026-10-21 join-screen reference (scaled to the 420px card) */
+.join-logo { display: block; height: 61px; width: auto; margin: 0 auto; }
+.landing-card .logo-text { margin-bottom: 6px; }
+.landing-card .landing-tagline { color: var(--white); font-size: 13px; margin-top: 0; }
 .input-group input { letter-spacing: 0; font-weight: 400; font-family: var(--font-body); }
+.landing-card .input-group input {
+    height: 64px;
+    padding: 0 15px;
+    margin: 0 0 16px;
+    border-width: 2px;
+    border-radius: 8px;
+}
+.landing-card .input-group input.landing-name-input { height: 56px; margin-bottom: 0; font-size: 19px; }
+.landing-card .admin-toggle-wrap { margin-top: 28px; }
+.landing-card .admin-toggle { font-size: 11px; }
+.landing-card .btn-primary { height: 54px; padding: 0 15px; font-size: 12.5px; letter-spacing: 0; border-radius: 8px; }
 .input-group input:not(:placeholder-shown) { font-weight: 600; }
 
 /* ============================================================
