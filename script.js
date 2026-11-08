@@ -52,7 +52,7 @@ window.onload = function () {
     const name = sessionStorage.getItem("eagleUserName");
 
     // Redirect if direct access without code
-    if (!code) { window.location.href = "index.html"; return; }
+    if (!code) { window.location.href = "/"; return; }
 
     currentRoomID = code;
     currentUserName = name || "Anonymous";
@@ -154,7 +154,7 @@ function initSidebarResize() {
 function leaveSession() {
     if (livekitRoom) livekitRoom.disconnect();
     sessionStorage.clear();
-    window.location.href = "index.html";
+    window.location.href = "/";
 }
 
 // --- SNAPSHOT LOGIC ---
@@ -322,7 +322,7 @@ function startConnection() {
     // VALIDATION HANDLER
     socket.on('join_error', (data) => {
         alert(data.message);
-        window.location.href = "index.html";
+        window.location.href = "/";
     });
 
     socket.on("connect", () => { socket.emit("join_room", { room: currentRoomID, username: currentUserName }); });

@@ -2,8 +2,13 @@ const CACHE_NAME = 'eaglevision-v15';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/about',
+  '/privacy',
+  '/session',
   '/session.html',
+  '/workspace',
   '/workspace.html',
+  '/host',
   '/host.html',
   '/tokens.css',
   '/style.css',

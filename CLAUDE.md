@@ -23,6 +23,11 @@ here (see "Security" below).
 
 Marketing pages (index/about) use the light-blue `--mk-*` palette; the host page keeps its own dark `--host-*` tokens; the workspace uses the app tokens. Don't mix them. Contrast was audited with a script (WCAG AA) — re-run an equivalent check after color changes.
 
+**Clean URLs:** internal links and redirects use extensionless paths (`/about`, `/session`,
+`/host`, `/` for home). GitHub Pages serves `about.html` at `/about` with no redirect, so don't
+reintroduce `href="x.html"`. A plain `python3 -m http.server` doesn't do this; test with a
+server that resolves extensionless paths (e.g. `npx serve`).
+
 Body classes: `home-body` = index/about/privacy, `landing-body` = `session.html` (the
 code-entry page, despite the name), none = host/workspace.
 

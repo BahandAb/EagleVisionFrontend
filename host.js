@@ -578,7 +578,7 @@ function endSession() {
   if (livekitRoom) livekitRoom.disconnect();
   if (animFrameId) cancelAnimationFrame(animFrameId);
   if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
-  window.location.href = 'index.html';
+  window.location.href = '/';
 }
 
 // ── Utility ───────────────────────────────────

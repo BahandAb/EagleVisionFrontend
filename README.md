@@ -54,7 +54,7 @@ No special hardware is required on the student side — any modern browser on a 
 > **Note:** The browser-based host page (`host.html`) is now the primary way to host a session. (The older Android app still works but is deprecated and no longer maintained.)
 
 1. Connect the microscope camera (USB, HDMI capture card, or webcam) to your computer
-2. Go to [eaglevision.dev/host.html](https://eaglevision.dev/host.html)
+2. Go to [eaglevision.dev/host](https://eaglevision.dev/host)
 3. Select your camera, choose a resolution, and optionally set an admin key
 4. A **6-digit session code** is auto-generated — share it with your students
 5. Click **Start Session** — you are live immediately, no install required
