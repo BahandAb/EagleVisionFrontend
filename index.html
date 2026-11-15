@@ -21,7 +21,7 @@
     <link rel="preload" href="assets/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="assets/fonts/fredoka-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="style.css?v=c7c4882b">
-    <link rel="stylesheet" href="landing.css?v=7dba427b">
+    <link rel="stylesheet" href="landing.css?v=1320386a">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -301,7 +301,7 @@
             <p class="section-label">Real Samples, Real Classrooms</p>
             <h2 class="section-heading">See What's Under the Lens</h2>
             <p class="gallery-sub">Every image below was captured through EagleVision in a real session.</p>
-            <div class="gallery-grid">
+            <div class="gallery-grid" data-lightbox-gallery="galleryLightbox">
                 <button type="button" class="gallery-item" aria-label="Enlarge microscope sample">
                     <img src="assets/V2 Assets/Snapshots/snapshot (47).png" alt="Microscope sample" loading="lazy">
                 </button>
@@ -470,11 +470,11 @@
             <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous image">
                 <span class="material-icons">chevron_left</span>
             </button>
-            <img src="" alt="" class="lightbox-img" id="galleryLightboxImg">
+            <img src="" alt="" class="lightbox-img">
             <button type="button" class="lightbox-nav lightbox-next" aria-label="Next image">
                 <span class="material-icons">chevron_right</span>
             </button>
-            <p class="lightbox-caption lightbox-counter" id="galleryLightboxCount"></p>
+            <p class="lightbox-caption lightbox-counter"><span class="lightbox-count"></span></p>
         </div>
     </div>
 
@@ -578,53 +578,8 @@
         </nav>
     </footer>
 
+    <script src="lightbox.js?v=1259d8dc"></script>
     <script>
-        // Lightboxes (clamp example + sample gallery)
-        let lightboxReturnFocus = null;
-        function openLightbox(id, opener) {
-            lightboxReturnFocus = opener || document.activeElement;
-            const box = document.getElementById(id);
-            box.style.display = 'flex';
-            document.documentElement.classList.add('lightbox-open');
-            box.querySelector('[data-lightbox-close]').focus();
-        }
-        function closeLightbox(box) {
-            box.style.display = 'none';
-            document.documentElement.classList.remove('lightbox-open');
-            if (lightboxReturnFocus) lightboxReturnFocus.focus();
-        }
-        document.querySelectorAll('.lightbox-overlay').forEach(box => {
-            box.addEventListener('click', e => {
-                if (e.target === box || e.target.closest('[data-lightbox-close]')) closeLightbox(box);
-            });
-        });
-
-        const galleryItems = [...document.querySelectorAll('.gallery-item')];
-        const galleryBox = document.getElementById('galleryLightbox');
-        const galleryImg = document.getElementById('galleryLightboxImg');
-        const galleryCount = document.getElementById('galleryLightboxCount');
-        let galleryIndex = 0;
-        function showGalleryImage(i) {
-            galleryIndex = (i + galleryItems.length) % galleryItems.length;
-            const src = galleryItems[galleryIndex].querySelector('img');
-            galleryImg.src = src.getAttribute('src');
-            galleryImg.alt = src.alt;
-            galleryCount.textContent = `${galleryIndex + 1} / ${galleryItems.length}`;
-        }
-        galleryItems.forEach((item, i) => item.addEventListener('click', () => {
-            showGalleryImage(i);
-            openLightbox('galleryLightbox', item);
-        }));
-        galleryBox.querySelector('.lightbox-prev').addEventListener('click', () => showGalleryImage(galleryIndex - 1));
-        galleryBox.querySelector('.lightbox-next').addEventListener('click', () => showGalleryImage(galleryIndex + 1));
-        document.addEventListener('keydown', e => {
-            const open = [...document.querySelectorAll('.lightbox-overlay')].find(b => b.style.display === 'flex');
-            if (!open) return;
-            if (e.key === 'Escape') closeLightbox(open);
-            else if (open === galleryBox && e.key === 'ArrowLeft') showGalleryImage(galleryIndex - 1);
-            else if (open === galleryBox && e.key === 'ArrowRight') showGalleryImage(galleryIndex + 1);
-        });
-
         // Hamburger menu
         const hamburger = document.getElementById('hamburger');
         const mobileMenu = document.getElementById('mobileMenu');

@@ -21,7 +21,7 @@
     <link rel="preload" href="assets/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="assets/fonts/fredoka-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="style.css?v=c7c4882b">
-    <link rel="stylesheet" href="landing.css?v=7dba427b">
+    <link rel="stylesheet" href="landing.css?v=1320386a">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="home-body">
@@ -78,11 +78,19 @@
     <!-- EXPO GALLERY -->
     <div class="about-section">
         <h2>At the 2026 UC IT Expo</h2>
-        <div class="expo-gallery">
-            <img src="assets/ITExpo/TeamPosingInFrontOfBanner.jpg" alt="Team posing in front of the UC IT Expo banner" class="expo-photo expo-photo--wide">
-            <img src="assets/ITExpo/PhotoOfCertificates.jpg" alt="Award certificates from the UC IT Expo" class="expo-photo">
-            <img src="assets/ITExpo/WinningFirstOverall.jpg" alt="Receiving the Best of the Best award at the UC IT Expo" class="expo-photo">
-            <img src="assets/ITExpo/BahandHoldingMicroscope.jpg" alt="Bahand presenting EagleVision with the microscope" class="expo-photo">
+        <div class="expo-gallery" data-lightbox-gallery="expoLightbox" data-captions>
+            <button type="button" class="expo-item expo-item--wide" aria-label="Enlarge photo: Team posing in front of the UC IT Expo banner">
+                <img src="assets/ITExpo/TeamPosingInFrontOfBanner.jpg" alt="Team posing in front of the UC IT Expo banner" class="expo-photo" loading="lazy">
+            </button>
+            <button type="button" class="expo-item" aria-label="Enlarge photo: Award certificates from the UC IT Expo">
+                <img src="assets/ITExpo/PhotoOfCertificates.jpg" alt="Award certificates from the UC IT Expo" class="expo-photo" loading="lazy">
+            </button>
+            <button type="button" class="expo-item" aria-label="Enlarge photo: Receiving the Best of the Best award at the UC IT Expo">
+                <img src="assets/ITExpo/WinningFirstOverall.jpg" alt="Receiving the Best of the Best award at the UC IT Expo" class="expo-photo" loading="lazy">
+            </button>
+            <button type="button" class="expo-item" aria-label="Enlarge photo: Bahand presenting EagleVision with the microscope">
+                <img src="assets/ITExpo/BahandHoldingMicroscope.jpg" alt="Bahand presenting EagleVision with the microscope" class="expo-photo" loading="lazy">
+            </button>
         </div>
     </div>
 
@@ -229,6 +237,24 @@
         </nav>
     </footer>
 
+    <!-- EXPO LIGHTBOX -->
+    <div id="expoLightbox" class="lightbox-overlay" role="dialog" aria-modal="true" aria-label="UC IT Expo photo">
+        <div class="lightbox-box lightbox-box--photo">
+            <button type="button" class="lightbox-close" data-lightbox-close aria-label="Close">
+                <span class="material-icons">close</span>
+            </button>
+            <button type="button" class="lightbox-nav lightbox-prev" aria-label="Previous photo">
+                <span class="material-icons">chevron_left</span>
+            </button>
+            <img src="" alt="" class="lightbox-img">
+            <button type="button" class="lightbox-nav lightbox-next" aria-label="Next photo">
+                <span class="material-icons">chevron_right</span>
+            </button>
+            <p class="lightbox-caption lightbox-counter"><span class="lightbox-text"></span> <span class="lightbox-count"></span></p>
+        </div>
+    </div>
+
+    <script src="lightbox.js?v=1259d8dc"></script>
     <script>
         const hamburger = document.getElementById('hamburger');
         const mobileMenu = document.getElementById('mobileMenu');
