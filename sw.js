@@ -19,6 +19,7 @@ const STATIC_ASSETS = [
   '/assets/fonts/fredoka-latin-700-normal.woff2',
   '/assets/fonts/poppins-latin-400-normal.woff2',
   '/landing.css',
+  '/lightbox.js',
   '/script.js',
   '/undo.js',
   '/text-tool.js',
