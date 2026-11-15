@@ -149,6 +149,13 @@ computed-style diff over all elements, not just screenshots.
 - README still describes things (e.g. admin-key flow) that should be
   re-verified against the code after the overhaul.
 
+## Demo sessions (codes 000-009)
+
+Session codes `000`-`009` open an offline demo (`getDemoImage`/`startDemoSession` in `script.js`):
+no socket/LiveKit connection, Photo Mode with one of the 10 `DEMO_IMAGES` snapshots from
+`assets/V2 Assets/Snapshots/`. For showing the app without a microscope or a live backend. `socket`
+is replaced by an inert stub so host/broadcast code paths don't throw. Any other code connects normally.
+
 ## Annotations, undo, symbols
 
 All annotations live in the `history[]` array and are redrawn by `redrawCanvas()`. `undo.js` keeps a per-user stack of *own* actions (remote/broadcast items never enter it); text items are `{type:'text', anchor:'c', x, y (center), rot, size, id}` and are replaced by `id` when the host broadcasts an edit. Colorblind symbols are a per-device setting (`data-symbols="on"` on `<html>`, `localStorage.eagleSymbols`). Range sliders are fully custom-styled (`--pct` fill, set by `syncRangeFill`) because `accent-color` tinted the unfilled tracks inconsistently.

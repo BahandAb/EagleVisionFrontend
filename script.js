@@ -81,7 +81,8 @@ window.onload = function () {
     canvas.addEventListener('touchend', handleEnd);
     viewport.addEventListener('wheel', handleWheel, { passive: false });
 
-    startConnection();
+    const demoImage = getDemoImage(currentRoomID);
+    if (demoImage) startDemoSession(demoImage); else startConnection();
     updateTransform();
     updateEraserIcon();
 };
@@ -311,6 +312,26 @@ function resizeCanvas() { canvas.width = viewport.offsetWidth; canvas.height = v
 function clearAnnotations() { history = []; undoReset(); redrawCanvas(); }
 function toggleAnnotationVisibility() { annotationsHidden = !annotationsHidden; canvas.style.opacity = annotationsHidden ? '0' : '1'; canvas.style.pointerEvents = annotationsHidden ? 'none' : 'auto'; }
 function addToGallery(url) { const d = document.createElement('div'); d.style.cssText = `height: 100px; background-image: url('${url}'); background-size: cover; background-position: center; border-radius: 6px; border: 1px solid var(--gray-44); cursor: pointer;`; d.onclick = () => { document.getElementById('modalImage').src = url; document.getElementById('modalDownload').href = url; document.getElementById('photoModal').style.display = 'flex'; }; document.getElementById('galleryGrid').prepend(d); }
+
+// --- DEMO SESSIONS (codes 000-009) ---
+// Offline demo for showing EagleVision without a microscope or a live backend:
+// no socket/LiveKit connection, just a real EagleVision snapshot in Photo Mode.
+// All drawing, zoom, snapshot and image-adjust tools work locally.
+// Code "00N" opens DEMO_IMAGES[N]; max 10 codes (000-009).
+const DEMO_IMAGES = [47, 83, 48, 1, 12, 30, 31, 52, 62, 67]
+    .map(n => `assets/V2%20Assets/Snapshots/snapshot%20(${n}).png`);
+function getDemoImage(code) {
+    const m = /^00(\d)$/.exec(code);
+    return m ? (DEMO_IMAGES[Number(m[1])] || null) : null;
+}
+function startDemoSession(imageUrl) {
+    // Inert stand-in so host-only/broadcast code paths that touch `socket` don't throw.
+    socket = { id: 'demo', connected: false, emit() {}, on() {}, disconnect() {} };
+    document.getElementById("displaySessionCode").innerText = currentRoomID + " (DEMO)";
+    photoEl.onload = () => { resizeCanvas(); photoEl.onload = null; };
+    enterPhotoMode(imageUrl);
+    statusTag.innerText = "● DEMO";
+}
 
 // --- CONNECTION LOGIC ---
 function startConnection() {
